@@ -32,7 +32,7 @@ it, and before you change the kit itself.
 - **Refresh spins while data loads.** Pass `refreshing={q.isFetching}`, or return the refetch promise from
   `onRefresh`. `R` refreshes from anywhere on the page: not while typing, not under a dialog or the file viewer.
 - **Actions**: the primary action is a button in the toolbar; the other page actions go behind one `MoreMenu`
-  (`menu.tsx`). Never put a separate band of buttons above the table.
+  (`overlay/menu.tsx`). Never put a separate band of buttons above the table.
 - **Headline figures** (counts, the day's totals) go inline in the toolbar (`ToolbarStats` in
   `erp/panels/field_shared.tsx`), never in a band above the table.
 - **Few filters, no sidebar.** When a sidebar would hold only search and a date (or one more small select), put the
@@ -61,18 +61,18 @@ it, and before you change the kit itself.
   never in the toolbar or the sidebar. Pass `columnVisibility` + `onColumnVisibility` (from `useListState`: `L.setCols`);
   a table given neither keeps its own choice per table in the browser.
 - **`DenseTable` is the page's list** (sorting, paging, column settings, loading overlay, selection, row menu).
-  **`MiniTable`** (`forms.tsx`) is a small, already-loaded grid inside a panel, form or card (no paging or
+  **`MiniTable`** (`data/minitable.tsx`) is a small, already-loaded grid inside a panel, form or card (no paging or
   sorting; `rowClassName` highlights a row). Never hand-write a `<table>` except for print layouts.
 
 ### Inputs
 
-- **2–4 choices: a `ToggleGroup`** (`primitives.tsx`). Every choice is visible, counts are optional, and
+- **2–4 choices: a `ToggleGroup`** (`inputs/toggle.tsx`). Every choice is visible, counts are optional, and
   there is **no "All" button**: nothing picked means all, and clicking the picked choice again clears it. Use a select
   for 5 or more choices, and an `Autocomplete` for searchable lists. A view switch (not a filter) is a `Seg`.
-- **Search-then-pick is one `Autocomplete`** (`autocomplete.tsx`; `useKeepPicked` for server search; see
+- **Search-then-pick is one `Autocomplete`** (`inputs/autocomplete.tsx`; `useKeepPicked` for server search; see
   `RefPicker` in `erp/panels/field_shared.tsx`). Never put a search input next to a `<select>` or above a list of
   result buttons. This holds across the whole project.
-- **Dates** use the kit date-range picker (`daterange.tsx`): its shortcuts sit in two rows no wider than the
+- **Dates** use the kit date-range picker (`inputs/daterange.tsx`): its shortcuts sit in two rows no wider than the
   calendar, and a second click on the field closes it.
 - Forms use `FormRow` (label, `required`, `error`, `hint`) and `SaveBar`. Validate before sending; show a toast on
   success.
@@ -83,14 +83,14 @@ it, and before you change the kit itself.
 
 | Need | Use |
 | --- | --- |
-| Open an image or a file | `useFileViewer` + `FileThumb` (`fileviewer.tsx`); `viewerFiles` / `fileUrl` (`erp/files.ts`). Several files open as one list (← → move, zoom, rotate, PDFs inline). Never `window.open` a photo or a hand-made lightbox. |
-| Pick or upload files | `FileInput` (`fileinput.tsx`): drag and drop, `accept`, `maxSizeMb`, `maxFiles`, previews in the viewer |
-| Status or tag chip | `StatusChip` / `ToneChip` (`chip.tsx`) with plain-word labels; no local `TONE_VAR` or hex colours |
-| Dates, money, numbers | `day`, `dayTime`, `hhmm`, `monthYear`, `ago`, `num`, `rupees`, `mt`, `kg` (`format.ts`) |
-| Empty state | `Empty` (`empty.tsx`; `compact` inside panels) |
+| Open an image or a file | `useFileViewer` + `FileThumb` (`display/fileviewer.tsx`); `viewerFiles` / `fileUrl` (`erp/files.ts`). Several files open as one list (← → move, zoom, rotate, PDFs inline). Never `window.open` a photo or a hand-made lightbox. |
+| Pick or upload files | `FileInput` (`inputs/fileinput.tsx`): drag and drop, `accept`, `maxSizeMb`, `maxFiles`, previews in the viewer |
+| Status or tag chip | `StatusChip` / `ToneChip` (`display/chip.tsx`) with plain-word labels; no local `TONE_VAR` or hex colours |
+| Dates, money, numbers | `day`, `dayTime`, `hhmm`, `monthYear`, `ago`, `num`, `rupees`, `mt`, `kg` (`core/format.ts`) |
+| Empty state | `Empty` (`display/empty.tsx`; `compact` inside panels) |
 | Confirm a risky action | `ConfirmPop` / `Action.confirm` / the row menu's `confirm`. Destructive deletes pass `typed: "DELETE"`. Never `window.confirm`, `alert` or `prompt`. |
 | Download a file | `saveBlob` (`data/reports.ts`) |
-| Toast | `toast` (`toast.tsx`) |
+| Toast | `toast` (`overlay/toast.tsx`) |
 
 When the kit lacks something, add it to the kit once rather than building it into a page.
 
@@ -107,7 +107,7 @@ When the kit lacks something, add it to the kit once rather than building it int
   - Don't give a page a second tab row when it already has a view switch.
 - **Module landing.** A module tab opens the last page used in that module (or its first allowed page); the M logo
   opens the module's page list (`/<module>/all`).
-- **Detail view setting** (side panel, popup or full page, in `appearance.tsx`): leaving full page returns to
+- **Detail view setting** (side panel, popup or full page, in `layout/appearance.tsx`): leaving full page returns to
   whichever of side panel or popup the person last chose.
 
 ### Words
