@@ -2,7 +2,7 @@ import { RefreshCw } from "lucide-react";
 import { createContext, type ReactNode, type RefObject, useContext, useEffect, useRef, useState } from "react";
 import { CollapseButton, SearchBox } from "./sidebar.js";
 import { useClientLayoutEffect } from "./saved.js";
-import { localeNumber } from "../core/locale.js";
+import { localeNumber, useKitLocale } from "../core/locale.js";
 import { Term } from "../display/term.js";
 import { dialogOpen, listOpen } from "../overlay/dialog.js";
 
@@ -112,6 +112,7 @@ export function Toolbar({
   tabs?: ReactNode;
   children?: ReactNode;
 }) {
+  useKitLocale(); // render again when the locale changes
   const hostTabs = useContext(ToolbarTabsContext);
   tabs ??= hostTabs;
   const [pending, setPending] = useState(false);

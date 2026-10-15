@@ -28,6 +28,7 @@ export function FileInput({
   /** e.g. "image/*", "image/*,application/pdf", ".xlsx" */
   accept?: string;
   multiple?: boolean;
+  /** the most files in all, the `existing` ones included */
   maxFiles?: number;
   maxSizeMb?: number;
   /** files already saved (an edit form): shown first, opened in the viewer */
@@ -72,9 +73,10 @@ export function FileInput({
       next = multiple ? [...next, f] : [f];
       changed = true;
     }
-    if (maxFiles && next.length > maxFiles) {
+    const room = maxFiles ? Math.max(0, maxFiles - (existing?.length ?? 0)) : Infinity;
+    if (next.length > room) {
       errs.push(`At most ${maxFiles} files`);
-      next = next.slice(0, maxFiles);
+      next = next.slice(0, room);
       changed = true;
     }
     setErrors(errs);
@@ -82,6 +84,7 @@ export function FileInput({
   };
 
   const all: ViewerFile[] = [...(existing ?? []), ...previews];
+  const showHint = !!(hint || accept || maxSizeMb || (maxFiles && multiple));
   const prompt = multiple
     ? "Drop files here or click to choose"
     : files.length
@@ -96,7 +99,7 @@ export function FileInput({
         id={zoneId}
         aria-label={label}
         aria-labelledby={!label && field ? `${field.labelId} ${promptId}` : undefined}
-        aria-describedby={joinIds(field?.describedBy, hint || accept || maxSizeMb ? hintId : undefined)}
+        aria-describedby={joinIds(field?.describedBy, showHint ? hintId : undefined)}
         onClick={() => ref.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -111,7 +114,7 @@ export function FileInput({
       >
         <Upload aria-hidden />
         <span id={promptId}>{prompt}</span>
-        {(hint || accept || maxSizeMb) && (
+        {showHint && (
           <span className="mds-muted mds-fileinput-hint" id={hintId}>
             {hint ??
               [accept && describeAccept(accept), maxSizeMb && `up to ${maxSizeMb} MB`, maxFiles && multiple && `max ${maxFiles}`]

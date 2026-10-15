@@ -3,7 +3,7 @@ import { Pop } from "../overlay/pop.js";
 
 /**
  * A flow strip in lanes (a record's steps, grouped by who does them). Unlike the panel's `FlowStrip` (one
- * record's stages in a row of bars), this draws what an engine says: lanes of nodes, `→` where a node needs the one
+ * record's stages in a row of bars), this draws a dependency graph: lanes of nodes, `→` where a node needs the one
  * before it, `||` where it runs beside it, and the nodes of another lane it waits for as an "after …" note. A node is a
  * button (open it) or, with `pop`, the trigger of a small popover (the reasons a blocked node waits on). Nodes that are
  * not needed are shown dimmed and cannot be focused.
@@ -20,11 +20,11 @@ export type LaneNodeState = "done" | "todo" | "blocked" | "not_needed";
 export type LaneNode = {
   key: string;
   state: LaneNodeState;
-  /** a second glyph beside the state's, for a strip that tracks a record in two places (the Vehicles two ticks) */
+  /** a second glyph beside the state's, for a strip that tracks a step in two places (here and in another system) */
   mark?: ReactNode;
-  /** the small mono tag before the label (whose book) */
+  /** the small mono tag before the label (which team or book the step belongs to) */
   tag?: string | null;
-  /** the node's word (Purchase, DN, Freight) */
+  /** the node's word (Purchase, Delivery note, Freight) */
   what: string;
   /** after the arrow (a party), already shortened; `full` goes into the title */
   to?: string | null;

@@ -82,15 +82,18 @@ export function Trigger({
   children,
   setRef,
   getProps,
+  noTitle,
 }: {
   children: ReactNode;
   setRef: Ref<Element>;
   getProps: (user?: HTMLProps<Element>) => Record<string, unknown>;
+  /** drop the element's native `title` (a Tip shows the hint instead; both would show at once) */
+  noTitle?: boolean;
 }) {
   const el = isValidElement(children)
     ? (children as ReactElement<Record<string, unknown> & { ref?: Ref<Element> }>)
     : null;
   const ref = useMergeRefs([setRef, el?.props.ref ?? null]);
   if (!el) return <span ref={ref as Ref<HTMLSpanElement>} {...getProps()}>{children}</span>;
-  return cloneElement(el, { ...getProps(el.props as HTMLProps<Element>), ref });
+  return cloneElement(el, { ...getProps(el.props as HTMLProps<Element>), ...(noTitle ? { title: "" } : {}), ref });
 }

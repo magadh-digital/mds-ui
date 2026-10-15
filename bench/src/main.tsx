@@ -38,6 +38,8 @@ import {
   Avatar,
   Button,
   Checkbox,
+  ActionRow,
+  InlineInput,
   DateInput,
   IconButton,
   Input,
@@ -106,6 +108,8 @@ function App() {
   const [pick, setPick] = useState("");
   const [note, setNote] = useState("");
   const [agree, setAgree] = useState(false);
+  const [rate, setRate] = useState("52.50");
+  const [acted, setActed] = useState("");
   const [day1, setDay1] = useState("");
   const [products, setProducts] = useState<Array<"tmt" | "coil" | "sheet" | "pipe">>([]);
   const [line, setLine] = useState<"magadh" | "mahan">("magadh");
@@ -275,7 +279,19 @@ function App() {
             <Select aria-label="Unit" value={pick} onChange={(e) => setPick(e.target.value)} placeholder="All units" options={[{ value: "kg", label: "Kilogram" }, { value: "mt", label: "Metric ton" }]} />
             <Textarea aria-label="Note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note" />
             <Checkbox label="Agree" count={7} checked={agree} onChange={setAgree} />
-            <Out id="controls-out" v={{ text, pick, note, agree, busy }} />
+            <div data-testid="fixes" className="mds-vstack" style={{ gap: 8 }}>
+              <Checkbox label="Accept the terms" checked={false} onChange={() => {}} invalid />
+              {/* the caller refuses "no": the field goes back to the saved rate */}
+              <InlineInput label="Unit rate" value={rate} onCommit={(v) => (v === "no" ? false : setRate(v))} />
+              <ActionRow
+                buttons={[
+                  { key: "approve", label: "Approve", primary: true, onClick: () => setActed("approve") },
+                  { key: "edit", label: "Edit", onClick: () => setActed("edit") },
+                  { key: "print", label: "Print", onClick: () => setActed("print") },
+                ]}
+              />
+            </div>
+            <Out id="controls-out" v={{ text, pick, note, agree, busy, rate, acted }} />
           </div>
           <div className="mds-vstack" style={{ gap: 8 }}>
             <h4>Date, confirm, toggles</h4>

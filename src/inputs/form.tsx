@@ -166,7 +166,8 @@ export function SettingsSection({
 
 /**
  * A text input that reports its value on blur or Enter, for inline edits in rows. A new `value` from the caller shows
- * only while the field is not being edited, so a refetch never overwrites what is being typed.
+ * only while the field is not being edited, so a refetch never overwrites what is being typed. When `onCommit`
+ * refuses the text (returns or resolves `false`, or throws / rejects), the field goes back to `value`.
  */
 export function InlineInput({
   value,
@@ -177,7 +178,7 @@ export function InlineInput({
   label,
 }: {
   value: string;
-  onCommit: (v: string) => void;
+  onCommit: (v: string) => unknown;
   placeholder?: string;
   type?: "text" | "number" | "password";
   width?: string;
@@ -187,9 +188,18 @@ export function InlineInput({
   const [v, setV] = useState(value);
   const ref = useRef<HTMLInputElement>(null);
   const editing = useRef(false);
+  const latest = useRef(value);
+  latest.current = value;
   useEffect(() => {
     if (!editing.current) setV(value);
   }, [value]);
+  const commit = async (text: string) => {
+    try {
+      if ((await onCommit(text)) === false && !editing.current) setV(latest.current);
+    } catch {
+      if (!editing.current) setV(latest.current);
+    }
+  };
   return (
     <input
       ref={ref}
@@ -205,7 +215,7 @@ export function InlineInput({
       onChange={(e) => setV(e.target.value)}
       onBlur={() => {
         editing.current = false;
-        if (v !== value) onCommit(v);
+        if (v !== value) void commit(v);
       }}
       onKeyDown={(e) => {
         if (e.key === "Enter") ref.current?.blur();

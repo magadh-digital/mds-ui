@@ -266,6 +266,7 @@ export function CommandPalette({
       restoreFocus.current = document.activeElement;
       setQ(st.q);
       setActive(0);
+      inputRef.current?.focus(); // at once, so the first key lands in the box
       setTimeout(() => inputRef.current?.select(), 0);
     } else {
       const el = restoreFocus.current as HTMLElement | null;
@@ -273,6 +274,16 @@ export function CommandPalette({
         el.focus();
     }
   }, [st]);
+
+  // Esc closes it even before the focus has reached the box (the box's own handler stops it from coming here twice)
+  useEffect(() => {
+    if (!st.open) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !e.defaultPrevented) palette.close();
+    };
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [st.open]);
 
   // the palette searches static things only (pages, actions, shortcuts, appearance): no server lookups while typing
 

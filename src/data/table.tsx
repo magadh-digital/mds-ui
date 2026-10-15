@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight, ChevronUp, Loader2 } from "lucide-react";
-import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, Fragment, type ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { type ColumnDef, type ColumnSizingState, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, type PaginationState, type RowData, type SortingState, useReactTable, type VisibilityState } from "@tanstack/react-table";
 import { ColumnsPop, columnIdOf, columnLabel, listedColumns } from "./columns.js";
 import { Pagination } from "./pagination.js";
@@ -7,7 +7,7 @@ import { mergeOrder, useDragSort } from "./dragsort.js";
 import { isRecord, readSaved, useClientLayoutEffect, writeSaved } from "./saved.js";
 import { Term } from "../display/term.js";
 import { dialogOpen } from "../overlay/dialog.js";
-import { type MenuAnchor, RowMenuButton } from "../overlay/menu.js";
+import { type MenuAnchor, RowMenuButton, useAnyMenuOpen } from "../overlay/menu.js";
 import { storageKey } from "../core/storage.js";
 
 declare module "@tanstack/react-table" {
@@ -159,8 +159,12 @@ export function DenseTable<T>({
 
   // the kit's own columns read the page's latest selection / expand / menu through this ref, so they are built once
   // per `columns` (not on every parent render, which would remount every cell)
-  const live = useRef({ selection, selectedSet, selectable, expand, expandedSet, onRowContextMenu });
-  live.current = { selection, selectedSet, selectable, expand, expandedSet, onRowContextMenu };
+  // the row whose ⋯ opened the menu on screen: its button says it is expanded until the menu closes
+  const [menuRow, setMenuRow] = useState<string | null>(null);
+  const anyMenuOpen = useAnyMenuOpen();
+  const onRowMenuOpened = setMenuRow;
+  const live = useRef({ selection, selectedSet, selectable, expand, expandedSet, onRowContextMenu, onRowMenuOpened });
+  live.current = { selection, selectedSet, selectable, expand, expandedSet, onRowContextMenu, onRowMenuOpened };
   const hasSelection = !!selection;
   const hasExpand = !!expand;
   const hasMenu = !!onRowContextMenu;
@@ -278,9 +282,11 @@ export function DenseTable<T>({
         meta: { cls: "rowmenu" },
         header: "",
         cell: ({ row }) => (
-          <RowMenuButton
+          <RowMenuCell
+            rowId={row.id}
             onOpen={(el) => {
               const r = el.getBoundingClientRect();
+              live.current.onRowMenuOpened(row.id);
               live.current.onRowContextMenu?.(row.original, {
                 clientX: r.left,
                 clientY: r.bottom + 2,
@@ -481,7 +487,7 @@ export function DenseTable<T>({
   };
 
   return (
-    <>
+    <MenuRowContext.Provider value={anyMenuOpen ? menuRow : null}>
       <div className={`mds-table-host${bare ? " bare" : ""}`}>
       <div ref={wrapRef} className={`mds-table-wrap${wrapperClassName ? ` ${wrapperClassName}` : ""}`}>
         <table
@@ -752,6 +758,12 @@ export function DenseTable<T>({
         }
       />
       )}
-    </>
+    </MenuRowContext.Provider>
   );
+}
+
+const MenuRowContext = createContext<string | null>(null);
+/** the row's `⋯`: expanded while the menu it opened is on screen */
+function RowMenuCell({ rowId, onOpen }: { rowId: string; onOpen: (el: Element) => void }) {
+  return <RowMenuButton onOpen={onOpen} expanded={useContext(MenuRowContext) === rowId} />;
 }

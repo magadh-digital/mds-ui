@@ -232,7 +232,7 @@ export function LocaleStoragePage() {
   return (
     <Page
       title="Locale and storage"
-      lead="Two app-wide settings, set once before the first render: how numbers, money and weeks read, and where the reader's saved choices live."
+      lead="Two app-wide settings, usually set before the first render: how numbers, money and weeks read, and where the reader's saved choices live."
     >
       <Section title="Examples">
         <Demo title="One set of values in three locales" source={localeDemo}>
@@ -249,6 +249,7 @@ export function LocaleStoragePage() {
           rows={[
             { name: "configureLocale", sig: "(l: Partial<KitLocale>) => void", does: "Merges into the locale in force. UIProvider's locale prop calls it." },
             { name: "kitLocale", sig: "() => Readonly<KitLocale>", does: "The locale in force." },
+            { name: "useKitLocale", sig: "() => Readonly<KitLocale>", does: "The locale in force, in a component: it renders again when configureLocale changes the locale." },
             { name: "localeNumber", sig: "(n: number, opts?: Intl.NumberFormatOptions) => string", does: "A number in the locale, with any Intl options; num and money are built on it." },
           ]}
         />
@@ -263,8 +264,9 @@ export function LocaleStoragePage() {
           ]}
         />
         <p>
-          The setting is read when a value is formatted; components do not re-render when it changes. Set it before the
-          first render.
+          Set it before the first render, or change it later: the kit's components that show numbers or dates render
+          again. A component of yours that formats with <code>num()</code>, <code>money()</code> or{" "}
+          <code>date()</code> calls <code>useKitLocale()</code> to do the same.
         </p>
       </Section>
       <Section title="Storage">

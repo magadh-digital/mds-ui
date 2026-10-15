@@ -150,8 +150,8 @@ export function TextFieldsPage() {
           </li>
           <li>
             <code>Checkbox</code> calls <code>onChange(checked)</code> with a boolean, not the event. Its <code>label</code>{" "}
-            is required and clickable; <code>count</code> shows a muted number after it, in the app's locale. It has no{" "}
-            <code>invalid</code> state and does not read a FormRow's error.
+            is required and clickable; <code>count</code> shows a muted number after it, in the app's locale.{" "}
+            <code>invalid</code> (or a FormRow's error) turns the box and its label red.
           </li>
         </ul>
       </Section>
@@ -198,9 +198,8 @@ export function FormsPage() {
           <li>
             The kit control inside registers itself with the row. The label's <code>htmlFor</code> points at it, and{" "}
             <code>hint</code> and <code>error</code> become its <code>aria-describedby</code>. This works for{" "}
-            <code>Input</code>, <code>Select</code>, <code>Textarea</code>, <code>Autocomplete</code>, <code>DateInput</code>{" "}
-            and <code>FileInput</code>. A <code>DateRange</code> takes the row's label as its name, but not the hint or
-            error.
+            <code>Input</code>, <code>Select</code>, <code>Textarea</code>, <code>Checkbox</code>, <code>Autocomplete</code>,{" "}
+            <code>DateInput</code>, <code>DateRange</code> and <code>FileInput</code>.
           </li>
           <li>
             For a control that is not the kit's, give it an <code>id</code> and pass the same id as <code>htmlFor</code>.
@@ -237,6 +236,10 @@ export function FormsPage() {
         <ul>
           <li>
             Calls <code>onCommit</code> on blur or Enter, and only when the text changed. Esc puts the old value back.
+          </li>
+          <li>
+            When <code>onCommit</code> refuses the text (returns or resolves <code>false</code>, or throws), the field
+            goes back to <code>value</code>.
           </li>
           <li>
             A new <code>value</code> from the caller shows only while the field is not being edited, so a refetch never
@@ -411,12 +414,12 @@ export function DateRangePage() {
             range, the second click sets the other end (in either order) and closes.
           </li>
           <li>
-            Shortcuts: Today, Yesterday, 7 days and 30 days (both ending today), This month, Last month, This FY and All.
+            Shortcuts: Today, Yesterday, 7 days and 30 days (both ending today), This month, Last month, Financial year and All.
             One click applies it and closes; the multi-day ones switch to Range. The shortcut that matches the value is
             highlighted.
           </li>
           <li>
-            "This FY" runs from the locale's <code>fyStartMonth</code> (April by default) for twelve months; its hover
+            "Financial year" runs from the locale's <code>fyStartMonth</code> (April by default) for twelve months; its hover
             names the months ("Apr to Mar").
           </li>
           <li>
@@ -649,7 +652,7 @@ export function FileInputPage() {
           <li>
             <code>accept</code> takes extensions (<code>.xlsx</code>), wildcards (<code>image/*</code>) and exact types (
             <code>application/pdf</code>), comma-separated. <code>maxSizeMb</code> refuses larger files.{" "}
-            <code>maxFiles</code> keeps the first ones and says "At most N files".
+            <code>maxFiles</code> counts the <code>existing</code> files too, keeps the first ones and says "At most N files".
           </li>
           <li>
             A refused file is named under the zone with the reason, and does not change the list.
@@ -725,7 +728,7 @@ type Action = {
         <ul>
           <li>
             The first two <code>buttons</code> show as full-width buttons (<code>primary</code> fills the one that matters).
-            Any further buttons are not shown, so put them in <code>links</code>.
+            Any further buttons become the first of the <code>links</code>.
           </li>
           <li>
             <code>links</code> sit in a second row as text links and wrap when they run out of room.

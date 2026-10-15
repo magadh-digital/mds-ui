@@ -30,7 +30,7 @@ export function Tip({
   ]);
   return (
     <>
-      <Trigger setRef={refs.setReference} getProps={getReferenceProps}>
+      <Trigger setRef={refs.setReference} getProps={getReferenceProps} noTitle>
         {children}
       </Trigger>
       {motion.isMounted && (

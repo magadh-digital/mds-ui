@@ -357,7 +357,7 @@ export function CardsChartsPage() {
             optional provider (an initial and a name) and a row of icon + value figures.
           </li>
           <li>
-            <code>offline</code> dims the sub-label and provider and replaces the figures with the word "Quiet".
+            <code>offline</code> dims the sub-label and provider and replaces the figures with <code>offlineNote</code> ("No recent activity" by default).
           </li>
           <li>With <code>onClick</code> the card is a button (Enter or Space opens it); without, it is plain content.</li>
           <li>Lay cards out in a <code>{'<div className="mds-cards">'}</code> grid (cards at least 230 px wide).</li>
@@ -366,8 +366,10 @@ export function CardsChartsPage() {
       <Section title="SeriesChart">
         <ul>
           <li>
-            Several series on one x axis. Each point's <code>x</code> is a day string (<code>YYYY-MM-DD</code>); the axis shows{" "}
-            <code>MM-DD</code>, at most about 8 labels. A missing day counts as 0.
+            Several series on one x axis. Day strings (<code>YYYY-MM-DD</code>) are sorted and read "15 Oct"; other{" "}
+            <code>x</code> values keep the order they first appear in. <code>formatX</code> changes how a value reads. The
+            chart measures its width, so the axis labels never stretch, with about one label per 90 px. A missing point
+            counts as 0. <code>label</code> is its accessible name.
           </li>
           <li>The y axis rounds up to 1, 2 or 5 × a power of ten, with short labels (1.2k).</li>
           <li>One series gets a faint area under its line. Colours come from the theme unless a series gives <code>color</code>.</li>
@@ -382,7 +384,8 @@ export function CardsChartsPage() {
             <code>onOpen</code> has a chevron and opens on click, Enter or Space.
           </li>
           <li>
-            <code>IconStrip</code>: 40 px tiles with a count above the icon and a truncated label below; an empty list shows "—".
+            <code>IconStrip</code>: tiles with a count above the icon and a truncated label below; a tile with{" "}
+            <code>onClick</code> is a button. An empty list shows "—".
           </li>
         </ul>
       </Section>

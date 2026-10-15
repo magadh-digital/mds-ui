@@ -230,6 +230,17 @@ describe("Popovers", () => {
     expect(await out("pops-out")).toContain('"confirmed":"deleted"');
     await page.keyboard.press("Escape");
   });
+  test("ConfirmPop: Enter in the typed field confirms once the word is right", async () => {
+    await page.click('[data-testid="confirm-trigger"]');
+    const field = 'input[aria-label="Type DELETE to confirm"]';
+    await page.waitForSelector(field);
+    await page.type(field, "DELE");
+    await page.keyboard.press("Enter");
+    expect(await visible(".mds-confirm")).toBe(true); // not yet
+    await page.type(field, "TE");
+    await page.keyboard.press("Enter");
+    expect(await gone(".mds-confirm")).toBe(true);
+  });
 });
 
 describe("DateRange (the kit's calendar)", () => {
@@ -318,6 +329,26 @@ describe("Tier 1: controls, DateInput, ConfirmDialog, toggles, chips, stats", ()
     const v = JSON.parse(await out("controls-out"));
     expect([v.pick, v.note, v.agree]).toEqual(["mt", "hello", true]);
     expect(await page.$eval('[data-testid="more"] .mds-check .count', (e) => e.textContent)).toBe("7");
+  });
+  test("Checkbox invalid; InlineInput goes back when refused; ActionRow keeps a third button as a link", async () => {
+    const F = '[data-testid="fixes"]';
+    expect(await page.$eval(`${F} .mds-check`, (e) => [e.classList.contains("invalid"), e.querySelector("input")!.getAttribute("aria-invalid")])).toEqual([true, "true"]);
+    const rate = `${F} input[aria-label="Unit rate"]`;
+    await page.click(rate);
+    await page.$eval(rate, (e) => (e as HTMLInputElement).select());
+    await page.keyboard.type("no");
+    await page.keyboard.press("Enter");
+    await sleep(50);
+    expect(await page.$eval(rate, (e) => (e as HTMLInputElement).value)).toBe("52.50");
+    await page.click(rate);
+    await page.$eval(rate, (e) => (e as HTMLInputElement).select());
+    await page.keyboard.type("55");
+    await page.keyboard.press("Enter");
+    await sleep(50);
+    expect(JSON.parse(await out("controls-out")).rate).toBe("55");
+    expect(await page.$$eval(`${F} .mds-btn`, (b) => b.map((x) => x.textContent))).toEqual(["Approve", "Edit"]);
+    await page.click(`${F} .mds-link`);
+    expect(JSON.parse(await out("controls-out")).acted).toBe("print");
   });
   test("DateInput: picks a day, greys out days outside min/max, Today, Clear", async () => {
     const trigger = '[data-testid="dateinput"] button.daterange';
@@ -448,6 +479,16 @@ describe("Toolbar, table, menus", () => {
     await row!.click({ button: "right" });
     await page.click(".mds-ctxmenu button");
     expect(await out("menu-out")).toBe("view Partner 30");
+  });
+  test("the row's ⋯ says it is expanded while its menu is open", async () => {
+    const dots = `${TABLE} tbody tr:first-child td.rowmenu button`;
+    expect(await page.$eval(dots, (e) => e.getAttribute("aria-expanded"))).toBe("false");
+    await page.click(dots);
+    await page.waitForSelector(".mds-ctxmenu");
+    expect(await page.$eval(dots, (e) => e.getAttribute("aria-expanded"))).toBe("true");
+    await page.keyboard.press("Escape");
+    expect(await gone(".mds-ctxmenu")).toBe(true);
+    expect(await page.$eval(dots, (e) => e.getAttribute("aria-expanded"))).toBe("false");
   });
   test("file viewer: opens, arrow moves, Esc closes", async () => {
     await page.click('[data-testid="misc"] .mds-fv-tile');

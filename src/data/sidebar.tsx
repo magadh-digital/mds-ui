@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp, Info, type LucideIcon, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { type ReactNode, type Ref, useEffect, useRef, useState } from "react";
-import { localeNumber } from "../core/locale.js";
+import { localeNumber, useKitLocale } from "../core/locale.js";
 import { type Tone } from "../core/types.js";
 import { Dot } from "../display/dot.js";
 import { Term } from "../display/term.js";
@@ -231,6 +231,7 @@ export function CountCheckbox({
   /** tree depth: children indent under their parent */ level?: number;
   /** parent rows of a tree */ strong?: boolean;
 }) {
+  useKitLocale(); // render again when the locale changes
   const disabled = count === 0 && !checked && !indeterminate;
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {

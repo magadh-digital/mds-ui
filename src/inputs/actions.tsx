@@ -1,11 +1,11 @@
 import { type ReactNode } from "react";
 import { type Action } from "../core/types.js";
 import { ActionConfirm } from "../overlay/confirm.js";
-import { localeNumber } from "../core/locale.js";
+import { localeNumber, useKitLocale } from "../core/locale.js";
 
 /**
  * Panel actions: at most two outlined buttons (`primary` fills the one that matters), the rest as text links
- * in a second row. Disabled actions carry a title that says why. An action may bring its own element
+ * in a second row; `buttons` past the second join the front of that row rather than being dropped. Disabled actions carry a title that says why. An action may bring its own element
  * (a ConfirmPop) instead of an onClick.
  */
 export function ActionRow({
@@ -15,6 +15,7 @@ export function ActionRow({
   buttons: Array<Action>;
   links?: Array<Action>;
 }) {
+  const rest = [...buttons.slice(2), ...(links ?? [])];
   return (
     <div className="mds-vstack" style={{ gap: "var(--mds-sp-2)" }}>
       {buttons.length > 0 && (
@@ -57,12 +58,12 @@ export function ActionRow({
           )}
         </div>
       )}
-      {links && links.length > 0 && (
+      {rest.length > 0 && (
         <div
           className="mds-hstack"
           style={{ flexWrap: "wrap", gap: "var(--mds-sp-3)" }}
         >
-          {links.map((a) =>
+          {rest.map((a) =>
             a.element ? (
               <span key={a.key}>{a.element}</span>
             ) : a.confirm ? (
@@ -123,6 +124,7 @@ export function BulkBar({
   onClear: () => void;
   unit?: string;
 }) {
+  useKitLocale(); // render again when the locale changes
   if (count === 0) return null;
   const list = (actions ?? []).filter(
     (a) => a.onClick || a.confirm || a.element,

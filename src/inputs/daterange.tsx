@@ -1,7 +1,7 @@
 import { autoUpdate, flip, FloatingFocusManager, FloatingPortal, offset, shift, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
 import { useState } from "react";
 import { date, type KitDate } from "../core/date.js";
-import { kitLocale } from "../core/locale.js";
+import { kitLocale, useKitLocale } from "../core/locale.js";
 import { CalendarMonth as Month, DateTrigger as Trigger, iso } from "./calendar.js";
 import { useFieldControl } from "./field.js";
 import { Seg } from "./seg.js";
@@ -80,7 +80,7 @@ const PRESETS: Array<{ key: PresetKey; label: string; title: string }> = [
   { key: "30d", label: "30 days", title: "Last 30 days" },
   { key: "month", label: "This month", title: "This month" },
   { key: "last_month", label: "Last month", title: "Last month" },
-  { key: "fy", label: "This FY", title: "This financial year" },
+  { key: "fy", label: "Financial year", title: "This financial year" },
   { key: "all", label: "All", title: "No date limit" },
 ];
 const same = (a: RangeValue, b: RangeValue) =>
@@ -108,6 +108,7 @@ export function DateRange({
   emptyLabel = "All time",
   presets,
   label,
+  invalid,
 }: {
   value: RangeValue;
   onChange: (v: RangeValue) => void;
@@ -116,8 +117,12 @@ export function DateRange({
   presets?: Array<PresetKey>;
   /** the field's accessible name, read before the dates ("Bill dates, Oct 1, 2026 – Oct 15, 2026") */
   label?: string;
+  /** marks the field as wrong (red border, aria-invalid); inside a FormRow the row's error does it */
+  invalid?: boolean;
 }) {
+  useKitLocale(); // render again when the locale changes
   const { id: fieldId, field } = useFieldControl();
+  const bad = invalid ?? field?.invalid ?? false;
   const [open, setOpenState] = useState(false);
   const [mode, setMode] = useState<Mode>(
     value.from && value.to && value.from !== value.to ? "range" : "day",
@@ -223,7 +228,7 @@ export function DateRange({
     </div>
   );
   return (
-    <div className="mds-daterange-root">
+    <div className={`mds-daterange-root${bad ? " invalid" : ""}`}>
       <div className="mds-daterange-wrap">
         <Trigger
           ref={refs.setReference}
@@ -231,6 +236,8 @@ export function DateRange({
           label={text}
           name={label}
           labelledBy={field?.labelId}
+          aria-describedby={field?.describedBy}
+          aria-invalid={bad || undefined}
           pending={!!draft}
           empty={!isSet && !draft}
           open={open}

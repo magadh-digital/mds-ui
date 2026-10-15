@@ -6,7 +6,7 @@
 import { Calendar, X } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type Ref } from "react";
 import { date, type KitDate } from "../core/date.js";
-import { kitLocale } from "../core/locale.js";
+import { useKitLocale } from "../core/locale.js";
 
 /** @internal a day as the controls store it: "2026-10-15" */
 export const iso = (d: KitDate | Date) => date(d).format("YYYY-MM-DD");
@@ -57,7 +57,7 @@ export function CalendarMonth({
   /** the latest day that can be picked ("YYYY-MM-DD") */
   max?: string;
 }) {
-  const { locale, weekStartsOn } = kitLocale();
+  const { locale, weekStartsOn } = useKitLocale(); // renders again when the locale changes
   const t = useMemo(() => names(locale), [locale]);
   const today = iso(date());
   const first = view.startOf("month");

@@ -6,7 +6,7 @@
  */
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
-import { localeNumber } from "../core/locale.js";
+import { localeNumber, useKitLocale } from "../core/locale.js";
 
 export type PageState = { pageIndex: number; pageSize: number };
 
@@ -32,6 +32,7 @@ export function Pagination({
   /** controls at the right, before "Rows Per Page" (the table's Customize columns) */
   extra?: ReactNode;
 }) {
+  useKitLocale(); // render again when the locale changes
   const pages = Math.max(1, Math.ceil(total / Math.max(pageSize, 1)));
   pageIndex = Math.min(Math.max(pageIndex, 0), pages - 1);
   const from = total === 0 ? 0 : pageIndex * pageSize + 1;

@@ -94,7 +94,11 @@
   color: var(--mds-c-text);
 }
 
-.mds-tile:hover {
+.mds-tile.static {
+  cursor: default;
+}
+
+.mds-tile:not(.static):hover {
   background: var(--mds-c-hover);
 }
 

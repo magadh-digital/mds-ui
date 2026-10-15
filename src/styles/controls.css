@@ -314,6 +314,15 @@
   color: var(--mds-c-muted);
 }
 
+.mds-check.invalid {
+  color: var(--mds-c-error);
+}
+
+.mds-check.invalid input {
+  outline: 1px solid var(--mds-c-error);
+  outline-offset: 1px;
+}
+
 .mds-check.disabled {
   color: var(--mds-c-neutral);
   cursor: default;

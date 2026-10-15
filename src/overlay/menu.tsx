@@ -1,5 +1,5 @@
 import { AlertTriangle, type LucideIcon, MoreHorizontal } from "lucide-react";
-import { type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { type Action, type ConfirmSpec } from "../core/types.js";
 import { ActionConfirm } from "./confirm.js";
@@ -98,6 +98,17 @@ export function useContextMenu() {
   };
 }
 
+// whether a ContextMenu is on screen, for a `⋯` button to say it is expanded while its menu is open
+let menusOpen = 0;
+const menuListeners = new Set<() => void>();
+const subscribeMenus = (fn: () => void) => {
+  menuListeners.add(fn);
+  return () => menuListeners.delete(fn);
+};
+/** @internal true while any ContextMenu is open */
+export const useAnyMenuOpen = () =>
+  useSyncExternalStore(subscribeMenus, () => menusOpen > 0, () => false);
+
 export function ContextMenu({
   menu,
   onClose,
@@ -105,6 +116,16 @@ export function ContextMenu({
   menu: MenuState;
   onClose: () => void;
 }) {
+  const shown = menu != null;
+  useEffect(() => {
+    if (!shown) return;
+    menusOpen++;
+    menuListeners.forEach((fn) => fn());
+    return () => {
+      menusOpen--;
+      menuListeners.forEach((fn) => fn());
+    };
+  }, [shown]);
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
   const [active, setActive] = useState(0);

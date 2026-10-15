@@ -1,6 +1,6 @@
 // demo: the same numbers, money and week in three locales
 import { useEffect, useState } from "react";
-import { MiniTable, Seg, configureLocale, date, kitLocale, money, num, storageKey, type KitLocale } from "@mds/ui";
+import { MiniTable, Seg, configureLocale, date, kitLocale, money, num, storageKey, useKitLocale, type KitLocale } from "@mds/ui";
 
 const LOCALES: Record<string, Partial<KitLocale>> = {
   india: { locale: "en-IN", currency: "INR", weekStartsOn: 0, fyStartMonth: 3 },
@@ -14,9 +14,14 @@ export default function LocaleSwitch() {
   useEffect(() => () => configureLocale(before), [before]);
 
   const [which, setWhich] = useState<keyof typeof LOCALES>("india");
-  configureLocale(LOCALES[which]!); // an app calls this once, before its first render (or passes UIProvider locale)
+  const pick = (v: keyof typeof LOCALES) => {
+    setWhich(v);
+    configureLocale(LOCALES[v]!); // the kit's components on the page render again in the new locale
+  };
+  useEffect(() => configureLocale(LOCALES.india!), []);
 
-  const l = kitLocale();
+  // renders again when the locale changes, like the kit's own components
+  const l = useKitLocale();
   const rows: Array<[string, string]> = [
     ["kitLocale()", `${l.locale} · ${l.currency} · week from ${l.weekStartsOn} · year from month ${l.fyStartMonth}`],
     ["num(1234567.5, 1)", num(1234567.5, 1)],
@@ -31,7 +36,7 @@ export default function LocaleSwitch() {
       <Seg
         label="Locale"
         value={which}
-        onChange={setWhich}
+        onChange={pick}
         options={[
           { value: "india", label: "India" },
           { value: "us", label: "United States" },

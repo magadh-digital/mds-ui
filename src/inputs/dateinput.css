@@ -11,7 +11,7 @@
   align-items: center;
   padding: var(--mds-sp-1) var(--mds-sp-3) var(--mds-sp-2);
 }
-.mds-dateinput.invalid .mds-btn.daterange {
+.mds-daterange-root.invalid .mds-btn.daterange {
   border-color: var(--mds-c-error) !important;
 }
 .mds-btn.daterange:disabled {

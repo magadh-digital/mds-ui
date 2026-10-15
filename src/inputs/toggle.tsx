@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { localeNumber } from "../core/locale.js";
+import { localeNumber, useKitLocale } from "../core/locale.js";
 
 export type ToggleOption<T extends string> = {
   value: T;
@@ -36,6 +36,7 @@ type Multiple<T extends string> = Common<T> & {
   onChange: (v: Array<T>) => void;
 };
 export function ToggleGroup<T extends string>(props: Single<T> | Multiple<T>) {
+  useKitLocale(); // render again when the locale changes
   const { options, label } = props;
   const isOn = (v: T) => (props.multiple ? props.value.includes(v) : props.value === v);
   const press = (v: T) => {

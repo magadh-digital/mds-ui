@@ -4,7 +4,7 @@
  * choice filter or a view switch use ToggleGroup / Seg instead.
  */
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
-import { localeNumber } from "../core/locale.js";
+import { localeNumber, useKitLocale } from "../core/locale.js";
 
 export type TabItem<T extends string> = { value: T; label: ReactNode; count?: number; disabled?: boolean };
 
@@ -20,6 +20,7 @@ export function Tabs<T extends string>({
   /** accessible name of the tab list */
   label?: string;
 }) {
+  useKitLocale(); // render again when the locale changes
   const list = useRef<HTMLDivElement>(null);
   const enabled = tabs.filter((t) => !t.disabled);
   const onKey = (e: KeyboardEvent) => {

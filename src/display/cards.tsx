@@ -4,8 +4,9 @@ import { type Tone } from "../core/types.js";
 import { Dot, HealthBar } from "./dot.js";
 
 /**
- * An overview card: name + type icon, status dot + sub-label, 24h health bar, provider chip, capability icons. With
- * `onClick` the card is a button (Enter or Space opens it); without, it is plain content.
+ * An overview card for one thing being watched (a device, a site, a job): name + type icon, status dot + sub-label, a
+ * health bar over time, an optional source chip, and figures with icons. `offline` dims it and shows `offlineNote` in
+ * place of the figures. With `onClick` the card is a button (Enter or Space opens it); without, it is plain content.
  */
 export function EntityCard({
   name,
@@ -17,17 +18,24 @@ export function EntityCard({
   provider,
   icons,
   offline,
+  offlineNote = "No recent activity",
   onClick,
 }: {
   name: string;
   icon: LucideIcon;
   tone: Tone;
   subLabel: string;
+  /** the health bar, oldest first: one tone per slot (an hour, a day) */
   segments: Array<Tone>;
+  /** under the bar: start, middle, end ("24h ago", "12h", "now") */
   timeLabels: [string, string, string];
+  /** where it comes from: a letter in a badge and a name */
   provider?: { initial: string; label: string };
+  /** the figures along the bottom, each with an icon */
   icons: Array<{ icon: LucideIcon; label: string; value: ReactNode }>;
   offline?: boolean;
+  /** shown in place of the figures while `offline` */
+  offlineNote?: ReactNode;
   onClick?: () => void;
 }) {
   return (
@@ -69,7 +77,7 @@ export function EntityCard({
             paddingTop: "var(--mds-sp-2)",
           }}
         >
-          Quiet
+          {offlineNote}
         </div>
       ) : (
         <div className="icons">

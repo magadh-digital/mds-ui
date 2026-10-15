@@ -14,7 +14,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
-import { localeNumber } from "../core/locale.js";
+import { localeNumber, useKitLocale } from "../core/locale.js";
 import { joinIds, useFieldControl } from "./field.js";
 
 const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(" ");
@@ -152,12 +152,36 @@ type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "onCha
   onChange: (checked: boolean) => void;
   /** a muted count after the label (a filter list) */
   count?: number;
+  /** marks it as wrong (red box and label, aria-invalid): a terms box that must be ticked */
+  invalid?: boolean;
   ref?: Ref<HTMLInputElement>;
 };
-export function Checkbox({ label, checked, onChange, count, disabled, className, ...rest }: CheckboxProps) {
+export function Checkbox({
+  label,
+  checked,
+  onChange,
+  count,
+  disabled,
+  className,
+  invalid,
+  id,
+  "aria-describedby": describedBy,
+  ...rest
+}: CheckboxProps) {
+  useKitLocale(); // render again when the locale changes
+  const f = useFieldProps(id, invalid, describedBy);
   return (
-    <label className={cx("mds-check", disabled && "disabled", className)}>
-      <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} {...rest} />
+    <label className={cx("mds-check", disabled && "disabled", f.bad && "invalid", className)}>
+      <input
+        type="checkbox"
+        id={f.id}
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+        aria-invalid={f.bad || undefined}
+        aria-describedby={f.describedBy}
+        {...rest}
+      />
       <span>{label}</span>
       {count != null && <span className="count">{localeNumber(count)}</span>}
     </label>

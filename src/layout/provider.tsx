@@ -14,7 +14,7 @@
  * Each piece is also exported on its own (AppearanceProvider, PanelStackProvider, TermsProvider, RouterProvider,
  * Toaster, configureStorage) for apps that want only one.
  */
-import type { ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { RouterProvider, type KitRouter } from "../core/router.js";
 import { configureLocale, type KitLocale } from "../core/locale.js";
 import { configureStorage } from "../core/storage.js";
@@ -45,7 +45,15 @@ export function UIProvider({
 }) {
   // before the providers below read the saved choices on their first render
   if (storagePrefix) configureStorage({ prefix: storagePrefix });
-  if (locale) configureLocale(locale);
+  // the locale is set during the first render, so the children read it from the start; a later change goes through
+  // an effect, which renders the kit's number and date components again (not during this render)
+  const first = useRef(true);
+  if (first.current && locale) configureLocale(locale);
+  first.current = false;
+  const localeKey = locale ? JSON.stringify(locale) : "";
+  useLayoutEffect(() => {
+    if (locale) configureLocale(locale);
+  }, [localeKey]); // keyed on the value, not the object (an inline literal is new on every render)
   const body = (
     <AppearanceProvider>
       <PanelStackProvider>
