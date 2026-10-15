@@ -1,0 +1,13 @@
+/* the small button and the select's invalid state (the base .ui-btn / .ui-input / .ui-select live in styles/controls.css) */
+.ui-btn.sm {
+  height: calc(var(--ctl-h) - 6px);
+  padding: 0 var(--sp-2);
+  font-size: var(--fs-sm);
+}
+.ui-select.fail,
+.ui-textarea.fail {
+  border-color: var(--c-error);
+}
+.ui-btn[aria-busy="true"] {
+  cursor: progress;
+}

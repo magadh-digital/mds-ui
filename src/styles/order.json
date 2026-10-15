@@ -1,6 +1,6 @@
 [
  "styles/tokens.css",
- "app/shell.css",
+ "layout/shell.css",
  "styles/controls.css",
  "data/sidebar.css",
  "data/table.css",
@@ -16,7 +16,7 @@
  "app/findings.css",
  "app/settings-nav.css",
  "inputs/daterange.css",
- "app/palette.css",
+ "overlay/palette.css",
  "overlay/menu.css",
  "data/selection.css",
  "display/dot.css",
@@ -45,5 +45,12 @@
  "data/minitable-rows.css",
  "data/table-bare.css",
  "data/table-rows.css",
+ "inputs/controls.css",
+ "inputs/dateinput.css",
+ "overlay/confirmdialog.css",
+ "display/chip.css",
+ "display/stats.css",
+ "display/tabs.css",
+ "display/feedback.css",
  "styles/motion.css"
 ]

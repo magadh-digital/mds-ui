@@ -85,6 +85,9 @@
   --c-ok: #22c55e;
   --c-warn: #f59e0b;
   --c-error: #ef4444;
+  --c-purple: #7c3aed;
+  /* text on a filled accent / tone background */
+  --c-on-accent: #ffffff;
   --c-neutral: #d1d5db;
   --shadow-pop:
     0 8px 24px rgba(16, 24, 40, 0.12), 0 1px 2px rgba(16, 24, 40, 0.08);
@@ -103,6 +106,8 @@
   --c-neutral: #3a3f47;
   --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
   color-scheme: dark;
+  --c-purple: #a78bfa;
+  --c-on-accent: #ffffff;
 }
 
 html,

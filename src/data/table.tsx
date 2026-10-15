@@ -1,7 +1,8 @@
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, Loader2 } from "lucide-react";
 import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { type ColumnDef, type ColumnSizingState, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, type PaginationState, type RowData, type SortingState, useReactTable, type VisibilityState } from "@tanstack/react-table";
 import { ColumnsPop } from "./columns";
+import { Pagination } from "./pagination";
 import { mergeOrder, useDragSort } from "./dragsort";
 import { Term } from "../display/term";
 import { dialogOpen } from "../overlay/dialog";
@@ -404,8 +405,6 @@ export function DenseTable<T>({
     rowCount: manual ? (rowCount ?? data.length) : undefined,
   });
   const total = table.getRowCount();
-  const from = total === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1;
-  const to = Math.min(total, (pagination.pageIndex + 1) * pagination.pageSize);
   const rows = table.getRowModel().rows;
   const colCount = table.getVisibleLeafColumns().length;
 
@@ -706,58 +705,26 @@ export function DenseTable<T>({
       )}
       </div>
       {!bare && (
-      <div className="ui-foot">
-        <span className="pager">
-          <button
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            aria-label="Previous page"
-          >
-            <ChevronLeft />
-          </button>
-          <button
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            aria-label="Next page"
-          >
-            <ChevronRight />
-          </button>
-        </span>
-        <span className="ui-num">
-          {from.toLocaleString("en-IN")}-{to.toLocaleString("en-IN")} of{" "}
-          {total.toLocaleString("en-IN")} {label}
-        </span>
-        {note && <span>· {note}</span>}
-        <span style={{ flex: 1 }} />
-        {onColumnVisibility && labelledIds.length > 1 && (
-          <ColumnsPop
-            columns={columns}
-            visibility={columnVisibility ?? {}}
-            onChange={onColumnVisibility}
-            order={columnOrder}
-            onOrder={onColumnOrder}
-          />
-        )}
-        <label style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-          Rows Per Page:
-          <select
-            className="ui-select"
-            value={pagination.pageSize}
-            onChange={(e) =>
-              onPaginationChange({
-                pageIndex: 0,
-                pageSize: Number(e.target.value),
-              })
-            }
-          >
-            {pageSizes.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <Pagination
+        pageIndex={pagination.pageIndex}
+        pageSize={pagination.pageSize}
+        total={total}
+        onChange={(p) => onPaginationChange(p)}
+        pageSizes={pageSizes}
+        label={label}
+        note={note}
+        extra={
+          onColumnVisibility && labelledIds.length > 1 ? (
+            <ColumnsPop
+              columns={columns}
+              visibility={columnVisibility ?? {}}
+              onChange={onColumnVisibility}
+              order={columnOrder}
+              onOrder={onColumnOrder}
+            />
+          ) : null
+        }
+      />
       )}
     </>
   );

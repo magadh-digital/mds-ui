@@ -1,0 +1,53 @@
+/* Tabs: an underline under the active tab */
+.ui-tabs {
+  display: flex;
+  gap: var(--sp-1);
+  border-bottom: 1px solid var(--c-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ui-tabs button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--ctl-h);
+  padding: 0 var(--sp-2);
+  border: 0;
+  background: transparent;
+  color: var(--c-muted);
+  font: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 80ms ease;
+}
+.ui-tabs button:hover:not(:disabled) {
+  color: var(--c-text);
+}
+.ui-tabs button.active {
+  color: var(--c-accent);
+}
+.ui-tabs button.active::after {
+  content: "";
+  position: absolute;
+  left: var(--sp-1);
+  right: var(--sp-1);
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--c-accent);
+}
+.ui-tabs button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ui-tabs button:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+.ui-tabs-count {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}

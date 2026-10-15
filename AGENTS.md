@@ -91,6 +91,14 @@ it, and before you change the kit itself.
 | Confirm a risky action | `ConfirmPop` / `Action.confirm` / the row menu's `confirm`. Destructive deletes pass `typed: "DELETE"`. Never `window.confirm`, `alert` or `prompt`. |
 | Download a file | `saveBlob` (`data/reports.ts`) |
 | Toast | `toast` (`overlay/toast.tsx`) |
+| Buttons and fields | `Button` (`variant`, `size`, `loading`), `IconButton` (needs a `label`), `LinkButton`, `Input`, `Select`, `Textarea`, `Checkbox` (`inputs/controls.tsx`); never a bare `<button className="ui-btn">` in new code |
+| One date in a form | `DateInput` (`inputs/dateinput.tsx`, `min`/`max`); never `<input type="date">` |
+| A confirm started from code (a menu item, the end of a flow) | `useConfirm()` / `ConfirmDialog` (`overlay/confirmdialog.tsx`), same spec as `ConfirmPop` |
+| Headline figures in a toolbar | `ToolbarStats` (`display/stats.tsx`) |
+| Sections of one record | `Tabs` (`display/tabs.tsx`); a filter or view switch is `ToggleGroup` / `Seg` |
+| A pager under a list that is not a table | `Pagination` (`data/pagination.tsx`) |
+| Loading, progress, a key, a person | `Spinner`, `Progress`, `Kbd` (`display/feedback.tsx`), `Avatar` (`display/avatar.tsx`) |
+| The app frame | `AppShell`, `useRailLayout` (`layout/`), `CommandPalette` (`overlay/palette.tsx`), with the app's router through `RouterProvider` (`core/router.tsx`) |
 
 When the kit lacks something, add it to the kit once rather than building it into a page.
 

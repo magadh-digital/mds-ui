@@ -1,0 +1,20 @@
+/* DateInput: days outside min/max, the Today / Clear row, the invalid field */
+.daterange-day.disabled,
+.daterange-day:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: transparent;
+}
+.dateinput-foot {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-1) var(--sp-3) var(--sp-2);
+}
+.dateinput.invalid .ui-btn.daterange {
+  border-color: var(--c-error) !important;
+}
+.ui-btn.daterange:disabled {
+  opacity: 0.55;
+  cursor: default;
+}

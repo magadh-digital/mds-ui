@@ -1,0 +1,17 @@
+/* ToneChip as a button, and faded */
+button.ui-chip.clickable {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  transition: filter 80ms ease;
+}
+button.ui-chip.clickable:hover {
+  filter: brightness(0.92);
+}
+button.ui-chip.clickable:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 1px;
+}
+.ui-chip.dim {
+  opacity: 0.5;
+}

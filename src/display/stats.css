@@ -1,0 +1,53 @@
+/* ToolbarStats: headline figures inline in a toolbar */
+.ui-tstats {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  margin-right: var(--sp-2);
+  min-width: 0;
+  overflow: hidden;
+}
+.ui-tstat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 0;
+  border-left: 1px solid var(--c-border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+}
+.ui-tstat:first-child {
+  border-left: 0;
+}
+button.ui-tstat {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+button.ui-tstat:hover {
+  background: var(--c-hover);
+}
+.ui-tstat-v {
+  font-weight: 600;
+  font-size: var(--fs-lg);
+}
+.ui-tstat-v.ok {
+  color: var(--c-ok);
+}
+.ui-tstat-v.error {
+  color: var(--c-error);
+}
+.ui-tstat-v.warn {
+  color: var(--c-warn);
+}
+.ui-tstat-s {
+  font-weight: 400;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+.ui-tstat-l {
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}

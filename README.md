@@ -22,6 +22,25 @@ Every module has a short path (`@magadhtech/ui/daterange`, `/autocomplete`, `/po
 path (`@magadhtech/ui/inputs/daterange`). The 0.1 names `primitives`, `forms` and `listpage` still work: they re-export
 the modules they were split into.
 
+## What's inside
+
+| Folder | Components and helpers |
+| --- | --- |
+| `core` | `date()` (dayjs-style dates), `day`/`dayTime`/`hhmm`/`rupees`/`num`/`mt`/`kg` formats, `useDebounced`, form checks, the router adapter (`RouterProvider`, `useKitRouter`), shared types |
+| `overlay` | `Tip`, `Pop`, `EditPop`, `HoverPop`, `ConfirmPop`, `ConfirmDialog` + `useConfirm()`, row menu (`useContextMenu`, `MoreMenu`), `Dialog`, `toast`, the ⌘K `CommandPalette` |
+| `inputs` | `Button`, `IconButton`, `LinkButton`, `Input`, `Select`, `Textarea`, `Checkbox`, `Autocomplete` (single, multiple, groups, server search), `DateRange`, `DateInput`, `ToggleGroup` (one or several), `Seg`, `Switch`, `FileInput`, `FormRow`, `SaveBar`, `ActionRow`, `BulkBar` |
+| `display` | `ToneChip` / `StatusChip`, `ToolbarStats`, `Tabs`, `Empty`, `Spinner`, `Progress`, `Kbd`, `Avatar`, `FileViewer` / `FileThumb`, cards, chart, lane strip, `Term` (glossary hover) |
+| `data` | `DenseTable`, `MiniTable`, `Pagination`, `Toolbar`, `Sidebar` / `FilterGroup`, column picker, list state in the URL (`useListState`), page order |
+| `layout` | `SlideOver` panels, `AppShell` (top bar, module tabs, side rail), `useRailLayout`, appearance (theme, density, detail view) |
+
+**The app frame without a router library:** `AppShell`, the rail and the ⌘K palette use `useKitRouter()`. With no
+provider they use the browser's history; a TanStack Router app passes its own:
+
+```tsx
+const router = { pathname, navigate: (to) => navigate({ href: to }), Link: ({ to, ...p }) => <Link to={to} {...p} /> };
+<RouterProvider value={router}><AppearanceProvider><AppShell …>{page}</AppShell><CommandPalette pages={pages} /></AppearanceProvider></RouterProvider>
+```
+
 ## Layout
 
 ```
@@ -61,21 +80,21 @@ src/
 bun install
 bun run typecheck
 bun run build     # dist/: ESM .js + .d.ts per module, CSS copied beside them
-bun run size      # gzip size per file, and how much of styles.css is the kit's own
+bun run size      # gzip size per file, and how much of styles.css is the kit's own (budget: core JS ≤ 80 KB gzip;
+                  # 0.3.0: 76.9 KB, plus 10.5 KB for the app frame, loaded only by apps that use it)
 bun test          # date() against dayjs
 bun scripts/smoke.tsx   # loads the built package and renders a few components
 ```
 
 To try changes in an app before publishing, run `bun link` here and `bun link @magadhtech/ui` in the app.
 The browser tests live in the sibling repo `mds-ui-test`: it installs this package from its packed tarball, builds a page
-with every component, and drives it in Chromium (`bun run pack-kit && bun run build && bun test`).
+with every component, and drives it in Chromium (`bun run pack-kit && bun run build && bun test`): 44 tests on the
+components and 5 on the app frame driven by the default (history) router.
 
 ## Before publishing
 
 1. Move `src/app/` (the console's page styles, about 7 KB gzipped) back into procurement-console.
-2. Bring over the shell and the command palette with a router adapter (they import TanStack Router today, so they
-   stayed in the app).
-3. Make locale and currency options of `format.ts`, keeping `en-IN` and ₹ as the default.
-4. Choose a licence, set `"private": false`, publish from CI with npm provenance.
+2. Make locale and currency options of `format.ts`, keeping `en-IN` and ₹ as the default.
+3. Choose a licence, set `"private": false`, publish from CI with npm provenance.
 
 The UI rules every page follows are in [AGENTS.md](AGENTS.md).

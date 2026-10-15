@@ -17,7 +17,7 @@
  * text inside [brackets] is printed as is ("[on] DD MMM").
  */
 
-export type DateInput = KitDate | Date | string | number | null | undefined;
+export type DateLike = KitDate | Date | string | number | null | undefined;
 export type Unit =
   | "millisecond"
   | "second"
@@ -64,7 +64,7 @@ const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
 // "2026-10-15 14:30[:05]" with a space and no zone: local time
 const LOCAL_TIME = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/;
 
-function parse(v: DateInput): number {
+function parse(v: DateLike): number {
   if (v === undefined) return Date.now();
   if (v === null || v === "") return NaN;
   if (v instanceof KitDate) return v.valueOf();
@@ -89,7 +89,7 @@ function parse(v: DateInput): number {
 
 export class KitDate {
   readonly #t: number;
-  constructor(v?: DateInput) {
+  constructor(v?: DateLike) {
     this.#t = parse(v);
   }
   #d() {
@@ -226,7 +226,7 @@ export class KitDate {
   }
 
   /** `this − other` in whole units (truncated toward zero), or exact with `float` */
-  diff(other: DateInput, unit: UnitIn = "millisecond", float = false): number {
+  diff(other: DateLike, unit: UnitIn = "millisecond", float = false): number {
     const o = new KitDate(other);
     const u = unitOf(unit);
     let v: number;
@@ -242,21 +242,21 @@ export class KitDate {
     return (float ? v : Math.trunc(v)) || 0;
   }
 
-  isBefore(other: DateInput, unit?: UnitIn) {
+  isBefore(other: DateLike, unit?: UnitIn) {
     return unit ? this.endOf(unit).valueOf() < new KitDate(other).valueOf() : this.#t < new KitDate(other).valueOf();
   }
-  isAfter(other: DateInput, unit?: UnitIn) {
+  isAfter(other: DateLike, unit?: UnitIn) {
     return unit ? this.startOf(unit).valueOf() > new KitDate(other).valueOf() : this.#t > new KitDate(other).valueOf();
   }
-  isSame(other: DateInput, unit?: UnitIn) {
+  isSame(other: DateLike, unit?: UnitIn) {
     if (!unit) return this.#t === new KitDate(other).valueOf();
     const o = new KitDate(other).valueOf();
     return this.startOf(unit).valueOf() <= o && o <= this.endOf(unit).valueOf();
   }
-  isSameOrBefore(other: DateInput, unit?: UnitIn) {
+  isSameOrBefore(other: DateLike, unit?: UnitIn) {
     return this.isSame(other, unit) || this.isBefore(other, unit);
   }
-  isSameOrAfter(other: DateInput, unit?: UnitIn) {
+  isSameOrAfter(other: DateLike, unit?: UnitIn) {
     return this.isSame(other, unit) || this.isAfter(other, unit);
   }
 
@@ -325,6 +325,6 @@ function calendarDays(a: KitDate, b: KitDate): number {
 }
 
 /** A date: `date()` is now; see the file header for the inputs it takes. */
-export const date = (v?: DateInput) => new KitDate(v);
+export const date = (v?: DateLike) => new KitDate(v);
 /** true for a value `date()` can read */
 export const isDate = (v: unknown): v is KitDate => v instanceof KitDate;

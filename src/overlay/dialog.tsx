@@ -43,7 +43,7 @@ export const isTextEntry = (el: Element | null): el is HTMLElement =>
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export type DialogSize = "md" | "lg" | "xl";
+export type DialogSize = "sm" | "md" | "lg" | "xl";
 
 export function Dialog({
   open,
@@ -57,7 +57,7 @@ export function Dialog({
 }: {
   open: boolean;
   title: ReactNode;
-  /** md 900 px · lg 1100 px · xl 1280 px, never wider than the window */
+  /** sm 420 px (a question) · md 900 px · lg 1100 px · xl 1280 px, never wider than the window */
   size?: DialogSize;
   onClose: () => void;
   /** extra controls in the title row, before the close button */
