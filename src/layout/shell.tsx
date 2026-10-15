@@ -17,20 +17,20 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { type MouseEvent, type ReactNode } from "react";
-import { isActivePath, useKitRouter } from "../core/router";
-import { useDragSort } from "../data/dragsort";
-import { Dot } from "../display/dot";
-import { useTermTip, useTerms } from "../display/term";
-import { useCommands, type Command } from "../overlay/palette";
-import { Pop } from "../overlay/pop";
-import { Tip } from "../overlay/tip";
+import { isActivePath, useKitRouter } from "../core/router.js";
+import { useDragSort } from "../data/dragsort.js";
+import { Dot } from "../display/dot.js";
+import { useTermTip, useTerms } from "../display/term.js";
+import { useCommands, type Command } from "../overlay/palette.js";
+import { Pop } from "../overlay/pop.js";
+import { Tip } from "../overlay/tip.js";
 import {
   DENSITIES,
   DETAIL_VIEWS,
   PANEL_WIDTHS,
   THEMES,
   useAppearance,
-} from "./appearance";
+} from "./appearance.js";
 
 export type RailItem = {
   to: string;

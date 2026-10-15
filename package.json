@@ -50,12 +50,15 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json",
     "./*": {
       "types": "./dist/*.d.ts",
-      "import": "./dist/*.js"
+      "import": "./dist/*.js",
+      "default": "./dist/*.js"
     }
   },
   "files": [
@@ -73,7 +76,7 @@
     "check": "bun run typecheck && bun test src && bun run build && bun scripts/size.ts --check"
   },
   "sideEffects": [
-    "**/*.css"
+    "*.css"
   ],
   "type": "module",
   "types": "./dist/index.d.ts",

@@ -4,7 +4,7 @@
  */
 import { Calendar, X } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
-import { date, type KitDate } from "../core/date";
+import { date, type KitDate } from "../core/date.js";
 
 /** a day as the controls store it: "2026-10-15" */
 export const iso = (d: KitDate | Date) => date(d).format("YYYY-MM-DD");

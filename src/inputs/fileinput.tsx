@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Upload, X } from "lucide-react";
-import { FileThumb, useFileViewer, type ViewerFile } from "../display/fileviewer";
+import { FileThumb, useFileViewer, type ViewerFile } from "../display/fileviewer.js";
 
 /**
  * The kit's one file input: click or drop, the type / size / count checks every upload form

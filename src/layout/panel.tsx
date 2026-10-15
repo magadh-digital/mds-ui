@@ -1,11 +1,11 @@
 import { ChevronDown, ChevronLeft, ChevronRight, type LucideIcon, Maximize2, Minimize2, Pencil, X } from "lucide-react";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { type Tone } from "../core/types";
-import { CopyButton } from "../display/buttons";
-import { Term } from "../display/term";
-import { useAppearance } from "./appearance";
-import { dialogOpen, listOpen } from "../overlay/dialog";
+import { type Tone } from "../core/types.js";
+import { CopyButton } from "../display/buttons.js";
+import { Term } from "../display/term.js";
+import { useAppearanceOptional } from "./appearance.js";
+import { dialogOpen, listOpen } from "../overlay/dialog.js";
 
 export type PanelTab = { key: string; icon: LucideIcon; label: string };
 export type TabCount =
@@ -357,7 +357,10 @@ export function PanelBlock({
 
 /** Full page ⇄ the side panel or popup the person last chose (Appearance › Detail view, kept for next time). */
 function ExpandToggle() {
-  const { detailView, setDetailView, windowedView } = useAppearance();
+  // without an AppearanceProvider there is no detail-view setting to switch: no toggle
+  const appearance = useAppearanceOptional();
+  if (!appearance) return null;
+  const { detailView, setDetailView, windowedView } = appearance;
   const full = detailView === "full";
   const back = windowedView === "popup" ? "Back to the popup" : "Back to the side panel";
   return (

@@ -1,7 +1,7 @@
 import { RefreshCw } from "lucide-react";
 import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from "react";
-import { CollapseButton, SearchBox } from "./sidebar";
-import { Term } from "../display/term";
+import { CollapseButton, SearchBox } from "./sidebar.js";
+import { Term } from "../display/term.js";
 
 export type ToolbarSearch = {
   value: string;

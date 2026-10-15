@@ -16,9 +16,9 @@ import {
 } from "lucide-react";
 import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useKitRouter } from "../core/router";
-import { otherServicePages } from "../core/service_pages";
-import { storageKey } from "../core/storage";
+import { useKitRouter } from "../core/router.js";
+import { otherServicePages } from "../core/service_pages.js";
+import { storageKey } from "../core/storage.js";
 
 export type Command = {
   id: string;

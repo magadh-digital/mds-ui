@@ -1,7 +1,7 @@
 import { AlertTriangle } from "lucide-react";
 import { type ReactNode, useState } from "react";
-import { type Action } from "../core/types";
-import { Pop } from "./pop";
+import { type Action } from "../core/types.js";
+import { Pop } from "./pop.js";
 
 /**
  * Destructive or irreversible actions ask in a small popover, optionally with a reason.

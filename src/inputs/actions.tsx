@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
-import { type Action } from "../core/types";
-import { ActionConfirm } from "../overlay/confirm";
+import { type Action } from "../core/types.js";
+import { ActionConfirm } from "../overlay/confirm.js";
 
 /**
  * Panel actions: at most two outlined buttons (`primary` fills the one that matters), the rest as text links

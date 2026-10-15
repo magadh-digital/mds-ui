@@ -1,5 +1,5 @@
 import { type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
-import { Pop } from "../overlay/pop";
+import { Pop } from "../overlay/pop.js";
 
 /**
  * A flow strip in lanes (a record's steps, grouped by who does them). Unlike the panel's `FlowStrip` (one

@@ -1,7 +1,7 @@
 import { type LucideIcon } from "lucide-react";
 import { type ReactNode, useMemo, useState } from "react";
-import { type Tone } from "../core/types";
-import { HealthBar } from "./dot";
+import { type Tone } from "../core/types.js";
+import { HealthBar } from "./dot.js";
 
 /**
  * Chart pieces drawn as plain SVG (no chart library): an area/line chart with a faint grid and no title,

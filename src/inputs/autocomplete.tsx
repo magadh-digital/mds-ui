@@ -1,7 +1,7 @@
 import { autoUpdate, flip, FloatingNode, FloatingPortal, offset, size, useDismiss, useFloating, useFloatingNodeId, useInteractions } from "@floating-ui/react";
 import { Check, ChevronDown, X } from "lucide-react";
 import { type CSSProperties, type KeyboardEvent, useEffect, useId, useMemo, useRef, useState } from "react";
-import { isInsideLayer, LAYER_Z, LayerTree, useLayerMotion } from "../overlay/floating";
+import { isInsideLayer, LAYER_Z, LayerTree, useLayerMotion } from "../overlay/floating.js";
 
 /**
  * Autocomplete: the kit's one searchable picker, for any list longer than a handful of fixed choices (heads,

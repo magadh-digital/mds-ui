@@ -1,8 +1,8 @@
 import { AlertTriangle, type LucideIcon, MoreHorizontal } from "lucide-react";
 import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { type Action, type ConfirmSpec } from "../core/types";
-import { ConfirmPop } from "./confirm";
+import { type Action, type ConfirmSpec } from "../core/types.js";
+import { ConfirmPop } from "./confirm.js";
 
 /**
  * The right-click menu on a row (and on anything else that has actions). One list of actions feeds

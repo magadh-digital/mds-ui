@@ -1,7 +1,7 @@
 /** Small status pieces: Spinner (something is loading), Progress (how far a job is), Kbd (a key to press). */
 import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
-import type { Tone } from "../core/types";
+import type { Tone } from "../core/types.js";
 
 /** A turning icon; `label` is read by screen readers (and shown beside it when `showLabel`). */
 export function Spinner({ size = 16, label = "Loading", showLabel }: { size?: number; label?: string; showLabel?: boolean }) {

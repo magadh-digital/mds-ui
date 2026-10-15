@@ -15,18 +15,20 @@
  * Toaster, configureStorage) for apps that want only one.
  */
 import type { ReactNode } from "react";
-import { RouterProvider, type KitRouter } from "../core/router";
-import { configureStorage } from "../core/storage";
-import { TermsProvider, type Glossary } from "../display/term";
-import { Toaster } from "../overlay/toast";
-import { AppearanceProvider } from "./appearance";
-import { PanelStackProvider } from "./panel";
+import { RouterProvider, type KitRouter } from "../core/router.js";
+import { configureLocale, type KitLocale } from "../core/locale.js";
+import { configureStorage } from "../core/storage.js";
+import { TermsProvider, type Glossary } from "../display/term.js";
+import { Toaster } from "../overlay/toast.js";
+import { AppearanceProvider } from "./appearance.js";
+import { PanelStackProvider } from "./panel.js";
 
 export function UIProvider({
   children,
   router,
   glossary,
   storagePrefix,
+  locale,
   toaster = true,
 }: {
   children: ReactNode;
@@ -36,11 +38,14 @@ export function UIProvider({
   glossary?: Glossary;
   /** where saved choices live in localStorage (`<prefix>.theme`, …); "mds-ui" by default */
   storagePrefix?: string;
+  /** numbers, money, the first weekday and the financial year (`{ locale: "en-US", currency: "USD", … }`); en-IN otherwise */
+  locale?: Partial<KitLocale>;
   /** mount the toast host (default); turn off when the app renders its own <Toaster /> */
   toaster?: boolean;
 }) {
   // before the providers below read the saved choices on their first render
   if (storagePrefix) configureStorage({ prefix: storagePrefix });
+  if (locale) configureLocale(locale);
   const body = (
     <AppearanceProvider>
       <PanelStackProvider>

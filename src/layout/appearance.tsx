@@ -1,5 +1,5 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { storageKey } from "../core/storage";
+import { storageKey } from "../core/storage.js";
 
 export type Density = "compact" | "comfortable" | "large";
 export type Theme = "light" | "dark" | "system";
@@ -192,6 +192,11 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
 export function useAppearance() {
   const c = useContext(AppearanceContext);
   if (!c)
-    throw new Error("useAppearance must be used inside AppearanceProvider");
+    throw new Error("useAppearance must be used inside AppearanceProvider (UIProvider includes it)");
   return c;
+}
+
+/** the appearance when an AppearanceProvider is mounted, else null (components that can do without it) */
+export function useAppearanceOptional() {
+  return useContext(AppearanceContext);
 }

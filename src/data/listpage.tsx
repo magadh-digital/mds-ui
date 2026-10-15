@@ -1,8 +1,8 @@
 import { type ColumnDef, type PaginationState, type SortingState, type VisibilityState } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type Action } from "../core/types";
-import { dialogOpen } from "../overlay/dialog";
-import { toast } from "../overlay/toast";
+import { type Action } from "../core/types.js";
+import { dialogOpen } from "../overlay/dialog.js";
+import { toast } from "../overlay/toast.js";
 
 /**
  * What every B + C + D list page shares: URL-backed search/sort/page state, the debounced search box,

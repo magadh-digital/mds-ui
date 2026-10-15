@@ -1,7 +1,7 @@
 import { type LucideIcon } from "lucide-react";
 import { type ReactNode } from "react";
-import { type Tone } from "../core/types";
-import { Dot, HealthBar } from "./dot";
+import { type Tone } from "../core/types.js";
+import { Dot, HealthBar } from "./dot.js";
 
 /** An overview card: name + type icon, status dot + sub-label, 24h health bar, provider chip, capability icons. */
 export function EntityCard({

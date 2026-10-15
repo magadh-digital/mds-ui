@@ -12,12 +12,12 @@
  */
 import { ArrowDown, ArrowUp, Eye, EyeOff, RotateCcw } from "lucide-react";
 import type { ReactNode } from "react";
-import { useKitRouter } from "../core/router";
-import { mergeOrder } from "../data/dragsort";
-import { PagesPop, movePage, orderPages, usePageLayout } from "../data/pages";
-import { useContextMenu, type MenuItem } from "../overlay/menu";
-import { useCommands } from "../overlay/palette";
-import type { RailAnchor, RailGroup, RailItem } from "./shell";
+import { useKitRouter } from "../core/router.js";
+import { mergeOrder } from "../data/dragsort.js";
+import { PagesPop, movePage, orderPages, usePageLayout } from "../data/pages.js";
+import { useContextMenu, type MenuItem } from "../overlay/menu.js";
+import { useCommands } from "../overlay/palette.js";
+import type { RailAnchor, RailGroup, RailItem } from "./shell.js";
 
 /** a rail item with the permission it needs; the kit never reads `permission`, only the app's `gate` does */
 export type GatedItem = RailItem & { permission?: string };

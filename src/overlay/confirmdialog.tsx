@@ -9,8 +9,8 @@
  */
 import { AlertTriangle } from "lucide-react";
 import { useCallback, useRef, useState, type ReactNode } from "react";
-import type { ConfirmSpec } from "../core/types";
-import { Dialog } from "./dialog";
+import type { ConfirmSpec } from "../core/types.js";
+import { Dialog } from "./dialog.js";
 
 export function ConfirmDialog({
   open,

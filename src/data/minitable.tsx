@@ -1,8 +1,8 @@
 import { type ReactNode, useMemo } from "react";
 import { type ColumnDef, type SortingState, type VisibilityState } from "@tanstack/react-table";
-import { DenseTable } from "./table";
-import { Term } from "../display/term";
-import { type MenuAnchor } from "../overlay/menu";
+import { DenseTable } from "./table.js";
+import { Term } from "../display/term.js";
+import { type MenuAnchor } from "../overlay/menu.js";
 
 export type MiniCol<T> = {
   key: string;

@@ -16,6 +16,7 @@ npm install @mds/ui
 ## Quick start
 
 ```tsx
+import "@mds/ui/styles.css"; // once, at the app's entry
 import { UIProvider, Toolbar, DenseTable, ToggleGroup, StatusChip, DateRange, dayTime } from "@mds/ui";
 
 // once, around the app (it mounts the toast host, appearance, panels, glossary and your router)
@@ -50,9 +51,9 @@ export function Orders() {
 }
 ```
 
-**Styles come with the main entry:** importing anything from `@mds/ui` loads the kit's stylesheet. Import
-`@mds/ui/styles.css` yourself only when you use single modules by folder path (`@mds/ui/inputs/daterange`,
-`@mds/ui/core/date`) and never the main entry, or to place the kit's CSS at a precise spot among your own.
+**One stylesheet:** import `@mds/ui/styles.css` once at the app's entry. The JavaScript never imports CSS, so the
+package also loads in Node (SSR, Next.js server code) and in test runners. A single module can be imported by its
+folder path (`@mds/ui/inputs/daterange`, `@mds/ui/core/date`).
 
 ## What's inside
 

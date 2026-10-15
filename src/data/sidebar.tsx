@@ -1,8 +1,8 @@
 import { ChevronDown, ChevronUp, Info, type LucideIcon, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { type ReactNode, type Ref, useEffect, useRef, useState } from "react";
-import { type Tone } from "../core/types";
-import { Dot } from "../display/dot";
-import { Term } from "../display/term";
+import { type Tone } from "../core/types.js";
+import { Dot } from "../display/dot.js";
+import { Term } from "../display/term.js";
 
 export function Sidebar({
   collapsed,

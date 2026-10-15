@@ -1,7 +1,7 @@
 // The kit's date() must answer exactly what dayjs answered for every call the consoles make.
 import { describe, expect, test } from "bun:test";
 import dayjs from "dayjs";
-import { date } from "./date";
+import { date } from "./date.js";
 
 // deterministic pseudo-random instants across 2019–2031, plus month ends and leap days
 let seed = 7;

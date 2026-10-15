@@ -1,10 +1,10 @@
 import { ChevronDown, ChevronUp, GripVertical, SlidersHorizontal } from "lucide-react";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
-import { dropId, moveId, useDragSort } from "./dragsort";
-import { Term } from "../display/term";
-import { Pop } from "../overlay/pop";
-import { Tip } from "../overlay/tip";
-import { storageKey } from "../core/storage";
+import { dropId, moveId, useDragSort } from "./dragsort.js";
+import { Term } from "../display/term.js";
+import { Pop } from "../overlay/pop.js";
+import { Tip } from "../overlay/tip.js";
+import { storageKey } from "../core/storage.js";
 
 /**
  * Page layout — the user's order of the rail's pages and which ones are hidden.

@@ -3,7 +3,7 @@
  * A figure with `onClick` is a button (a filter shortcut). Pages never put a band of figures above the table.
  */
 import type { ReactNode } from "react";
-import type { Tone } from "../core/types";
+import type { Tone } from "../core/types.js";
 
 export type ToolbarStat = {
   label: string;

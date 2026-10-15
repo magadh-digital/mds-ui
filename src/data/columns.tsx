@@ -1,7 +1,7 @@
 import { type ColumnDef, type VisibilityState } from "@tanstack/react-table";
 import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
-import { useDragSort } from "./dragsort";
-import { Pop } from "../overlay/pop";
+import { useDragSort } from "./dragsort.js";
+import { Pop } from "../overlay/pop.js";
 
 /** Pure: the ids in the saved order first, then the ones the saved order does not know in their own order; ids it names that no longer exist are dropped. */
 export const orderColumns = (

@@ -1,7 +1,7 @@
 import { autoUpdate, flip, FloatingFocusManager, FloatingNode, FloatingPortal, offset, type Placement, shift, useClick, useDismiss, useFloating, useFloatingNodeId, useInteractions, useRole } from "@floating-ui/react";
 import { type CSSProperties, type ReactNode, useRef, useState } from "react";
 import { X } from "lucide-react";
-import { isInsideLayer, LAYER_Z, LayerTree, Trigger, useLayerMotion } from "./floating";
+import { isInsideLayer, LAYER_Z, LayerTree, Trigger, useLayerMotion } from "./floating.js";
 
 type PopPlacement = "bottom-end" | "bottom-start" | "top-start" | "top-end";
 

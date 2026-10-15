@@ -1,6 +1,6 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Tip } from "../overlay/tip";
-import { storageKey } from "../core/storage";
+import { Tip } from "../overlay/tip.js";
+import { storageKey } from "../core/storage.js";
 
 /**
  * Words with a hover: any label that has a glossary entry shows its description first and its old name under it.

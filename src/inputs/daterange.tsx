@@ -1,8 +1,8 @@
 import { autoUpdate, flip, FloatingFocusManager, FloatingPortal, offset, shift, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
 import { useState } from "react";
-import { date, type KitDate } from "../core/date";
-import { CalendarMonth as Month, DateTrigger as Trigger, iso } from "./calendar";
-import { isInsideLayer, useLayerMotion } from "../overlay/floating";
+import { date, type KitDate } from "../core/date.js";
+import { CalendarMonth as Month, DateTrigger as Trigger, iso } from "./calendar.js";
+import { isInsideLayer, useLayerMotion } from "../overlay/floating.js";
 
 /**
  * The date control every list uses, one field that reads like a date, a calendar

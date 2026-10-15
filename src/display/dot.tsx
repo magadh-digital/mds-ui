@@ -1,4 +1,4 @@
-import { type Tone } from "../core/types";
+import { type Tone } from "../core/types.js";
 
 /** the status dot; `needs` draws the "needs you" ring around it (a person's input is what the row waits for) */
 export const Dot = ({

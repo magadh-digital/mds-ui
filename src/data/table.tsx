@@ -1,13 +1,13 @@
 import { ChevronDown, ChevronRight, ChevronUp, Loader2 } from "lucide-react";
 import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { type ColumnDef, type ColumnSizingState, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, type PaginationState, type RowData, type SortingState, useReactTable, type VisibilityState } from "@tanstack/react-table";
-import { ColumnsPop } from "./columns";
-import { Pagination } from "./pagination";
-import { mergeOrder, useDragSort } from "./dragsort";
-import { Term } from "../display/term";
-import { dialogOpen } from "../overlay/dialog";
-import { type MenuAnchor, RowMenuButton } from "../overlay/menu";
-import { storageKey } from "../core/storage";
+import { ColumnsPop } from "./columns.js";
+import { Pagination } from "./pagination.js";
+import { mergeOrder, useDragSort } from "./dragsort.js";
+import { Term } from "../display/term.js";
+import { dialogOpen } from "../overlay/dialog.js";
+import { type MenuAnchor, RowMenuButton } from "../overlay/menu.js";
+import { storageKey } from "../core/storage.js";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

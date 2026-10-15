@@ -15,9 +15,9 @@ import {
   useInteractions,
 } from "@floating-ui/react";
 import { useState } from "react";
-import { date, type KitDate } from "../core/date";
-import { isInsideLayer, useLayerMotion } from "../overlay/floating";
-import { CalendarMonth, DateTrigger, iso } from "./calendar";
+import { date, type KitDate } from "../core/date.js";
+import { isInsideLayer, useLayerMotion } from "../overlay/floating.js";
+import { CalendarMonth, DateTrigger, iso } from "./calendar.js";
 
 export function DateInput({
   value,
