@@ -1,0 +1,41 @@
+/* SearchBox (sidebar.tsx): the "/" hint while the box is empty and not focused */
+.ui-search-kbd {
+  position: absolute;
+  right: var(--sp-2);
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 16px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--c-border);
+  border-radius: 4px;
+  font: 500 var(--fs-xs) / 16px var(--font-mono);
+  color: var(--c-muted);
+  text-align: center;
+  pointer-events: none;
+}
+
+.ui-search .ui-input:focus ~ .ui-search-kbd {
+  display: none;
+}
+
+.ui-search .ui-input {
+  padding-right: 28px;
+}
+
+/* ToggleGroup inside the sidebar (264 px): choices wrap onto a second line instead of overflowing */
+.sidebar .ui-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.sidebar .ui-toggle button {
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+/* FilterGroup with a one-row body: a plain label, nothing to show or hide */
+.fgroup .head.static {
+  cursor: default;
+}

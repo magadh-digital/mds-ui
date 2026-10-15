@@ -1,0 +1,31 @@
+// @magadhtech/ui: every component and helper. Subpaths ("@magadhtech/ui/table") load one module alone.
+import "./tokens.css";
+export * from "./appearance";
+export * from "./autocomplete";
+export * from "./cards";
+export * from "./chart";
+export * from "./chip";
+export * from "./daterange";
+export * from "./dialog";
+export * from "./dragsort";
+export * from "./empty";
+export * from "./fileinput";
+export * from "./fileviewer";
+export * from "./flowstrip";
+export * from "./format";
+export * from "./forms";
+export * from "./hooks";
+export * from "./listpage";
+export * from "./menu";
+export * from "./pages";
+export * from "./panel";
+export * from "./placeholder";
+export * from "./primitives";
+export * from "./sidebar";
+export * from "./table";
+export * from "./term";
+export * from "./toast";
+export * from "./validate";
+// two helpers share a name: `num` formats a number (format.ts); the URL-search parser from listpage is `searchNum`
+export { num } from "./format";
+export { num as searchNum } from "./listpage";
