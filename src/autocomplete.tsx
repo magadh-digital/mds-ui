@@ -33,7 +33,7 @@ import {
   type CSSProperties,
   type KeyboardEvent,
 } from "react";
-import { LAYER_Z, LayerTree, isInsideLayer } from "./floating";
+import { LAYER_Z, LayerTree, isInsideLayer, useLayerMotion } from "./floating";
 
 export type AutocompleteOption = {
   value: string;
@@ -228,6 +228,7 @@ function AutocompleteInner(props: AutocompleteProps) {
     open,
     onOpenChange: setOpen,
     placement: "bottom-start",
+    transform: false,
     whileElementsMounted: autoUpdate,
     middleware: [
       offset(4),
@@ -241,6 +242,7 @@ function AutocompleteInner(props: AutocompleteProps) {
       }),
     ],
   });
+  const motion = useLayerMotion(context, "list");
   const { getFloatingProps } = useInteractions([
     useDismiss(context, {
       escapeKey: false,
@@ -499,7 +501,7 @@ function AutocompleteInner(props: AutocompleteProps) {
           </div>
         )}
       </div>
-      {open && (
+      {motion.isMounted && (
         <FloatingPortal>
           <div
             ref={refs.setFloating}
@@ -507,7 +509,8 @@ function AutocompleteInner(props: AutocompleteProps) {
             role="listbox"
             aria-multiselectable={multi || undefined}
             className={`ui-pop ui-ac-pop${compact ? " compact" : ""}`}
-            style={{ ...floatingStyles, zIndex: LAYER_Z, maxWidth: "var(--reference-width, 100%)", boxSizing: "border-box" }}
+            data-status={motion.status}
+            style={{ ...floatingStyles, ...motion.styles, zIndex: LAYER_Z, maxWidth: "var(--reference-width, 100%)", boxSizing: "border-box" }}
             {...getFloatingProps()}
           >
             {flat.length === 0 && (

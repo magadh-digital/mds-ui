@@ -7,6 +7,9 @@ import {
   FloatingTree,
   useFloatingParentNodeId,
   useMergeRefs,
+  useTransitionStatus,
+  useTransitionStyles,
+  type FloatingContext,
   type Placement,
 } from "@floating-ui/react";
 import {
@@ -31,6 +34,29 @@ export const TIP_Z = 1800;
 const INSIDE = ".ctxmenu, .ui-ac-pop, .daterange-pop, [data-kit-layer]";
 export const isInsideLayer = (target: EventTarget | null) =>
   !!(target as Element | null)?.closest?.(INSIDE);
+
+const ORIGIN: Record<string, string> = { top: "bottom", bottom: "top", left: "right", right: "left" };
+const reduced = () =>
+  typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+/**
+ * The open / close motion every layer shares, as the old Chakra layers had: a 150 ms fade with a slight scale from the
+ * side it opens on (100 ms out), none when the reader asks for reduced motion. The layer stays mounted while it fades
+ * out (`isMounted`) and carries `data-status` (initial / open / close). The floating element is positioned by top/left
+ * (`transform: false`), so the scale is free.
+ */
+export function useLayerMotion(context: FloatingContext, kind: "pop" | "tip" | "list" = "pop") {
+  const off = reduced();
+  const duration = off ? 0 : kind === "tip" ? { open: 120, close: 80 } : kind === "list" ? { open: 120, close: 90 } : { open: 150, close: 100 };
+  const { status } = useTransitionStatus(context, { duration });
+  const motion = useTransitionStyles(context, {
+    duration,
+    initial: { opacity: 0, transform: kind === "list" ? "translateY(-4px)" : "scale(0.96)" },
+    // a layer on its way out takes no clicks: the next control under it gets them
+    close: { opacity: 0, transform: kind === "list" ? "translateY(-4px)" : "scale(0.96)", pointerEvents: "none" },
+    common: ({ side }) => ({ transformOrigin: ORIGIN[side] ?? "top", transitionTimingFunction: "cubic-bezier(0.2, 0, 0, 1)" }),
+  });
+  return { ...motion, status };
+}
 
 /** Wraps a top-level layer in a FloatingTree; nested ones join their parent's tree. */
 export function LayerTree({ children }: { children: ReactNode }) {

@@ -2860,9 +2860,11 @@ tr.dim td {
   border-color: var(--c-text);
 }
 
+/* the weekday names sit under the grey header, in the white, as react-datepicker drew them */
 .daterange-dows {
   white-space: nowrap;
-  margin-bottom: -8px;
+  text-align: center;
+  margin: 0.5em 0.5em -0.3em;
 }
 
 .daterange-dow,
@@ -2879,7 +2881,7 @@ tr.dim td {
 }
 
 .daterange-grid {
-  margin: 0.5em;
+  margin: 0 0.5em 0.5em;
   text-align: center;
 }
 
@@ -2887,14 +2889,20 @@ tr.dim td {
   white-space: nowrap;
 }
 
+/* a square cell (2.125em × 2.125em): the font is set by its parts, since the `font` shorthand would reset line-height */
 .daterange-day {
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--c-text);
-  font: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  height: 2.125em;
+  line-height: 2.125em;
+  vertical-align: middle;
   border-radius: var(--radius-sm, 4px);
   cursor: pointer;
+  transition: background-color 80ms ease, color 80ms ease;
 }
 .daterange-day:hover {
   background: var(--c-hover);
@@ -6011,4 +6019,20 @@ table.mini .mini-clip {
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: bottom;
+}
+
+/* layers and rows ease their hover and highlight (the layers themselves fade and scale in and out: floating.tsx) */
+.ui-pop .item,
+.ui-ac-pop .ui-ac-item,
+.daterange-shortcuts button,
+.daterange-nav::before {
+  transition: background-color 80ms ease, color 80ms ease, border-color 80ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-pop .item,
+  .ui-ac-pop .ui-ac-item,
+  .daterange-day,
+  .daterange-shortcuts button {
+    transition: none;
+  }
 }

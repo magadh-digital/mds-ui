@@ -26,7 +26,7 @@ import {
   type Ref,
 } from "react";
 import { X } from "lucide-react";
-import { LAYER_Z, LayerTree, TIP_Z, Trigger, isInsideLayer } from "./floating";
+import { LAYER_Z, LayerTree, TIP_Z, Trigger, isInsideLayer, useLayerMotion } from "./floating";
 
 export type Tone = "ok" | "warn" | "error" | "accent" | "neutral";
 
@@ -45,9 +45,11 @@ export function Tip({
     open,
     onOpenChange: setOpen,
     placement,
+    transform: false,
     whileElementsMounted: autoUpdate,
     middleware: [offset(8), flip(), shift({ padding: 8 })],
   });
+  const motion = useLayerMotion(context, "tip");
   const { getReferenceProps, getFloatingProps } = useInteractions([
     useHover(context, { delay: { open: 250, close: 50 }, move: false }),
     useFocus(context),
@@ -59,12 +61,13 @@ export function Tip({
       <Trigger setRef={refs.setReference} getProps={getReferenceProps}>
         {children}
       </Trigger>
-      {open && (
+      {motion.isMounted && (
         <FloatingPortal>
           <div
             ref={refs.setFloating}
             className="ui-tip"
-            style={{ ...floatingStyles, zIndex: TIP_Z }}
+            data-status={motion.status}
+            style={{ ...floatingStyles, ...motion.styles, zIndex: TIP_Z }}
             {...getFloatingProps()}
           >
             {label}
@@ -110,9 +113,11 @@ function PopLayer({
     open,
     onOpenChange: setOpen,
     placement,
+    transform: false,
     whileElementsMounted: autoUpdate,
     middleware: [offset(8), flip(), shift({ padding: 8 })],
   });
+  const motion = useLayerMotion(context);
   const { getReferenceProps, getFloatingProps } = useInteractions([
     useClick(context, { enabled: !hover }),
     useDismiss(context, {
@@ -125,7 +130,8 @@ function PopLayer({
     <div
       ref={refs.setFloating}
       className={className}
-      style={{ ...floatingStyles, zIndex: LAYER_Z, ...style }}
+      data-status={motion.status}
+      style={{ ...floatingStyles, ...motion.styles, zIndex: LAYER_Z, ...style }}
       onMouseEnter={hover?.onEnter}
       onMouseLeave={hover?.onLeave}
       {...getFloatingProps()}
@@ -138,7 +144,7 @@ function PopLayer({
       <Trigger setRef={refs.setReference} getProps={getReferenceProps}>
         {trigger}
       </Trigger>
-      {open && (
+      {motion.isMounted && (
         <FloatingPortal>
           {focus ? (
             <FloatingFocusManager context={context} modal={false} initialFocus={0} returnFocus>

@@ -18,7 +18,7 @@ import {
 import { Calendar, X } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { date, type KitDate } from "./date";
-import { isInsideLayer } from "./floating";
+import { isInsideLayer, useLayerMotion } from "./floating";
 
 export type RangeValue = { from?: string; to?: string };
 export type PresetKey =
@@ -97,7 +97,7 @@ export const rangeLabel = (v: RangeValue): string => {
 
 const DOW = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-/** The month grid: six weeks from the Sunday on or before the 1st, as react-datepicker drew it. */
+/** The month grid: the weeks from the Sunday on or before the 1st to the Saturday on or after the last day. */
 function Month({
   view,
   setView,
@@ -122,7 +122,9 @@ function Month({
   const today = iso(date());
   const first = view.startOf("month");
   const start = first.subtract(first.day(), "day");
-  const days = Array.from({ length: 42 }, (_, i) => start.add(i, "day"));
+  // only the weeks this month needs (five for most months, four or six for some), as react-datepicker showed
+  const weeks = Math.ceil((first.day() + first.daysInMonth()) / 7);
+  const days = Array.from({ length: weeks * 7 }, (_, i) => start.add(i, "day"));
   // the keyboard's day: the picked day in view, else today in view, else the 1st
   const [focus, setFocus] = useState<string>(() => {
     const pickIn = value.from && date(value.from).isSame(view, "month") ? value.from : null;
@@ -192,16 +194,16 @@ function Month({
           aria-label="Next month"
           onClick={() => setView(view.add(1, "month"))}
         />
-        <div className="daterange-dows" aria-hidden>
-          {DOW.map((d) => (
-            <span key={d} className="daterange-dow">
-              {d}
-            </span>
-          ))}
-        </div>
+      </div>
+      <div className="daterange-dows" aria-hidden>
+        {DOW.map((d) => (
+          <span key={d} className="daterange-dow">
+            {d}
+          </span>
+        ))}
       </div>
       <div className="daterange-grid" role="grid" aria-label={view.format("MMMM YYYY")} ref={grid} onKeyDown={onKey}>
-        {Array.from({ length: 6 }, (_, w) => (
+        {Array.from({ length: weeks }, (_, w) => (
           <div key={w} role="row" className="daterange-week">
             {days.slice(w * 7, w * 7 + 7).map((d) => {
               const k = iso(d);
@@ -366,9 +368,11 @@ export function DateRange({
     open,
     onOpenChange: setOpen,
     placement: "bottom-start",
+    transform: false,
     whileElementsMounted: autoUpdate,
-    middleware: [offset(10), flip({ padding: 8 }), shift({ padding: 8 })],
+    middleware: [offset(4), flip({ padding: 8 }), shift({ padding: 8 })],
   });
+  const motion = useLayerMotion(context);
   const { getReferenceProps, getFloatingProps } = useInteractions([
     useDismiss(context, { outsidePress: (e) => !isInsideLayer(e.target), bubbles: { escapeKey: false } }),
   ]);
@@ -438,13 +442,14 @@ export function DateRange({
           {...getReferenceProps({ onClick: () => setOpen(!open) })}
         />
       </div>
-      {open && (
+      {motion.isMounted && (
         <FloatingPortal>
           <FloatingFocusManager context={context} modal={false} initialFocus={-1} returnFocus>
             <div
               ref={refs.setFloating}
               className="daterange-pop"
-              style={{ ...floatingStyles, zIndex: 2000 }}
+              data-status={motion.status}
+              style={{ ...floatingStyles, ...motion.styles, zIndex: 2000 }}
               {...getFloatingProps()}
             >
               <div className="daterange-cal" role="dialog" aria-label="Pick dates">
