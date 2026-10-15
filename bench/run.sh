@@ -7,8 +7,8 @@ bun run build >/dev/null
 rm -f mds-ui-*.tgz && bun pm pack >/dev/null
 mkdir -p bench/vendor && cp mds-ui-*.tgz bench/vendor/mds-ui.tgz && rm -f mds-ui-*.tgz
 cd bench
-# bun caches a local tarball by path: drop the old copy so the fresh build is installed
-rm -rf node_modules/@mds "$HOME/.bun/install/cache/@mds"
+# bun remembers a local tarball by path (in bench's lockfile and its cache): drop both so the fresh build is installed
+rm -rf node_modules/@mds bun.lock "$HOME/.bun/install/cache/@mds"
 bun install >/dev/null
 bun run build >/dev/null
 mkdir -p shots

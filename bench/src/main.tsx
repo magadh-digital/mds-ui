@@ -4,7 +4,7 @@ import { StrictMode, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { ColumnDef, PaginationState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { Bell, Trash2 } from "lucide-react";
-import "@mds/ui/tokens.css";
+import "@mds/ui/styles.css";
 import {
   Autocomplete,
   ConfirmPop,
@@ -20,12 +20,11 @@ import {
   Seg,
   StatusChip,
   Term,
-  TermsProvider,
   Tip,
   ToggleGroup,
   ToneChip,
-  Toaster,
   Toolbar,
+  UIProvider,
   date,
   day,
   dayTime,
@@ -141,7 +140,7 @@ function App() {
   const rows = ROWS.filter((r) => !q || r.name.toLowerCase().includes(q.toLowerCase()));
 
   return (
-    <TermsProvider glossary={{ lookup: (k) => (k === "Amount" ? { d: "Bill value with tax", old: "Gross" } : undefined) }}>
+    <UIProvider storagePrefix="bench.ui" glossary={{ lookup: (k) => (k === "Amount" ? { d: "Bill value with tax", old: "Gross" } : undefined) }}>
       <div className="main" style={{ minHeight: "100vh" }}>
         <Toolbar
           title="Test bench"
@@ -350,9 +349,8 @@ function App() {
           {menu.element}
         </div>
         {viewer.element}
-        <Toaster />
       </div>
-    </TermsProvider>
+    </UIProvider>
   );
 }
 

@@ -49,6 +49,16 @@ describe("page", () => {
     expect(await visible(".ui-table")).toBe(true);
     expect(errors).toEqual([]);
   });
+  test("UIProvider alone: toasts show (the provider mounts the toast host); glossary hover on a header", async () => {
+    await page.click(".ui-table"); // the R shortcut works from anywhere but a text field
+    await page.keyboard.press("r");
+    await page.waitForSelector(".toasts .toast", { timeout: 2000 });
+    expect(await page.$$eval(".toasts .toast", (els) => els.map((e) => e.textContent).join(" "))).toContain("Refreshed");
+    await page.hover('[data-testid="table"] .term');
+    await sleep(450);
+    expect(await page.$eval(".ui-tip", (e) => e.textContent)).toContain("Bill value with tax");
+    await page.mouse.move(5, 880);
+  });
   test("formats (the kit's date(), rupees)", async () => {
     expect(await out("formats")).toContain("15 Oct 2026, 02:30 PM | ₹12,34,567.50 | 28 Feb 2026");
   });

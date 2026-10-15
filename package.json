@@ -1,7 +1,7 @@
 {
   "name": "@mds/ui",
   "version": "0.3.0",
-  "description": "A light React UI kit for data-heavy apps: dense tables, toolbars, filters, side panels, pickers, a date range, a file viewer, an app shell and \u2318K palette. Plain CSS variables, one small dependency.",
+  "description": "A light React UI kit for data-heavy apps: dense tables, toolbars, filters, side panels, pickers, a date range, a file viewer, an app shell and \u2318K palette. Plain CSS variables; React is the only peer.",
   "license": "MIT",
   "author": "MagadhTech",
   "homepage": "https://github.com/MagadhTech/mds-ui#readme",
