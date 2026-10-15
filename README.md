@@ -4,14 +4,13 @@ A light React UI kit for data-heavy apps: list pages with a toolbar and filters,
 row menus, side panels, searchable pickers, a date range, a file viewer, an app shell with a side rail and a ⌘K palette.
 
 - **Plain CSS variables.** A theme is a set of token values; dark mode comes free. No CSS-in-JS.
-- **One runtime dependency** (`@floating-ui/react`). React, `lucide-react` and `@tanstack/react-table` are peers, and
-  the table modules are the only ones that need TanStack.
+- **One runtime dependency** (`@floating-ui/react`). React, `lucide-react` and `@tanstack/react-table` are peers.
+  Bundlers keep only what you import, so an app pays for the components it uses.
 - **No router required.** The shell and palette use a tiny adapter: the browser's history by default, or your router.
 - **Its own calendar and date type.** No date library: `date()` covers the dayjs calls a list page needs.
 
 ```bash
-npm install @mds/ui @floating-ui/react lucide-react
-npm install @tanstack/react-table   # only if you use DenseTable / MiniTable / Toolbar's list helpers
+npm install @mds/ui lucide-react @tanstack/react-table
 ```
 
 ## Quick start
@@ -48,8 +47,8 @@ export function Orders() {
 }
 ```
 
-Every module also loads alone: `@mds/ui/table`, `@mds/ui/daterange`, `@mds/ui/autocomplete`, `@mds/ui/date`, … or by
-folder, `@mds/ui/inputs/daterange`.
+Import everything from `@mds/ui` and the stylesheet from `@mds/ui/styles.css`. A single module can also be imported by
+its folder path (`@mds/ui/inputs/daterange`, `@mds/ui/core/date`).
 
 ## What's inside
 

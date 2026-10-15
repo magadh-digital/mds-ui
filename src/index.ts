@@ -1,4 +1,5 @@
-// @mds/ui: every component and helper. Subpaths ("@mds/ui/table") load one module alone;
+// @mds/ui: every component and helper (bundlers keep only what an app imports). A single module also loads by its
+// folder path ("@mds/ui/inputs/daterange");
 // the stylesheet is "@mds/ui/styles.css" (imported here too).
 import "./styles.css";
 
