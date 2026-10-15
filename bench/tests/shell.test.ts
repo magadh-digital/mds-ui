@@ -56,16 +56,15 @@ describe("AppShell + rail + ⌘K, no router library", () => {
     await page.keyboard.type("repo");
     await sleep(100);
     await page.keyboard.press("Enter");
-    await sleep(150);
+    // the palette fades out before it unmounts: wait for it rather than a fixed time (CI runners are slow)
+    await page.waitForSelector(".mds-cmdk", { hidden: true, timeout: 2000 });
     expect(await path()).toBe("/reports");
-    expect(await page.$(".mds-cmdk")).toBe(null);
     await page.keyboard.down("Meta");
     await page.keyboard.press("k");
     await page.keyboard.up("Meta");
     await page.waitForSelector(".mds-cmdk");
     await page.keyboard.press("Escape");
-    await sleep(150);
-    expect(await page.$(".mds-cmdk")).toBe(null);
+    await page.waitForSelector(".mds-cmdk", { hidden: true, timeout: 2000 });
   });
   test("no errors after all of it", async () => {
     await page.screenshot({ path: `${import.meta.dir}/../shots/shell.png` });
