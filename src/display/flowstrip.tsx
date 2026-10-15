@@ -8,8 +8,9 @@ import { Pop } from "../overlay/pop.js";
  * button (open it) or, with `pop`, the trigger of a small popover (the reasons a blocked node waits on). Nodes that are
  * not needed are shown dimmed and cannot be focused.
  *
- * Keys: ← → move along the nodes, Enter opens one; ↑ goes back to the table row the strip sits under (an exp-row of
- * DenseTable), ↓ to the row after it. The table's → enters the strip at its first node (`data-nav`).
+ * Keys: ← → move along the nodes, Enter opens one. When the strip sits in a table row of its own (DenseTable's second
+ * row), ↑ goes to the row before that one and ↓ to the row after it, and ← from the first node goes back up. A table
+ * enters the strip at its first node (`data-nav`).
  *
  * A node may carry a second glyph (`mark`) beside the state's: the strip only makes room for it — what it means and
  * how it is coloured belong to the page that builds the nodes (for example: whether another system already holds that step).
@@ -74,19 +75,13 @@ export function LaneStrip({
       const i = all.indexOf(t);
       const next = all[i + (e.key === "ArrowRight" ? 1 : -1)];
       if (next) next.focus();
-      else if (e.key === "ArrowLeft") parentRow(t)?.focus();
+      else if (e.key === "ArrowLeft") rowAround(t, "up")?.focus();
     } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-      const row = parentRow(t);
+      const row = rowAround(t, e.key === "ArrowUp" ? "up" : "down");
       if (!row) return;
       e.preventDefault();
       e.stopPropagation();
-      if (e.key === "ArrowUp") row.focus();
-      else {
-        let n = row.nextElementSibling?.nextElementSibling as HTMLElement | null;
-        while (n?.classList.contains("exp-row"))
-          n = n.nextElementSibling as HTMLElement | null;
-        n?.focus();
-      }
+      row.focus();
     }
   };
   let first = true;
@@ -131,10 +126,11 @@ export function LaneStrip({
   );
 }
 
-/** the row of a DenseTable that this strip's exp-row opens under */
-const parentRow = (el: HTMLElement) =>
-  (el.closest("tr.exp-row")?.previousElementSibling as HTMLElement | null) ??
-  null;
+/** the table row before / after the row the strip sits in (none when the strip is not in a table) */
+const rowAround = (el: HTMLElement, dir: "up" | "down") => {
+  const tr = el.closest("tr");
+  return ((dir === "up" ? tr?.previousElementSibling : tr?.nextElementSibling) as HTMLElement | null | undefined) ?? null;
+};
 
 function Node({
   node: n,

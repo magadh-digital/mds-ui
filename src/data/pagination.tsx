@@ -1,10 +1,12 @@
 /**
  * The pager bar every list shows under itself: ‹ › and "21-40 of 683 partners", then (right) any extra controls and
  * "Rows Per Page". DenseTable draws its bottom bar with it; use it alone under a list that is not a table (cards, a
- * board). `pageIndex` is 0-based.
+ * board). `pageIndex` is 0-based. A `pageIndex` past the last page reads as the last page (DenseTable also moves the
+ * page there through its `onPaginationChange`).
  */
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
+import { localeNumber } from "../core/locale.js";
 
 export type PageState = { pageIndex: number; pageSize: number };
 
@@ -31,6 +33,7 @@ export function Pagination({
   extra?: ReactNode;
 }) {
   const pages = Math.max(1, Math.ceil(total / Math.max(pageSize, 1)));
+  pageIndex = Math.min(Math.max(pageIndex, 0), pages - 1);
   const from = total === 0 ? 0 : pageIndex * pageSize + 1;
   const to = Math.min(total, (pageIndex + 1) * pageSize);
   return (
@@ -44,7 +47,7 @@ export function Pagination({
         </button>
       </span>
       <span className="ui-num">
-        {from.toLocaleString("en-IN")}-{to.toLocaleString("en-IN")} of {total.toLocaleString("en-IN")} {label}
+        {localeNumber(from)}-{localeNumber(to)} of {localeNumber(total)} {label}
       </span>
       {note && <span>· {note}</span>}
       <span style={{ flex: 1 }} />

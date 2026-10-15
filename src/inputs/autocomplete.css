@@ -22,8 +22,7 @@
   box-shadow: 0 0 0 2px var(--c-accent-soft);
 }
 
-.ui-ac-input.invalid,
-.ui-ac-input[data-invalid] {
+.ui-ac-input.invalid {
   border-color: var(--c-error);
 }
 

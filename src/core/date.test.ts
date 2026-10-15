@@ -1,7 +1,11 @@
-// The kit's date() must answer exactly what dayjs answered for every call the consoles make.
+// The kit's date() must answer exactly what dayjs answers for the calls it covers.
 import { describe, expect, test } from "bun:test";
 import dayjs from "dayjs";
+import quarterOfYear from "dayjs/plugin/quarterOfYear.js";
 import { date } from "./date.js";
+import { configureLocale } from "./locale.js";
+
+dayjs.extend(quarterOfYear);
 
 // deterministic pseudo-random instants across 2019–2031, plus month ends and leap days
 let seed = 7;
@@ -13,7 +17,7 @@ const instants = [
   new Date(2026, 11, 31, 12, 0).getTime(),
 ];
 const strings = ["2026-10-15", "2024-02-29", "2026-10-15T09:30:00Z", "2026-10-15T09:30:00+05:30", "2026-03-01 14:05", "2026-03-01 14:05:09"];
-const PATTERNS = ["DD MMM YYYY", "DD MMM YYYY, hh:mm A", "hh:mm A", "MMM YYYY", "YYYY-MM-DD", "MMM D, YYYY", "DD-MM-YYYY", "DD MMM", "DD MMM, HH:mm", "MMM-YY", "dddd, D MMMM YYYY", "ddd h:mm a", "HH:mm:ss.SSS", "YYYY-MM-DDTHH:mm:ssZ", "[on] DD/MM/YYYY", "M/D/YY H:m:s", "dd d", "ZZ"];
+const PATTERNS = ["DD MMM YYYY", "DD MMM YYYY, hh:mm A", "hh:mm A", "MMM YYYY", "YYYY-MM-DD", "MMM D, YYYY", "DD-MM-YYYY", "DD MMM", "DD MMM, HH:mm", "MMM-YY", "dddd, D MMMM YYYY", "ddd h:mm a", "HH:mm:ss.SSS", "YYYY-MM-DDTHH:mm:ssZ", "[on] DD/MM/YYYY", "M/D/YY H:m:s", "dd d", "ZZ", "[] DD", "[x]YYYY[]"];
 
 describe("date() matches dayjs", () => {
   test("format", () => {
@@ -35,8 +39,22 @@ describe("date() matches dayjs", () => {
       expect(date(t).subtract(n, u).valueOf()).toBe(dayjs(t).subtract(n, u).valueOf());
     }
   });
+  test("add / subtract: fractions and quarters", () => {
+    const units = ["millisecond", "second", "minute", "hour", "day", "week", "month", "quarter", "year"] as const;
+    for (const t of instants) for (const u of units) for (const n of [1.5, 0.4, -0.5, -1.5, 2.7, -13.2, 1, -3]) {
+      // `as never`: dayjs types "quarter" (the plugin's) in a separate overload from the core units
+      expect(date(t).add(n, u).valueOf()).toBe(dayjs(t).add(n, u as never).valueOf());
+      expect(date(t).subtract(n, u).valueOf()).toBe(dayjs(t).subtract(n, u as never).valueOf());
+    }
+  });
+  test("YYYY pads to four digits", () => {
+    const d = new Date(2000, 5, 15, 10, 0);
+    d.setFullYear(99);
+    for (const p of ["YYYY-MM-DD", "YY", "DD MMM YYYY"]) expect(date(d.getTime()).format(p)).toBe(dayjs(d.getTime()).format(p));
+    expect(date(d.getTime()).format("YYYY")).toBe("0099");
+  });
   test("startOf / endOf", () => {
-    const units = ["year", "month", "week", "day", "hour", "minute", "second"] as const;
+    const units = ["year", "quarter", "month", "week", "day", "hour", "minute", "second"] as const;
     for (const t of instants) for (const u of units) {
       expect(date(t).startOf(u).valueOf()).toBe(dayjs(t).startOf(u).valueOf());
       expect(date(t).endOf(u).valueOf()).toBe(dayjs(t).endOf(u).valueOf());
@@ -47,7 +65,29 @@ describe("date() matches dayjs", () => {
       const a = instants[i]!, b = instants[i + 1]!;
       for (const u of ["millisecond", "second", "minute", "hour", "day", "week", "month", "year"] as const)
         expect(date(a).diff(b, u)).toBe(dayjs(a).diff(b, u));
+      expect(date(a).diff(b, "quarter")).toBe(dayjs(a).diff(b, "quarter"));
       expect(date(a).diff(b, "month", true)).toBeCloseTo(dayjs(a).diff(b, "month", true), 6);
+    }
+  });
+  // dayjs answers NaN for some units and 0 for months here; the kit answers NaN for every unit
+  test("diff with an invalid date is NaN; equal dates are 0, never -0", () => {
+    for (const u of ["millisecond", "day", "month", "year"] as const) {
+      expect(date("junk").diff("2026-10-15", u)).toBeNaN();
+      expect(date("2026-10-15").diff(null, u)).toBeNaN();
+      expect(Object.is(date("2026-10-15").diff("2026-10-15", u), 0)).toBe(true);
+      expect(Object.is(date("2026-10-15T10:00").diff("2026-10-15T09:00", "day"), 0)).toBe(true);
+    }
+  });
+  test("a week starts on the locale's weekStartsOn", () => {
+    try {
+      configureLocale({ weekStartsOn: 1 });
+      expect(date("2026-10-15").startOf("week").format("YYYY-MM-DD ddd")).toBe("2026-10-12 Mon"); // a Thursday
+      expect(date("2026-10-18").startOf("week").format("YYYY-MM-DD")).toBe("2026-10-12"); // a Sunday
+      expect(date("2026-10-15").endOf("week").format("YYYY-MM-DD HH:mm")).toBe("2026-10-18 23:59");
+      configureLocale({ weekStartsOn: 6 });
+      expect(date("2026-10-15").startOf("week").format("YYYY-MM-DD ddd")).toBe("2026-10-10 Sat");
+    } finally {
+      configureLocale({ weekStartsOn: 0 });
     }
   });
   test("comparisons", () => {

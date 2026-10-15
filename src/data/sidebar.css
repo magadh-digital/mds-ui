@@ -37,12 +37,6 @@
   gap: var(--sp-1);
 }
 
-.sidebar-toggle {
-  position: absolute;
-  top: var(--sp-2);
-  z-index: 5;
-}
-
 .fgroup {
   padding: var(--sp-2) var(--sp-1) var(--sp-1);
 }
@@ -70,14 +64,6 @@
   flex-direction: column;
 }
 
-.frow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: calc(var(--row-h) - 2px);
-  padding: 0 var(--sp-1);
-  font-size: var(--fs-md);
-}
 
 .banner {
   margin: var(--sp-2) var(--sp-1) 0;

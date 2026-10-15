@@ -190,7 +190,7 @@ export function SeriesChart({
   );
 }
 
-/** One health timeline per entity (site, transporter…), each with a chevron to open it. */
+/** One health timeline per entity (site, transporter…), each with a chevron to open it (a click, Enter or Space). */
 export function Timelines({
   rows,
   labels,
@@ -211,13 +211,26 @@ export function Timelines({
           key={r.key}
           className={`timeline ${r.onOpen ? "clickable" : ""}`}
           onClick={r.onOpen}
+          role={r.onOpen ? "button" : undefined}
+          tabIndex={r.onOpen ? 0 : undefined}
+          onKeyDown={
+            r.onOpen
+              ? (e) => {
+                  if (e.target !== e.currentTarget) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    r.onOpen!();
+                  }
+                }
+              : undefined
+          }
         >
           <span className="tl-label">{r.label}</span>
           <span className="tl-bar">
             <HealthBar segments={r.segments} labels={labels} />
           </span>
           <span className="tl-right ui-num ui-muted">{r.right}</span>
-          {r.onOpen && <span className="chev" />}
+          {r.onOpen && <span className="chev" aria-hidden />}
         </div>
       ))}
     </div>
@@ -246,13 +259,14 @@ export function IconStrip({
         {items.length === 0 && <span className="ui-muted">—</span>}
         {items.map((i) => (
           <button
+            type="button"
             key={i.key}
             className="tile"
             onClick={i.onClick}
             title={i.label}
           >
             <span className="tile-value ui-num">{i.value}</span>
-            <Icon />
+            <Icon aria-hidden />
             <span className="tile-label">{i.label}</span>
           </button>
         ))}

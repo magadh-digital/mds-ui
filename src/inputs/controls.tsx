@@ -1,6 +1,9 @@
 /**
  * The basic controls as components, so an app never has to know the kit's class names: Button, IconButton, LinkButton,
  * Input, Select, Textarea, Checkbox. Each takes the native element's props (and `ref`) plus a few of its own.
+ *
+ * `invalid` marks a field as wrong: the class `invalid` (red border) and `aria-invalid`. Inside a FormRow the row's
+ * label names the field, its hint / error describe it, and a row with an `error` marks it invalid.
  */
 import { Loader2 } from "lucide-react";
 import type {
@@ -11,6 +14,8 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
+import { localeNumber } from "../core/locale.js";
+import { joinIds, useFieldControl } from "./field.js";
 
 const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(" ");
 
@@ -69,22 +74,41 @@ export function LinkButton({ className, type = "button", ...rest }: ButtonHTMLAt
   return <button type={type} className={cx("ui-link", className)} {...rest} />;
 }
 
+/** the id, invalid state and aria-describedby a field control gets from its props and the FormRow around it */
+function useFieldProps(id: string | undefined, invalid: boolean | undefined, describedBy: string | undefined) {
+  const { id: own, field } = useFieldControl(id);
+  const bad = invalid ?? field?.invalid ?? false;
+  return { id: own, bad, describedBy: joinIds(describedBy, field?.describedBy) };
+}
+
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   /** marks the field as wrong (red border, aria-invalid) */
   invalid?: boolean;
   ref?: Ref<HTMLInputElement>;
 };
-export function Input({ invalid, className, ...rest }: InputProps) {
-  return <input className={cx("ui-input", invalid && "fail", className)} aria-invalid={invalid || undefined} {...rest} />;
+export function Input({ invalid, className, id, "aria-describedby": describedBy, ...rest }: InputProps) {
+  const f = useFieldProps(id, invalid, describedBy);
+  return (
+    <input
+      id={f.id}
+      className={cx("ui-input", f.bad && "invalid", className)}
+      aria-invalid={f.bad || undefined}
+      aria-describedby={f.describedBy}
+      {...rest}
+    />
+  );
 }
 
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean; ref?: Ref<HTMLTextAreaElement> };
-export function Textarea({ invalid, className, rows = 3, ...rest }: TextareaProps) {
+export function Textarea({ invalid, className, rows = 3, id, "aria-describedby": describedBy, ...rest }: TextareaProps) {
+  const f = useFieldProps(id, invalid, describedBy);
   return (
     <textarea
       rows={rows}
-      className={cx("ui-input ui-textarea", invalid && "fail", className)}
-      aria-invalid={invalid || undefined}
+      id={f.id}
+      className={cx("ui-input ui-textarea", f.bad && "invalid", className)}
+      aria-invalid={f.bad || undefined}
+      aria-describedby={f.describedBy}
       {...rest}
     />
   );
@@ -101,9 +125,16 @@ type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, "children"> & {
   ref?: Ref<HTMLSelectElement>;
 };
 /** A short fixed list (5 or more choices; 2–4 is a ToggleGroup, a searchable list an Autocomplete). */
-export function Select({ options, placeholder, invalid, className, children, ...rest }: SelectProps) {
+export function Select({ options, placeholder, invalid, className, children, id, "aria-describedby": describedBy, ...rest }: SelectProps) {
+  const f = useFieldProps(id, invalid, describedBy);
   return (
-    <select className={cx("ui-select", invalid && "fail", className)} aria-invalid={invalid || undefined} {...rest}>
+    <select
+      id={f.id}
+      className={cx("ui-select", f.bad && "invalid", className)}
+      aria-invalid={f.bad || undefined}
+      aria-describedby={f.describedBy}
+      {...rest}
+    >
       {placeholder != null && <option value="">{placeholder}</option>}
       {options?.map((o) => (
         <option key={o.value} value={o.value} disabled={o.disabled}>
@@ -128,7 +159,7 @@ export function Checkbox({ label, checked, onChange, count, disabled, className,
     <label className={cx("ui-check", disabled && "disabled", className)}>
       <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} {...rest} />
       <span>{label}</span>
-      {count != null && <span className="count">{count.toLocaleString("en-IN")}</span>}
+      {count != null && <span className="count">{localeNumber(count)}</span>}
     </label>
   );
 }

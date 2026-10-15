@@ -174,17 +174,17 @@ function App() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16, padding: 16 }}>
           <section data-testid="ac-single">
             <h4>Autocomplete (single)</h4>
-            <Autocomplete options={PLAIN} value={single} onChange={(v) => setSingle(v)} placeholder="City" ariaLabel="City" />
+            <Autocomplete options={PLAIN} value={single} onChange={(v) => setSingle(v)} placeholder="City" label="City" />
             <Out id="ac-single-out" v={single ?? "none"} />
           </section>
           <section data-testid="ac-multi">
             <h4>Autocomplete (multiple)</h4>
-            <Autocomplete multiple options={PLAIN} value={multi} onChange={(v) => setMulti(v)} placeholder="Cities" ariaLabel="Cities" />
+            <Autocomplete multiple options={PLAIN} value={multi} onChange={(v) => setMulti(v)} placeholder="Cities" label="Cities" />
             <Out id="ac-multi-out" v={multi.join(",")} />
           </section>
           <section data-testid="ac-grouped">
             <h4>Autocomplete (groups)</h4>
-            <Autocomplete options={CITIES} value={grouped} onChange={(v) => setGrouped(v)} placeholder="Grouped" ariaLabel="Grouped" groupOrder={["Jharkhand"]} />
+            <Autocomplete options={CITIES} value={grouped} onChange={(v) => setGrouped(v)} placeholder="Grouped" label="Grouped" groupOrder={["Jharkhand"]} />
             <Out id="ac-grouped-out" v={grouped ?? "none"} />
           </section>
           <section data-testid="ac-server">
@@ -199,7 +199,7 @@ function App() {
                 setSearchLog((l) => [...l, t]);
               }}
               placeholder="Server search"
-              ariaLabel="Server search"
+              label="Server search"
               emptyText="Type 2 letters"
             />
             <Out id="ac-server-out" v={searchLog.join("|")} />
@@ -213,7 +213,7 @@ function App() {
               <Pop trigger={<button type="button" className="ui-btn" data-testid="pop-trigger">Pop</button>}>
                 <div data-testid="pop-body">
                   Pick inside a popover:
-                  <Autocomplete options={PLAIN} value={inPop} onChange={(v) => setInPop(v)} ariaLabel="City in pop" />
+                  <Autocomplete options={PLAIN} value={inPop} onChange={(v) => setInPop(v)} label="City in pop" />
                 </div>
               </Pop>
               <EditPop title="Edit rate" trigger={<button type="button" className="ui-btn" data-testid="editpop-trigger">Edit</button>}>
@@ -279,7 +279,7 @@ function App() {
           <div className="vstack" style={{ gap: 8 }}>
             <h4>Date, confirm, toggles</h4>
             <div data-testid="dateinput" style={{ width: 220 }}>
-              <DateInput value={day1} onChange={setDay1} min="2026-10-05" max="2026-10-25" ariaLabel="Bill date" />
+              <DateInput value={day1} onChange={setDay1} min="2026-10-05" max="2026-10-25" label="Bill date" />
             </div>
             <Button data-testid="ask" onClick={async () => setAsked(String(await ask.confirm({ title: "Delete vehicle", danger: true, typed: "DELETE", confirmLabel: "Delete" })))}>Delete from code</Button>
             <ToggleGroup multiple label="Products" value={products} onChange={setProducts} options={[{ value: "tmt", label: "TMT" }, { value: "coil", label: "Coil" }, { value: "sheet", label: "Sheet" }, { value: "pipe", label: "Pipe" }]} />

@@ -1,6 +1,6 @@
 /* DateInput: days outside min/max, the Today / Clear row, the invalid field */
 .daterange-day.disabled,
-.daterange-day:disabled {
+.daterange-day[aria-disabled="true"] {
   opacity: 0.3;
   cursor: not-allowed;
   background: transparent;

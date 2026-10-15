@@ -1,13 +1,13 @@
-import { type ColumnDef, type PaginationState, type SortingState, type VisibilityState } from "@tanstack/react-table";
+import { type Column, type ColumnDef, type PaginationState, type SortingState, type VisibilityState } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type Action } from "../core/types.js";
-import { dialogOpen } from "../overlay/dialog.js";
-import { toast } from "../overlay/toast.js";
+import { columnIdOf } from "./columns.js";
+import { readSaved, stringList, isRecord, useClientLayoutEffect, writeSaved } from "./saved.js";
+import { storageKey } from "../core/storage.js";
 
 /**
- * What every B + C + D list page shares: URL-backed search/sort/page state, the debounced search box,
- * column visibility and order per page, the toolbar and the `Customize Columns` popover. Pages keep their columns,
- * filters and panel; this removes the boilerplate.
+ * What every list page shares: URL-backed search/sort/page state, the debounced search box, column visibility and
+ * order per page (for the table's `Customize columns`). Pages keep their columns, filters and panel; this removes the
+ * boilerplate.
  */
 export type BaseSearch = {
   q?: string;
@@ -20,8 +20,16 @@ export type BaseSearch = {
   view?: string;
 };
 export const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
-export const num = (v: unknown, min = 1) =>
-  typeof v === "number" && v >= min ? Math.floor(v) : undefined;
+/** a whole number ≥ `min` from a number or a numeric string (`2`, `"2"`; URL params arrive as strings), else undefined */
+export const num = (v: unknown, min = 1) => {
+  const n =
+    typeof v === "number"
+      ? v
+      : typeof v === "string" && /^\s*-?\d+(\.\d+)?\s*$/.test(v)
+        ? Number(v)
+        : NaN;
+  return Number.isFinite(n) && n >= min ? Math.floor(n) : undefined;
+};
 export const csv = (v: string | undefined) =>
   v ? v.split(",").filter(Boolean) : [];
 export const join = (a: Array<string>) => (a.length ? a.join(",") : undefined);
@@ -44,6 +52,29 @@ export const baseSearch = (s: Record<string, unknown>): BaseSearch => ({
   view: str(s.view),
 });
 
+/**
+ * A list page's state, kept in the URL's search params.
+ *
+ * - `s`: the current search params, ideally validated with `baseSearch` (numeric strings such as `page: "2"` are
+ *   accepted too, so raw `URLSearchParams` values work).
+ * - `navigate`: replaces the search params. It is called TanStack Router style, with an updater:
+ *   `navigate({ search: (prev) => next, replace: true })`. Other routers wrap their own call, e.g. React Router:
+ *
+ *       const [params, setParams] = useSearchParams();
+ *       const s = baseSearch(Object.fromEntries(params));
+ *       const navigate = useCallback(
+ *         (o: { search: (prev: BaseSearch) => BaseSearch }) =>
+ *           setParams((p) => toParams(o.search(baseSearch(Object.fromEntries(p)))), { replace: true }),
+ *         [setParams],
+ *       ); // toParams: drop undefined values, String() the rest
+ *
+ *   Keep `navigate` stable (useCallback): the search box's debounce depends on it.
+ * - `opts.colsKey`: the name the column picks and order are saved under (through `storageKey`, so the app's storage
+ *   prefix applies): `<prefix>.<colsKey>` and `<prefix>.<colsKey>.order`.
+ *
+ * The search box (`qInput` / `setQInput`) is debounced into `q`; `/` is the Toolbar's, so pass
+ * `search={{ value: L.qInput, onChange: L.setQInput }}` to the page's `Toolbar`.
+ */
 export function useListState<S extends BaseSearch>(
   s: S,
   navigate: (opts: { search: (prev: S) => S; replace: true }) => void,
@@ -56,39 +87,38 @@ export function useListState<S extends BaseSearch>(
   },
 ) {
   const defaultSize = opts.defaultSize ?? 50;
+  const page = num(s.page) ?? 1;
+  const size = num(s.size) ?? defaultSize;
   const set = useCallback(
     (patch: Partial<S>) =>
       navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true }),
     [navigate],
   );
 
-  // debounced search box, `/` focuses it
+  // the debounced search box. A `q` that comes back from our own navigation is not echoed into the box (the reader may
+  // have typed on while it was in flight); a `q` from anywhere else (Back, a link) replaces the box's text.
   const [qInput, setQInput] = useState(s.q ?? "");
-  const searchRef = useRef<HTMLInputElement>(null);
-  useEffect(() => setQInput(s.q ?? ""), [s.q]);
+  const sent = useRef<Array<string>>([]);
+  useEffect(() => {
+    const q = s.q ?? "";
+    const i = sent.current.indexOf(q);
+    if (i >= 0) {
+      sent.current = sent.current.slice(i + 1);
+      return;
+    }
+    sent.current = [];
+    setQInput(q);
+  }, [s.q]);
   useEffect(() => {
     const t = setTimeout(() => {
-      if ((s.q ?? "") !== qInput.trim())
-        set({ q: qInput.trim() || undefined, page: undefined } as Partial<S>);
+      const v = qInput.trim();
+      if ((s.q ?? "") !== v) {
+        sent.current.push(v);
+        set({ q: v || undefined, page: undefined } as Partial<S>);
+      }
     }, 250);
     return () => clearTimeout(t);
   }, [qInput, s.q, set]);
-  useEffect(() => {
-    const fn = (e: KeyboardEvent) => {
-      if (
-        e.key === "/" &&
-        !dialogOpen() &&
-        !(e.target instanceof HTMLInputElement) &&
-        !(e.target instanceof HTMLTextAreaElement) &&
-        !(e.target instanceof HTMLSelectElement)
-      ) {
-        e.preventDefault();
-        searchRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", fn);
-    return () => window.removeEventListener("keydown", fn);
-  }, []);
 
   const sorting = useMemo<SortingState>(
     () => [
@@ -100,8 +130,8 @@ export function useListState<S extends BaseSearch>(
     [s.sort, s.dir, opts.defaultSort, opts.defaultDir],
   );
   const pagination = useMemo<PaginationState>(
-    () => ({ pageIndex: (s.page ?? 1) - 1, pageSize: s.size ?? defaultSize }),
-    [s.page, s.size, defaultSize],
+    () => ({ pageIndex: page - 1, pageSize: size }),
+    [page, size],
   );
   const onSortingChange = useCallback(
     (st: SortingState) => {
@@ -124,45 +154,28 @@ export function useListState<S extends BaseSearch>(
     [set, defaultSize],
   );
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    () => {
-      try {
-        return JSON.parse(
-          localStorage.getItem(opts.colsKey) ?? "{}",
-        ) as VisibilityState;
-      } catch {
-        return {};
-      }
-    },
-  );
+  // the reader's column picks and order, saved per page; read after mount (the server renders the page's defaults)
+  const colsKey = storageKey(opts.colsKey);
+  const orderKey = storageKey(`${opts.colsKey}.order`);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnOrder, setColumnOrder] = useState<Array<string>>([]);
+  useClientLayoutEffect(() => {
+    const v = readSaved(colsKey);
+    setColumnVisibility(isRecord(v) ? (v as VisibilityState) : {});
+    setColumnOrder(stringList(readSaved(orderKey)));
+  }, [colsKey, orderKey]);
   const setCols = useCallback(
     (v: VisibilityState) => {
       setColumnVisibility(v);
-      try {
-        localStorage.setItem(opts.colsKey, JSON.stringify(v));
-      } catch {}
+      writeSaved(colsKey, v);
     },
-    [opts.colsKey],
+    [colsKey],
   );
-  // the column order the user arranged in the customiser, saved beside the visibility; [] = the page's own order
-  const orderKey = `${opts.colsKey}.order`;
-  const [columnOrder, setColumnOrder] = useState<string[]>(() => {
-    try {
-      const v = JSON.parse(localStorage.getItem(orderKey) ?? "[]") as unknown;
-      return Array.isArray(v)
-        ? v.filter((x): x is string => typeof x === "string")
-        : [];
-    } catch {
-      return [];
-    }
-  });
+  // [] = the page's own order
   const setOrder = useCallback(
-    (o: string[]) => {
+    (o: Array<string>) => {
       setColumnOrder(o);
-      try {
-        if (o.length) localStorage.setItem(orderKey, JSON.stringify(o));
-        else localStorage.removeItem(orderKey);
-      } catch {}
+      writeSaved(orderKey, o.length ? o : undefined);
     },
     [orderKey],
   );
@@ -171,7 +184,6 @@ export function useListState<S extends BaseSearch>(
     set,
     qInput,
     setQInput,
-    searchRef,
     sorting,
     pagination,
     onSortingChange,
@@ -182,30 +194,14 @@ export function useListState<S extends BaseSearch>(
     setOrder,
     collapsed,
     setCollapsed,
-    page: s.page ?? 1,
-    size: s.size ?? defaultSize,
+    page,
+    size,
     sort: s.sort ?? opts.defaultSort,
     dir: s.dir ?? opts.defaultDir ?? "desc",
   };
 }
 
-/** Turns a facets map into a lookup: count for (field, value), 0 when absent. */
-export const countOf = (
-  facets: Record<string, Array<{ value: string; count: number }>> | undefined,
-  field: string,
-  value: string,
-) => facets?.[field]?.find((f) => f.value === value)?.count ?? 0;
-export const facetList = (
-  facets:
-    | Record<
-        string,
-        Array<{ value: string; label?: string | null; count: number }>
-      >
-    | undefined,
-  field: string,
-) => [...(facets?.[field] ?? [])].sort((a, b) => b.count - a.count);
-
-// ---------------------------------------------------------------- selection + bulk actions
+// ---------------------------------------------------------------- selection
 
 /**
  * The page's selection: ids (so it survives paging) plus the rows behind them (kept as they are seen, so bulk actions can
@@ -241,92 +237,44 @@ export function useSelection<T>(
 }
 
 /**
- * The actions every selected row offers (same `key`), each running on all of them in turn — the intersection, so the bar
- * only ever shows what applies to the whole pick. Disabled when disabled on any row (with that row's reason). One toast
- * at the end with the tally; the caller's per-row mutation should stay quiet (see `useReceiptStep({ quiet })`).
+ * Rows as tab-separated text in the visible columns (header row from `meta.label`, else a string header), for Excel.
+ * `columns` are the page's column defs, or the table's own columns (`table.getAllLeafColumns()`); a column's id is
+ * worked out as TanStack does (`id`, else `accessorKey`, else a string `header`), so `columnHelper.accessor("name")`
+ * columns count too. Columns with no accessor (actions, the checkbox) are left out.
  */
-export function commonActions<T>(
-  rows: Array<T>,
-  actionsFor: (r: T) => Array<Action>,
-  unit = "rows",
-): Array<Action> {
-  if (rows.length === 0) return [];
-  const lists = rows.map(actionsFor);
-  return lists[0]!
-    .filter(
-      (a) =>
-        !a.element &&
-        (a.onClick || a.confirm) &&
-        lists.every((l) => l.some((b) => b.key === a.key)),
-    )
-    .map((a) => {
-      const per = lists.map((l) => l.find((b) => b.key === a.key)!);
-      const off = per.find((b) => b.disabled);
-      return {
-        ...a,
-        element: undefined,
-        disabled: !!off,
-        title: off?.title ?? a.title,
-        onClick: (reason?: string) =>
-          runBulk(
-            a.label,
-            per.map((b) => () => b.onClick?.(reason)),
-            unit,
-          ),
-      };
-    });
-}
-
-/** Runs the jobs one after another (the API is per id) and reports once. Rejects when nothing succeeded, so a confirm stays open. */
-export async function runBulk(
-  label: string,
-  jobs: Array<() => unknown>,
-  unit = "rows",
-) {
-  let ok = 0;
-  const failed: Array<string> = [];
-  for (const job of jobs) {
-    try {
-      await job();
-      ok++;
-    } catch (e) {
-      failed.push(e instanceof Error ? e.message : "failed");
-    }
-  }
-  if (failed.length === 0) toast.ok(`${label}: ${ok} ${unit}`);
-  else if (ok === 0) {
-    toast.error(`${label} failed on all ${failed.length}: ${failed[0]}`);
-    throw new Error(failed[0]);
-  } else
-    toast.error(`${label}: ${ok} done, ${failed.length} failed (${failed[0]})`);
-}
-
-/** Selected rows as tab-separated text in the visible columns (header row from `meta.label`), for Excel. */
 export function rowsToTsv<T>(
   rows: Array<T>,
-  columns: Array<ColumnDef<T, any>>,
+  columns: Array<ColumnDef<T, any> | Column<T, unknown>>,
   visibility: VisibilityState = {},
 ): string {
-  type Acc = {
-    accessorKey?: string;
-    accessorFn?: (r: T, i: number) => unknown;
-  };
-  const cols = columns.filter(
-    (c) =>
-      c.id &&
-      visibility[c.id] !== false &&
-      ((c as Acc).accessorKey || (c as Acc).accessorFn),
-  );
-  const cell = (r: T, i: number, c: ColumnDef<T, any>) => {
-    const a = c as Acc;
-    const v = a.accessorFn
-      ? a.accessorFn(r, i)
-      : (r as Record<string, unknown>)[a.accessorKey!];
+  type Acc = { accessorKey?: string; accessorFn?: (r: T, i: number) => unknown };
+  const cols = columns
+    .map((c) => {
+      const def = ("columnDef" in c ? c.columnDef : c) as ColumnDef<T, any> & Acc;
+      const id = "columnDef" in c ? c.id : columnIdOf(def);
+      const key = def.accessorKey;
+      const get: ((r: T, i: number) => unknown) | undefined =
+        ("columnDef" in c ? c.accessorFn : undefined) ??
+        def.accessorFn ??
+        (key != null
+          ? (r: T) =>
+              key
+                .split(".")
+                .reduce<unknown>((o, k) => (o == null ? undefined : (o as Record<string, unknown>)[k]), r)
+          : undefined);
+      const label = def.meta?.label ?? (typeof def.header === "string" && def.header ? def.header : id);
+      return { id, get, label };
+    })
+    .filter(
+      (c): c is { id: string; get: (r: T, i: number) => unknown; label: string } =>
+        !!c.id && !c.id.startsWith("__") && !!c.get && visibility[c.id] !== false,
+    );
+  const cell = (r: T, i: number, get: (r: T, i: number) => unknown) => {
+    const v = get(r, i);
     return v == null ? "" : String(v).replace(/[\t\n\r]+/g, " ");
   };
-  const head = cols.map((c) => c.meta?.label ?? c.id).join("\t");
   return [
-    head,
-    ...rows.map((r, i) => cols.map((c) => cell(r, i, c)).join("\t")),
+    cols.map((c) => c.label).join("\t"),
+    ...rows.map((r, i) => cols.map((c) => cell(r, i, c.get)).join("\t")),
   ].join("\n");
 }

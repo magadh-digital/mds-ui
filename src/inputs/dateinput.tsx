@@ -1,7 +1,9 @@
 /**
  * One date in a form (a bill date, an expiry): the kit's calendar under a field that reads "Oct 15, 2026", instead of
  * the browser's <input type="date"> that looks different in every browser. Value is "YYYY-MM-DD" or "" (none).
- * `min` / `max` grey out the days outside; Today and Clear sit under the calendar.
+ * `min` / `max` grey out the days outside (and the arrow keys stop there); Today and Clear sit under the calendar.
+ * `label` names the field for screen readers, read with the date ("Bill date, Oct 15, 2026"); inside a FormRow the
+ * row's label does that.
  */
 import {
   FloatingFocusManager,
@@ -16,8 +18,9 @@ import {
 } from "@floating-ui/react";
 import { useState } from "react";
 import { date, type KitDate } from "../core/date.js";
-import { isInsideLayer, useLayerMotion } from "../overlay/floating.js";
+import { isInsideLayer, LAYER_Z, useLayerMotion } from "../overlay/floating.js";
 import { CalendarMonth, DateTrigger, iso } from "./calendar.js";
+import { useFieldControl } from "./field.js";
 
 export function DateInput({
   value,
@@ -29,7 +32,8 @@ export function DateInput({
   disabled,
   invalid,
   format = "MMM D, YYYY",
-  ariaLabel,
+  label,
+  id,
 }: {
   /** "YYYY-MM-DD", or "" / undefined for none */
   value: string | null | undefined;
@@ -44,8 +48,12 @@ export function DateInput({
   invalid?: boolean;
   /** how the field shows the date (date().format tokens) */
   format?: string;
-  ariaLabel?: string;
+  /** the field's accessible name, read before the date */
+  label?: string;
+  id?: string;
 }) {
+  const { id: fieldId, field } = useFieldControl(id);
+  const bad = invalid ?? field?.invalid ?? false;
   const picked = value && date(value).isValid() ? value : "";
   const [open, setOpenState] = useState(false);
   const startView = () => (picked ? date(picked) : date()).startOf("month");
@@ -54,7 +62,7 @@ export function DateInput({
     if (v) setView(startView());
     setOpenState(v);
   };
-  const out = (k: string) => (min && k < min) || (max && k > max) ? true : false;
+  const out = (k: string) => (!!min && k < min) || (!!max && k > max);
   const pick = (d: KitDate) => {
     onChange(iso(d));
     setOpenState(false);
@@ -73,16 +81,19 @@ export function DateInput({
   ]);
   const today = iso(date());
   return (
-    <div className={`daterange-root dateinput${invalid ? " invalid" : ""}`}>
+    <div className={`daterange-root dateinput${bad ? " invalid" : ""}`}>
       <div className="daterange-wrap">
         <DateTrigger
           ref={refs.setReference}
+          id={fieldId}
           label={picked ? date(picked).format(format) : placeholder}
+          name={label}
+          labelledBy={field?.labelId}
+          aria-describedby={field?.describedBy}
           empty={!picked}
           open={open}
           disabled={disabled}
-          aria-label={ariaLabel}
-          aria-invalid={invalid || undefined}
+          aria-invalid={bad || undefined}
           hint="Pick a date"
           onClear={clearable && !disabled ? () => onChange("") : undefined}
           {...getReferenceProps({ onClick: () => !disabled && setOpen(!open) })}
@@ -95,10 +106,10 @@ export function DateInput({
               ref={refs.setFloating}
               className="daterange-pop"
               data-status={motion.status}
-              style={{ ...floatingStyles, ...motion.styles, zIndex: 2000 }}
+              style={{ ...floatingStyles, ...motion.styles, zIndex: LAYER_Z }}
               {...getFloatingProps()}
             >
-              <div className="daterange-cal" role="dialog" aria-label={ariaLabel ?? "Pick a date"}>
+              <div className="daterange-cal" role="dialog" aria-label={label ? `Pick ${label}` : "Pick a date"}>
                 <CalendarMonth
                   view={view}
                   setView={setView}
@@ -109,7 +120,8 @@ export function DateInput({
                   setHover={() => {}}
                   onPick={pick}
                   onEscape={() => setOpenState(false)}
-                  isDisabled={out}
+                  min={min}
+                  max={max}
                 />
                 <div className="daterange-foot dateinput-foot">
                   <button type="button" className="ui-link" disabled={out(today)} onClick={() => pick(date())}>

@@ -1,6 +1,6 @@
 /**
- * A small date type for the kit and the apps that use it: the part of dayjs the consoles using it call, with no
- * dependency. Immutable: every change returns a new value.
+ * A small date type for the kit and the apps that use it: the part of dayjs a list page calls, with no dependency.
+ * Immutable: every change returns a new value.
  *
  *   date()                      now
  *   date("2026-10-15")          that day, local midnight (a date-only string is a local date, as in dayjs)
@@ -11,11 +11,17 @@
  *
  *   date(v).format("DD MMM YYYY, hh:mm A")   "15 Oct 2026, 02:30 PM"
  *   date().subtract(6, "day").startOf("day")
- *   date(a).diff(b, "day")
+ *   date(a).diff(b, "day")      NaN when either date is invalid
+ *
+ * Units: millisecond second minute hour day week month quarter year (also plural, and ms s m h d w M Q y). A week
+ * starts on the locale's `weekStartsOn` (core/locale.ts; Sunday by default, as dayjs). A fractional `add` rounds as
+ * dayjs does: days and weeks to the nearest whole day, months and years toward zero.
  *
  * Format tokens: YYYY YY · MMMM MMM MM M · DD D · dddd ddd dd d · HH H · hh h · mm m · ss s · SSS · A a · Z ZZ;
- * text inside [brackets] is printed as is ("[on] DD MMM").
+ * text inside [brackets] is printed as is ("[on] DD MMM"); empty brackets "[]" print as they are.
  */
+
+import { kitLocale } from "./locale.js";
 
 export type DateLike = KitDate | Date | string | number | null | undefined;
 export type Unit =
@@ -26,8 +32,9 @@ export type Unit =
   | "day"
   | "week"
   | "month"
+  | "quarter"
   | "year";
-type UnitIn = Unit | `${Unit}s` | "ms" | "s" | "m" | "h" | "d" | "w" | "M" | "y";
+type UnitIn = Unit | `${Unit}s` | "ms" | "s" | "m" | "h" | "d" | "w" | "M" | "Q" | "y";
 
 const SHORT: Record<string, Unit> = {
   ms: "millisecond",
@@ -37,6 +44,7 @@ const SHORT: Record<string, Unit> = {
   d: "day",
   w: "week",
   M: "month",
+  Q: "quarter",
   y: "year",
 };
 const unitOf = (u: UnitIn): Unit =>
@@ -69,7 +77,8 @@ function parse(v: DateLike): number {
   if (v === null || v === "") return NaN;
   if (v instanceof KitDate) return v.valueOf();
   if (v instanceof Date) return v.getTime();
-  if (typeof v === "number") return v;
+  // through Date, so a fraction of a millisecond is dropped and an out-of-range number is invalid (as dayjs)
+  if (typeof v === "number") return new Date(v).getTime();
   const s = v.trim();
   let m = DATE_ONLY.exec(s);
   if (m) return new Date(+m[1]!, +m[2]! - 1, +m[3]!).getTime();
@@ -165,18 +174,21 @@ export class KitDate {
         return new KitDate(this.#t + n * 60_000);
       case "hour":
         return new KitDate(this.#t + n * 3_600_000);
+      // days and weeks round to a whole day (1.5 days = 2 days), as dayjs
       case "day":
-        return this.#with((d) => d.setDate(d.getDate() + n));
+        return this.#with((d) => d.setDate(d.getDate() + Math.round(n)));
       case "week":
-        return this.#with((d) => d.setDate(d.getDate() + n * 7));
+        return this.#with((d) => d.setDate(d.getDate() + Math.round(n * 7)));
       case "month":
+      case "quarter":
       case "year":
         return this.#with((d) => {
-          // 31 Jan + 1 month = 28/29 Feb (the month's last day), never 2/3 Mar: as dayjs
-          const months = u === "year" ? n * 12 : n;
+          // 31 Jan + 1 month = 28/29 Feb (the month's last day), never 2/3 Mar: as dayjs. A fraction is dropped by
+          // setMonth / setFullYear themselves (toward zero), as dayjs, which hands them the same sums.
           const day = d.getDate();
           d.setDate(1);
-          d.setMonth(d.getMonth() + months);
+          if (u === "year") d.setFullYear(d.getFullYear() + n);
+          else d.setMonth(d.getMonth() + (u === "quarter" ? n * 3 : n));
           const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
           d.setDate(Math.min(day, last));
         });
@@ -194,14 +206,21 @@ export class KitDate {
           d.setMonth(0, 1);
           d.setHours(0, 0, 0, 0);
           break;
+        case "quarter":
+          d.setMonth(Math.floor(d.getMonth() / 3) * 3, 1);
+          d.setHours(0, 0, 0, 0);
+          break;
         case "month":
           d.setDate(1);
           d.setHours(0, 0, 0, 0);
           break;
-        case "week":
-          d.setDate(d.getDate() - d.getDay());
+        case "week": {
+          const start = kitLocale().weekStartsOn;
+          const w = d.getDay();
+          d.setDate(d.getDate() - ((w < start ? w + 7 : w) - start));
           d.setHours(0, 0, 0, 0);
           break;
+        }
         case "day":
           d.setHours(0, 0, 0, 0);
           break;
@@ -225,21 +244,22 @@ export class KitDate {
     return this.startOf(u).add(1, u).subtract(1, "millisecond");
   }
 
-  /** `this − other` in whole units (truncated toward zero), or exact with `float` */
+  /** `this − other` in whole units (truncated toward zero), or exact with `float`; NaN when either date is invalid */
   diff(other: DateLike, unit: UnitIn = "millisecond", float = false): number {
     const o = new KitDate(other);
+    if (!this.isValid() || !o.isValid()) return NaN;
     const u = unitOf(unit);
     let v: number;
-    if (u === "month" || u === "year") {
-      v = monthDiff(this, o);
-      if (u === "year") v /= 12;
+    if (u === "month" || u === "quarter" || u === "year") {
+      v = monthDiff(this, o) / (u === "year" ? 12 : u === "quarter" ? 3 : 1);
     } else {
       const ms = this.#t - o.valueOf();
-      const per = { millisecond: 1, second: 1e3, minute: 6e4, hour: 36e5, day: 864e5, week: 6048e5 }[u];
+      const per = { millisecond: 1, second: 1e3, minute: 6e4, hour: 36e5 }[u as "millisecond" | "second" | "minute" | "hour"];
       // whole days/weeks count calendar days, so a DST shift or a time of day does not make 1 day read as 0.96
       v = u === "day" || u === "week" ? calendarDays(this, o) / (u === "week" ? 7 : 1) : ms / per;
     }
-    return (float ? v : Math.trunc(v)) || 0;
+    const r = float ? v : Math.trunc(v);
+    return r === 0 ? 0 : r; // never -0
   }
 
   isBefore(other: DateLike, unit?: UnitIn) {
@@ -274,7 +294,7 @@ export class KitDate {
     const off = -d.getTimezoneOffset();
     const zone = (sep: string) => `${off >= 0 ? "+" : "-"}${pad(Math.floor(Math.abs(off) / 60))}${sep}${pad(Math.abs(off) % 60)}`;
     const T: Record<string, () => string> = {
-      YYYY: () => String(Y),
+      YYYY: () => String(Y).padStart(4, "0"),
       YY: () => String(Y).slice(-2),
       MMMM: () => MONTHS[M]!,
       MMM: () => MONTHS[M]!.slice(0, 3),
@@ -301,7 +321,7 @@ export class KitDate {
       Z: () => zone(":"),
     };
     return pattern.replace(
-      /\[([^\]]*)]|YYYY|YY|MMMM|MMM|MM|M|DD|D|dddd|ddd|dd|d|HH|H|hh|h|mm|m|ss|s|SSS|A|a|ZZ|Z/g,
+      /\[([^\]]+)]|YYYY|YY|MMMM|MMM|MM|M|DD|D|dddd|ddd|dd|d|HH|H|hh|h|mm|m|ss|s|SSS|A|a|ZZ|Z/g,
       (tok, lit: string | undefined) => (lit !== undefined ? lit : T[tok]!()),
     );
   }
@@ -326,5 +346,5 @@ function calendarDays(a: KitDate, b: KitDate): number {
 
 /** A date: `date()` is now; see the file header for the inputs it takes. */
 export const date = (v?: DateLike) => new KitDate(v);
-/** true for a value `date()` can read */
+/** true when `v` is a KitDate (a value `date()` made); whether `date()` can read a value is `date(v).isValid()` */
 export const isDate = (v: unknown): v is KitDate => v instanceof KitDate;

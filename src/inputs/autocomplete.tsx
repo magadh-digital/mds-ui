@@ -2,6 +2,7 @@ import { autoUpdate, flip, FloatingNode, FloatingPortal, offset, size, useDismis
 import { Check, ChevronDown, X } from "lucide-react";
 import { type CSSProperties, type KeyboardEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 import { isInsideLayer, LAYER_Z, LayerTree, useLayerMotion } from "../overlay/floating.js";
+import { useFieldControl } from "./field.js";
 
 /**
  * Autocomplete: the kit's one searchable picker, for any list longer than a handful of fixed choices (heads,
@@ -15,6 +16,9 @@ import { isInsideLayer, LAYER_Z, LayerTree, useLayerMotion } from "../overlay/fl
  * as removable chips under the box and the box stays for searching (a row's tick toggles it, the list stays open).
  * A picked row the server search no longer returns keeps its chip and label (the rows seen so far, plus
  * `pickedOptions` for saved picks); a picked row marked `disabled` is locked (no ×, not cleared by the box's ×).
+ *
+ * Groups: headings in `groupOrder` first (in its order), then the other groups A→Z; rows keep their order inside a
+ * group. While the list is open one enabled row is always highlighted (the pick, else the first), so Enter picks it.
  */
 
 export type AutocompleteOption = {
@@ -25,7 +29,7 @@ export type AutocompleteOption = {
   hint?: string;
   /** custom React node for the hint, if provided this will be rendered instead of the text hint */
   hintNode?: React.ReactNode;
-  /** rows with the same group sit under one heading; order follows `groupOrder`, else first appearance */
+  /** rows with the same group sit under one heading; headings follow `groupOrder`, then A→Z */
   group?: string;
   /** extra words the filter should match that the row does not show */
   keywords?: string;
@@ -38,7 +42,9 @@ export type AutocompleteOption = {
 
 /**
  * For server-searched lists: the rows the search brought back, plus the picked row when the search has moved on and
- * no longer returns it (so the box keeps its label). `extra` is a row the caller already knows (a saved pick).
+ * no longer returns it, so the list still shows it ticked. `extra` is a row the caller already knows (a saved pick
+ * the search never loaded), which the single box needs for its label. (Autocomplete itself keeps the labels of rows it
+ * has seen; this adds the row back into the list and covers the saved pick.)
  */
 export function useKeepPicked(
   options: Array<AutocompleteOption>,
@@ -71,7 +77,7 @@ type AutocompleteCommonProps = {
   disabled?: boolean;
   /** show the × that clears the pick (default on) */
   clearable?: boolean;
-  /** the order of group headings; groups not listed follow, in order of first appearance */
+  /** the order of group headings; groups not listed follow, A→Z */
   groupOrder?: Array<string>;
   /** the smaller font for tight spots (table cells, inline rows) */
   compact?: boolean;
@@ -81,8 +87,8 @@ type AutocompleteCommonProps = {
   style?: CSSProperties;
   className?: string;
   title?: string;
-  /** the input's accessible name, when no visible label is tied to it */
-  ariaLabel?: string;
+  /** the input's accessible name (and the list's), when no visible label (a FormRow) names it */
+  label?: string;
   onInputChange?: (value: string) => void;
 };
 type AutocompleteSingleProps = AutocompleteCommonProps & {
@@ -109,15 +115,16 @@ export type AutocompleteProps = AutocompleteSingleProps | AutocompleteMultiplePr
 
 // case- and accent-blind "contains", as Intl's base sensitivity: "Ram" finds "rām", "RAM", "Rām Traders"
 const fold = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
-const matches = (o: AutocompleteOption, q: string) =>
-  !q || fold(`${o.label} ${o.hint ?? ""} ${o.keywords ?? ""}`).includes(fold(q));
+const searchText = (o: AutocompleteOption) => fold(`${o.label} ${o.hint ?? ""} ${o.keywords ?? ""}`);
 
 /** groups in `groupOrder` first (in its order), then the rest A→Z; rows keep their order inside a group */
 function groupRows(rows: Array<AutocompleteOption>, order?: Array<string>) {
   const by = new Map<string, Array<AutocompleteOption>>();
   for (const o of rows) {
     const g = o.group ?? "";
-    by.set(g, [...(by.get(g) ?? []), o]);
+    const list = by.get(g);
+    if (list) list.push(o);
+    else by.set(g, [o]);
   }
   const rank = (g: string) => {
     const i = order?.indexOf(g) ?? -1;
@@ -154,9 +161,10 @@ function AutocompleteInner(props: AutocompleteProps) {
     style,
     className,
     title,
-    ariaLabel,
+    label,
     onInputChange,
   } = props;
+  const { id: inputId, field } = useFieldControl(id);
   const multi = props.multiple === true;
   const listId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -176,15 +184,25 @@ function AutocompleteInner(props: AutocompleteProps) {
   const selected = props.multiple ? props.value : props.value ? [props.value] : [];
   const locked = (v: string) => !!seen.current.get(v)?.disabled;
 
-  const grouped = options.some((o) => o.group);
-  const rows = useMemo(
-    () => (localFilter ? options.filter((o) => matches(o, filterText)) : options),
-    [options, filterText, localFilter],
-  );
+  const grouped = useMemo(() => options.some((o) => o.group), [options]);
+  // each row's text folded once per options change, not per keystroke
+  const folded = useMemo(() => (localFilter ? options.map(searchText) : null), [options, localFilter]);
+  const rows = useMemo(() => {
+    const q = fold(filterText);
+    return folded && q ? options.filter((_, i) => folded[i]!.includes(q)) : options;
+  }, [options, folded, filterText]);
   const groups = useMemo(() => (grouped ? groupRows(rows, groupOrder) : null), [rows, grouped, groupOrder]);
   // the rows in the order they show, for the arrow keys
   const flat = useMemo(() => (groups ? groups.flatMap(([, r]) => r) : rows), [groups, rows]);
-  const enabled = flat.filter((o) => !o.disabled);
+  const enabled = useMemo(() => flat.filter((o) => !o.disabled), [flat]);
+  const indexOf = useMemo(() => new Map(flat.map((o, i) => [o.value, i])), [flat]);
+  // the highlighted row: the one set by the arrows / mouse / pick while it is still shown and enabled, else the first
+  // enabled row (the rows may change under it: a server search, a filter)
+  const current = open
+    ? active != null && enabled.some((o) => o.value === active)
+      ? active
+      : (enabled[0]?.value ?? null)
+    : null;
 
   const nodeId = useFloatingNodeId();
   const setOpen = (v: boolean) => {
@@ -198,7 +216,8 @@ function AutocompleteInner(props: AutocompleteProps) {
         setFilterText("");
         onInputChange?.("");
       }
-      setActive(selected.find((v2) => flat.some((o) => o.value === v2)) ?? null);
+      // the pick is highlighted when the list shows it (else `current` falls to the first row)
+      setActive(selected[0] ?? null);
     } else {
       setQuery(null);
       setActive(null);
@@ -233,12 +252,14 @@ function AutocompleteInner(props: AutocompleteProps) {
     }),
   ]);
 
+  // row ids by position (a value may hold spaces, dots or digits first)
+  const optionId = (v: string) => `${listId}-${indexOf.get(v) ?? -1}`;
+  const currentId = current != null && indexOf.has(current) ? optionId(current) : undefined;
   // the highlighted row stays in view as the arrows move it
   useEffect(() => {
-    if (!open || active == null) return;
-    const el = document.getElementById(`${listId}-${CSS.escape(active)}`);
-    el?.scrollIntoView({ block: "nearest" });
-  }, [active, open, listId]);
+    if (!currentId) return;
+    document.getElementById(currentId)?.scrollIntoView({ block: "nearest" });
+  }, [currentId]);
 
   const emitMany = (next: Array<string>, cause: "pick" | "remove" | "clear") => {
     if (props.multiple) props.onChange(next, next.map(optionOf), cause);
@@ -259,11 +280,8 @@ function AutocompleteInner(props: AutocompleteProps) {
       onOpenChange?.(true);
     }
     // the first row that matches, in the order the list shows it (groups included), is highlighted as you type, so
-    // Enter picks it
-    const shownRows = localFilter ? options.filter((o) => matches(o, v)) : options;
-    const inOrder = grouped ? groupRows(shownRows, groupOrder).flatMap(([, r]) => r) : shownRows;
-    const first = inOrder.find((o) => !o.disabled);
-    setActive(first?.value ?? null);
+    // Enter picks it: with no row set, `current` falls to the first enabled row of the (memoised) new list
+    setActive(null);
     onInputChange?.(v);
     onInputValueChange?.(v);
     onSearchChange?.(v);
@@ -287,7 +305,7 @@ function AutocompleteInner(props: AutocompleteProps) {
   };
   const move = (dir: 1 | -1) => {
     if (!enabled.length) return;
-    const i = enabled.findIndex((o) => o.value === active);
+    const i = enabled.findIndex((o) => o.value === current);
     const next = i < 0 ? (dir === 1 ? 0 : enabled.length - 1) : (i + dir + enabled.length) % enabled.length;
     setActive(enabled[next]!.value);
   };
@@ -300,7 +318,7 @@ function AutocompleteInner(props: AutocompleteProps) {
     } else if (e.key === "Enter") {
       if (!open) return;
       e.preventDefault();
-      const o = flat.find((x) => x.value === active);
+      const o = flat.find((x) => x.value === current);
       if (o) pick(o);
     } else if (e.key === "Escape") {
       if (open) {
@@ -316,9 +334,11 @@ function AutocompleteInner(props: AutocompleteProps) {
     }
   };
 
+  const bad = invalid ?? field?.invalid ?? false;
+  // the list is named like the box: its label, or the FormRow's label
+  const listName = label ? { "aria-label": label } : field ? { "aria-labelledby": field.labelId } : { "aria-label": placeholder };
   const pickedLabel = !multi && props.value ? optionOf(props.value).label : "";
   const inputValue = multi ? text : open && query !== null ? query : pickedLabel;
-  const optionId = (v: string) => `${listId}-${v}`;
   const row = (o: AutocompleteOption) => {
     const checked = selected.includes(o.value);
     return (
@@ -328,20 +348,22 @@ function AutocompleteInner(props: AutocompleteProps) {
         role="option"
         aria-selected={checked}
         aria-disabled={o.disabled || undefined}
-        data-highlighted={active === o.value ? "" : undefined}
+        data-highlighted={current === o.value ? "" : undefined}
         data-state={checked ? "checked" : "unchecked"}
         data-disabled={o.disabled ? "" : undefined}
         className={`item ui-ac-item ${o.className || ""}`.trim()}
         style={o.style}
         // keep the focus in the box while a row is clicked
         onMouseDown={(e) => e.preventDefault()}
-        onMouseMove={() => !o.disabled && active !== o.value && setActive(o.value)}
+        onMouseMove={() => !o.disabled && current !== o.value && setActive(o.value)}
         onClick={() => pick(o)}
       >
         <span className="ui-ac-text">
           <span className="ui-ac-label">{o.label}</span>
           {o.hintNode ? (
-            <div className="ui-muted ui-ac-hint" style={{ width: "100%" }}>{o.hintNode}</div>
+            <span className="ui-muted ui-ac-hint" style={{ display: "block", width: "100%" }}>
+              {o.hintNode}
+            </span>
           ) : o.hint ? (
             <span className="ui-muted ui-ac-hint">{o.hint}</span>
           ) : null}
@@ -365,17 +387,17 @@ function AutocompleteInner(props: AutocompleteProps) {
         <div className="ui-ac-control" ref={refs.setReference}>
           <input
             ref={inputRef}
-            id={id}
-            className={`ui-input ui-ac-input${invalid ? " invalid" : ""}`}
+            id={inputId}
+            className={`ui-input ui-ac-input${bad ? " invalid" : ""}`}
             role="combobox"
             aria-expanded={open}
             aria-controls={open ? listId : undefined}
             aria-autocomplete="list"
-            aria-activedescendant={open && active != null ? optionId(active) : undefined}
-            aria-invalid={invalid || undefined}
-            aria-label={ariaLabel}
+            aria-activedescendant={currentId}
+            aria-invalid={bad || undefined}
+            aria-label={label}
+            aria-describedby={field?.describedBy}
             data-state={open ? "open" : "closed"}
-            data-invalid={invalid ? "" : undefined}
             autoComplete="off"
             placeholder={placeholder}
             autoFocus={autoFocus}
@@ -489,6 +511,7 @@ function AutocompleteInner(props: AutocompleteProps) {
             ref={refs.setFloating}
             id={listId}
             role="listbox"
+            {...listName}
             aria-multiselectable={multi || undefined}
             className={`ui-pop ui-ac-pop${compact ? " compact" : ""}`}
             data-status={motion.status}
@@ -499,9 +522,19 @@ function AutocompleteInner(props: AutocompleteProps) {
               <div className="ui-muted ui-ac-empty">{loading ? "Searching…" : emptyText}</div>
             )}
             {groups
-              ? groups.map(([g, rs]) => (
-                  <div key={g || "_"} role="group" className="ui-ac-group">
-                    {g && <div className="group-title ui-ac-group-label">{g}</div>}
+              ? groups.map(([g, rs], gi) => (
+                  <div
+                    key={g || "_"}
+                    role="group"
+                    className="ui-ac-group"
+                    aria-labelledby={g ? `${listId}-g${gi}` : undefined}
+                    aria-label={g ? undefined : "Other"}
+                  >
+                    {g && (
+                      <div className="group-title ui-ac-group-label" id={`${listId}-g${gi}`} role="presentation">
+                        {g}
+                      </div>
+                    )}
                     {rs.map(row)}
                   </div>
                 ))

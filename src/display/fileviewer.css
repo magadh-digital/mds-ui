@@ -10,6 +10,11 @@
   animation: fv-in 0.12s ease-out;
 }
 
+/* the viewer itself takes the focus on open (its keys start there); its buttons keep their own focus ring */
+.fv:focus {
+  outline: none;
+}
+
 @keyframes fv-in {
   from {
     opacity: 0;

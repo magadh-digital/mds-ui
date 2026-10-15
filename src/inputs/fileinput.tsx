@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Upload, X } from "lucide-react";
 import { FileThumb, useFileViewer, type ViewerFile } from "../display/fileviewer.js";
+import { joinIds, useFieldControl } from "./field.js";
 
 /**
  * The kit's one file input: click or drop, the type / size / count checks every upload form
@@ -19,7 +20,8 @@ export function FileInput({
   existing,
   hint,
   disabled,
-  ariaLabel = "Choose files",
+  label,
+  id,
 }: {
   files: File[];
   onChange: (files: File[]) => void;
@@ -32,23 +34,32 @@ export function FileInput({
   existing?: ViewerFile[];
   hint?: string;
   disabled?: boolean;
-  ariaLabel?: string;
+  /** the accessible name, when no visible label (a FormRow) names the input */
+  label?: string;
+  id?: string;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const viewer = useFileViewer();
-  // object URLs for the picked files' previews, revoked when they go
-  const previews = useMemo(
-    () => files.map((f) => ({ src: URL.createObjectURL(f), name: f.name, kind: kindOfFile(f) }) as ViewerFile),
-    [files],
-  );
-  useEffect(() => () => previews.forEach((p) => URL.revokeObjectURL(p.src)), [previews]);
+  const promptId = useId();
+  const hintId = useId();
+  const { id: zoneId, field } = useFieldControl(id);
+  // object URLs for the picked files' previews: made and revoked in one effect, so a StrictMode re-run or a new list
+  // never revokes a URL still on screen
+  const [previews, setPreviews] = useState<Array<ViewerFile & { file: File }>>([]);
+  useEffect(() => {
+    const list = files.map((f) => ({ src: URL.createObjectURL(f), name: f.name, kind: kindOfFile(f), file: f }));
+    setPreviews(list);
+    return () => list.forEach((p) => URL.revokeObjectURL(p.src));
+  }, [files]);
 
   const add = (list: FileList | File[] | null) => {
     if (!list) return;
     const errs: string[] = [];
-    let next = multiple ? [...files] : [];
+    // start from the files there are: a refused file changes nothing, an accepted one adds (or, single, replaces)
+    let next = [...files];
+    let changed = false;
     for (const f of Array.from(list)) {
       if (accept && !matchesAccept(f, accept)) {
         errs.push(`${f.name}: not an accepted file type`);
@@ -59,17 +70,19 @@ export function FileInput({
         continue;
       }
       next = multiple ? [...next, f] : [f];
+      changed = true;
     }
     if (maxFiles && next.length > maxFiles) {
       errs.push(`At most ${maxFiles} files`);
       next = next.slice(0, maxFiles);
+      changed = true;
     }
     setErrors(errs);
-    onChange(next);
+    if (changed) onChange(next);
   };
 
   const all: ViewerFile[] = [...(existing ?? []), ...previews];
-  const label = multiple
+  const prompt = multiple
     ? "Drop files here or click to choose"
     : files.length
       ? "Drop or click to replace"
@@ -80,7 +93,10 @@ export function FileInput({
         type="button"
         className={`ui-fileinput-zone${over ? " over" : ""}`}
         disabled={disabled}
-        aria-label={ariaLabel}
+        id={zoneId}
+        aria-label={label}
+        aria-labelledby={!label && field ? `${field.labelId} ${promptId}` : undefined}
+        aria-describedby={joinIds(field?.describedBy, hint || accept || maxSizeMb ? hintId : undefined)}
         onClick={() => ref.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -94,9 +110,9 @@ export function FileInput({
         }}
       >
         <Upload aria-hidden />
-        <span>{label}</span>
+        <span id={promptId}>{prompt}</span>
         {(hint || accept || maxSizeMb) && (
-          <span className="ui-muted ui-fileinput-hint">
+          <span className="ui-muted ui-fileinput-hint" id={hintId}>
             {hint ??
               [accept && describeAccept(accept), maxSizeMb && `up to ${maxSizeMb} MB`, maxFiles && multiple && `max ${maxFiles}`]
                 .filter(Boolean)
@@ -118,21 +134,21 @@ export function FileInput({
       {all.length > 0 && (
         <div className="ui-fileinput-list">
           {all.map((f, i) => {
-            const picked = i >= (existing?.length ?? 0);
+            const own = "file" in f ? (f as { file: File }).file : null;
             return (
               <div key={`${f.src}-${i}`} className="ui-fileinput-item">
                 <FileThumb file={f} size="sm" onOpen={() => viewer.open(all, i)} />
                 <span className="ui-fileinput-name" title={f.name}>
                   {f.name}
                 </span>
-                {picked && (
+                {own && (
                   <button
                     type="button"
                     className="ui-iconbtn"
                     aria-label={`Remove ${f.name}`}
-                    onClick={() => onChange(files.filter((_, k) => k !== i - (existing?.length ?? 0)))}
+                    onClick={() => onChange(files.filter((x) => x !== own))}
                   >
-                    <X />
+                    <X aria-hidden />
                   </button>
                 )}
               </div>
@@ -141,7 +157,7 @@ export function FileInput({
         </div>
       )}
       {errors.map((e) => (
-        <div key={e} className="ui-error">
+        <div key={e} className="ui-error" role="alert">
           {e}
         </div>
       ))}

@@ -83,22 +83,25 @@
   transform: rotate(45deg);
 }
 
-.mini tr.clickable {
-  cursor: pointer;
-}
-
-.mini tr.clickable:hover td {
-  background: var(--c-hover);
-}
-
+/* z-index: floating.tsx TOAST_Z (set inline; this is the same value) */
 .toasts {
   position: fixed;
   right: var(--sp-3);
   bottom: var(--sp-3);
   display: flex;
   flex-direction: column;
+  z-index: 1400;
+}
+
+/* the two live regions (polite, then errors) stay mounted while empty; a gap only between two that both hold toasts */
+.toasts-region {
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-2);
-  z-index: 1000;
+}
+
+.toasts-region:not(:empty) + .toasts-region:not(:empty) {
+  margin-top: var(--sp-2);
 }
 
 .toast {
@@ -121,6 +124,30 @@
   flex: none;
 }
 
+.toast:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.toast-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin-left: var(--sp-1);
+  padding: 2px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--c-muted);
+  cursor: pointer;
+}
+
+.toast-x:hover {
+  background: var(--c-hover);
+  color: var(--c-text);
+}
+
 .toast.ok svg {
   color: var(--c-ok);
 }
@@ -131,4 +158,11 @@
 
 .toast.info svg {
   color: var(--c-accent);
+}
+
+/* after the kind colours, so the × keeps the muted colour */
+.toast .toast-x svg {
+  width: calc(14px * var(--ui-scale));
+  height: calc(14px * var(--ui-scale));
+  color: inherit;
 }

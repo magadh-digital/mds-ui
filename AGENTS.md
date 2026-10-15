@@ -86,7 +86,7 @@ it, and before you change the kit itself.
 | Open an image or a file | `useFileViewer` + `FileThumb` (`display/fileviewer.tsx`). Build the file list from your own URLs. Several files open as one list (← → move, zoom, rotate, PDFs inline). Never `window.open` a photo or a hand-made lightbox. |
 | Pick or upload files | `FileInput` (`inputs/fileinput.tsx`): drag and drop, `accept`, `maxSizeMb`, `maxFiles`, previews in the viewer |
 | Status or tag chip | `StatusChip` / `ToneChip` (`display/chip.tsx`) with plain-word labels; no local `TONE_VAR` or hex colours |
-| Dates, money, numbers | `day`, `dayTime`, `hhmm`, `monthYear`, `ago`, `num`, `rupees`, `mt`, `kg` (`core/format.ts`) |
+| Dates, money, numbers | `day`, `dayTime`, `hhmm`, `monthYear`, `ago`, `num`, `money` (`core/format.ts`), all in the app's locale (`configureLocale`) |
 | Empty state | `Empty` (`display/empty.tsx`; `compact` inside panels) |
 | Confirm a risky action | `ConfirmPop` / `Action.confirm` / the row menu's `confirm`. Destructive deletes pass `typed: "DELETE"`. Never `window.confirm`, `alert` or `prompt`. |
 | Toast | `toast` (`overlay/toast.tsx`) |

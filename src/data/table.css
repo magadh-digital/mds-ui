@@ -112,6 +112,26 @@
   gap: 3px;
 }
 
+/* a sortable header's label is a button (Tab, Enter / Space sort): it looks like the plain label */
+.ui-table th button.th {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: inherit;
+  cursor: inherit;
+}
+
+.ui-table th button.th:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .ui-table th .th svg {
   width: 12px;
   height: 12px;

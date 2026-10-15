@@ -181,3 +181,41 @@
   border-color: var(--c-accent);
   background: var(--c-accent-soft);
 }
+
+/* the field's clear ×: a button beside the field (not inside it), over its right end */
+.daterange-wrap {
+  position: relative;
+}
+.daterange-clear {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-muted);
+  cursor: pointer;
+}
+.daterange-clear:hover {
+  color: var(--c-text);
+  background: var(--c-hover);
+}
+.daterange-clear:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 1px;
+}
+.daterange-clear svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* the Day / Range switch spans the footer */
+.daterange-foot .ui-seg {
+  align-self: stretch;
+}

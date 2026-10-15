@@ -1,5 +1,6 @@
-import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { DIALOG_SELECTOR, isTextEntry, listOpen } from "../overlay/dialog.js";
 import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText, RotateCw, X, ZoomIn, ZoomOut } from "lucide-react";
 
 /**
@@ -12,8 +13,10 @@ import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText, RotateCw, 
  * - Full-screen viewer over the page: images fit the screen (zoom, rotate), PDFs render inline, anything else gets a
  *   card with Open / Download.
  * - More than one file: ← / → (or the side arrows, or the strip of thumbnails) move between them; "2 / 5" in the head.
- * - Esc closes; + / − zoom; 0 resets; R rotates. The backdrop carries `.inv-backdrop`, so tables and panels under it
- *   leave their keyboard shortcuts alone while it is open (dialog.tsx `dialogOpen`).
+ * - Esc closes; + / − zoom; 0 resets; R rotates. The keys work while the focus is in the viewer (it moves in on open,
+ *   Tab stays inside, and it returns on close), never while typing in a field, and not when a layer above has taken
+ *   them. The backdrop carries `.inv-backdrop`, so tables and panels under it leave their keyboard shortcuts alone
+ *   while it is open (dialog.tsx `dialogOpen`).
  * - Files are plain URLs, so it works for every service; `kind` is guessed from the name / URL when not given, and a
  *   URL with no extension (the static service's `/files/preview/<id>`) is tried as an image first, then shown inline.
  */
@@ -35,6 +38,7 @@ const IMG = /\.(png|jpe?g|gif|webp|avif|bmp|svg|heic)(\?|#|$)/i;
 const PDF = /\.pdf(\?|#|$)/i;
 const DOC = /\.(xlsx?|csv|docx?|pptx?|zip|txt|json)(\?|#|$)/i;
 
+/** @internal */
 export function kindOf(f: ViewerFile): "image" | "pdf" | "file" | "unknown" {
   if (f.kind) return f.kind;
   const s = `${f.name ?? ""} ${f.src}`;
@@ -43,8 +47,17 @@ export function kindOf(f: ViewerFile): "image" | "pdf" | "file" | "unknown" {
   if (DOC.test(s)) return "file";
   return "unknown";
 }
-const nameOf = (f: ViewerFile) =>
-  f.name ?? decodeURIComponent(f.src.split(/[?#]/)[0]!.split("/").pop() || "file");
+const nameOf = (f: ViewerFile) => {
+  if (f.name) return f.name;
+  const last = f.src.split(/[?#]/)[0]!.split("/").pop() || "file";
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last; // a bare "%" in the URL
+  }
+};
+const FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
 
 /** Opens files in the viewer: `open(files, index)`; render `element` once. */
 export function useFileViewer() {
@@ -54,6 +67,7 @@ export function useFileViewer() {
     if (list.length) setState({ files: list, index: Math.min(Math.max(index, 0), list.length - 1) });
   }, []);
   const close = useCallback(() => setState(null), []);
+  const onIndex = useCallback((i: number) => setState((s) => (s ? { ...s, index: i } : s)), []);
   return {
     open,
     close,
@@ -62,7 +76,7 @@ export function useFileViewer() {
       <FileViewer
         files={state.files}
         index={state.index}
-        onIndex={(i) => setState((s) => (s ? { ...s, index: i } : s))}
+        onIndex={onIndex}
         onClose={close}
       />
     ) : null,
@@ -100,12 +114,34 @@ export function FileViewer({
     setZoom(1);
     setRotate(0);
   }, [index]);
+  const root = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  // focus moves into the viewer on open and back where it was on close
+  useEffect(() => {
+    const before = document.activeElement as HTMLElement | null;
+    root.current?.focus({ preventScroll: true });
+    return () => {
+      if (before && before.isConnected) before.focus({ preventScroll: true });
+    };
+  }, []);
+  // the viewer's keys, in the bubble phase: not while typing, not for a target outside the viewer, not when a layer
+  // above (a dialog, a list) or a field has already handled the key
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = root.current;
+      if (!el) return;
+      const layers = document.querySelectorAll(DIALOG_SELECTOR);
+      if (layers[layers.length - 1] !== el) return;
+      const t = e.target instanceof Element ? e.target : null;
+      if (t && t !== document.body && !el.contains(t)) return;
+      if (isTextEntry(t)) return;
       const k = e.key;
-      if (k === "Escape") onClose();
-      else if (k === "ArrowRight") go(1);
+      if (k === "Escape") {
+        if (listOpen()) return;
+        closeRef.current();
+      } else if (k === "ArrowRight") go(1);
       else if (k === "ArrowLeft") go(-1);
       else if (k === "+" || k === "=") setZoom((z) => Math.min(z + 0.25, 4));
       else if (k === "-" || k === "_") setZoom((z) => Math.max(z - 0.25, 0.5));
@@ -113,11 +149,31 @@ export function FileViewer({
       else if (k === "r" || k === "R") setRotate((r) => (r + 90) % 360);
       else return;
       e.preventDefault();
-      e.stopPropagation();
     };
-    window.addEventListener("keydown", onKey, true);
-    return () => window.removeEventListener("keydown", onKey, true);
-  }, [go, onClose]);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [go]);
+  // Tab stays inside the viewer
+  const onTab = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "Tab" || !root.current) return;
+    const els = Array.from(root.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+      (x) => x.offsetParent !== null || x === document.activeElement,
+    );
+    if (!els.length) {
+      e.preventDefault();
+      return;
+    }
+    const first = els[0]!;
+    const last = els[els.length - 1]!;
+    const a = document.activeElement;
+    if (e.shiftKey && (a === first || a === root.current)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && (a === last || !root.current.contains(a))) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
   // keep the page from scrolling under the viewer
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -130,9 +186,12 @@ export function FileViewer({
   const name = nameOf(file);
   return createPortal(
     <div
+      ref={root}
       className="inv-backdrop fv"
       role="dialog"
       aria-modal="true"
+      tabIndex={-1}
+      onKeyDown={onTab}
       aria-label={`${name}${many ? ` (${index + 1} of ${files.length})` : ""}`}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -153,16 +212,16 @@ export function FileViewer({
         <div className="fv-tools">
           {asImage && (
             <>
-              <button className="fv-btn" onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} aria-label="Zoom out" title="Zoom out (−)">
+              <button type="button" className="fv-btn" onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} aria-label="Zoom out" title="Zoom out (−)">
                 <ZoomOut />
               </button>
-              <button className="fv-btn fv-zoom ui-num" onClick={() => setZoom(1)} title="Actual fit (0)">
+              <button type="button" className="fv-btn fv-zoom ui-num" onClick={() => setZoom(1)} title="Actual fit (0)" aria-label={`Zoom ${Math.round(zoom * 100)}%, reset`}>
                 {Math.round(zoom * 100)}%
               </button>
-              <button className="fv-btn" onClick={() => setZoom((z) => Math.min(z + 0.25, 4))} aria-label="Zoom in" title="Zoom in (+)">
+              <button type="button" className="fv-btn" onClick={() => setZoom((z) => Math.min(z + 0.25, 4))} aria-label="Zoom in" title="Zoom in (+)">
                 <ZoomIn />
               </button>
-              <button className="fv-btn" onClick={() => setRotate((r) => (r + 90) % 360)} aria-label="Rotate" title="Rotate (R)">
+              <button type="button" className="fv-btn" onClick={() => setRotate((r) => (r + 90) % 360)} aria-label="Rotate" title="Rotate (R)">
                 <RotateCw />
               </button>
             </>
@@ -173,7 +232,7 @@ export function FileViewer({
           <a className="fv-btn" href={file.src} download={name} aria-label="Download" title="Download">
             <Download />
           </a>
-          <button className="fv-btn" onClick={onClose} aria-label="Close" title="Close (Esc)">
+          <button type="button" className="fv-btn" onClick={onClose} aria-label="Close" title="Close (Esc)">
             <X />
           </button>
         </div>
@@ -181,7 +240,7 @@ export function FileViewer({
 
       <div className="fv-stage" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
         {many && (
-          <button className="fv-nav prev" onClick={() => go(-1)} aria-label="Previous (←)" title="Previous (←)">
+          <button type="button" className="fv-nav prev" onClick={() => go(-1)} aria-label="Previous (←)" title="Previous (←)">
             <ChevronLeft />
           </button>
         )}
@@ -213,19 +272,19 @@ export function FileViewer({
           </div>
         )}
         {many && (
-          <button className="fv-nav next" onClick={() => go(1)} aria-label="Next (→)" title="Next (→)">
+          <button type="button" className="fv-nav next" onClick={() => go(1)} aria-label="Next (→)" title="Next (→)">
             <ChevronRight />
           </button>
         )}
       </div>
 
       {many && (
-        <div className="fv-strip" role="tablist" aria-label="Files">
+        <div className="fv-strip" role="group" aria-label="Files">
           {files.map((f, i) => (
-            <button
+            <button type="button"
               key={`${f.src}-${i}`}
-              role="tab"
-              aria-selected={i === index}
+              aria-current={i === index ? "true" : undefined}
+              aria-label={`${nameOf(f)} (${i + 1} of ${files.length})`}
               className={`fv-thumb${i === index ? " on" : ""}`}
               onClick={() => onIndex(i)}
               title={nameOf(f)}

@@ -1,8 +1,9 @@
 import { AlertTriangle, type LucideIcon, MoreHorizontal } from "lucide-react";
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { type Action, type ConfirmSpec } from "../core/types.js";
-import { ConfirmPop } from "./confirm.js";
+import { ActionConfirm } from "./confirm.js";
+import { MENU_Z } from "./floating.js";
 
 /**
  * The right-click menu on a row (and on anything else that has actions). One list of actions feeds
@@ -56,10 +57,13 @@ export const actionsToMenu = (actions: Array<Action>): Array<MenuItem> =>
       onSelect: a.onClick,
     }));
 
-/** `const menu = useContextMenu()` → `onContextMenu={(e) => menu.open(e, items, title)}` and render `{menu.element}` once. */
+/**
+ * `const menu = useContextMenu()` → `onContextMenu={(e) => menu.open(e, items, title)}` and render `{menu.element}` once.
+ * `open`, `openAt` and `close` keep their identity across renders.
+ */
 export function useContextMenu() {
   const [menu, setMenu] = useState<MenuState>(null);
-  const open = (
+  const open = useCallback((
     at: MenuAnchor,
     rawItems: Array<MenuItem>,
     title?: ReactNode,
@@ -78,13 +82,13 @@ export function useContextMenu() {
           ]
         : rawItems;
     setMenu({ x: at.clientX, y: at.clientY, items, title });
-  };
+  }, []);
   /** open under an element (the `⋯` button, a focused row) */
-  const openAt = (el: Element, items: Array<MenuItem>, title?: ReactNode) => {
+  const openAt = useCallback((el: Element, items: Array<MenuItem>, title?: ReactNode) => {
     const r = el.getBoundingClientRect();
     open({ clientX: r.left, clientY: r.bottom + 2 }, items, title);
-  };
-  const close = () => setMenu(null);
+  }, [open]);
+  const close = useCallback(() => setMenu(null), []);
   return {
     menu,
     open,
@@ -109,6 +113,10 @@ export function ContextMenu({
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const restoreFocus = useRef<Element | null>(null);
+  // the menu on screen now: an action started from one menu must not close the next one when it finishes
+  const current = useRef<MenuState>(null);
+  current.current = menu;
+  const baseId = useId();
 
   // keep the menu inside the viewport
   useLayoutEffect(() => {
@@ -130,6 +138,7 @@ export function ContextMenu({
     setActive(menu.items.findIndex((i) => !i.disabled));
     setConfirming(null);
     setReason("");
+    setTypedWord("");
     // the component stays mounted between menus: a new menu never inherits the last one's running state
     setBusy(false);
     const onDown = (e: MouseEvent) => {
@@ -162,14 +171,19 @@ export function ContextMenu({
       setConfirming(it);
       return;
     }
+    const from = menu;
     setBusy(true);
     try {
       await it.onSelect?.(reason.trim() || undefined);
+      if (current.current !== from) return; // closed (Esc) or replaced by another menu meanwhile
       setBusy(false);
+      setConfirming(null);
+      setReason("");
+      setTypedWord("");
       onClose();
     } catch {
       // the caller toasts; keep the menu open so the person sees what failed
-      setBusy(false);
+      if (current.current === from) setBusy(false);
     }
   };
   const move = (dir: 1 | -1) => {
@@ -197,7 +211,7 @@ export function ContextMenu({
       setActive(
         e.key === "Home"
           ? items.findIndex((i) => !i.disabled)
-          : items.length - 1,
+          : items.length - 1 - [...items].reverse().findIndex((i) => !i.disabled),
       );
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -206,23 +220,30 @@ export function ContextMenu({
     }
   };
 
+  const itemId = (i: number) => `${baseId}-item-${i}`;
+  const titleId = `${baseId}-title`;
   return createPortal(
     <div
       ref={ref}
       className="ctxmenu"
-      role="menu"
+      role={confirming ? "dialog" : "menu"}
       tabIndex={-1}
+      aria-labelledby={confirming ? `${baseId}-confirm` : menu.title ? titleId : undefined}
+      aria-label={!confirming && !menu.title ? "Actions" : undefined}
+      // focus stays on the menu; the active item is announced through aria-activedescendant
+      aria-activedescendant={!confirming && active >= 0 && items[active] ? itemId(active) : undefined}
       style={{
         left: pos?.left ?? menu.x,
         top: pos?.top ?? menu.y,
         opacity: pos ? 1 : 0,
+        zIndex: MENU_Z,
       }}
       onKeyDown={onKey}
       onContextMenu={(e) => e.preventDefault()}
     >
       {confirming ? (
         <div className="confirm">
-          <div className="confirm-title">
+          <div className="confirm-title" id={`${baseId}-confirm`}>
             {(confirming.confirm?.danger ?? confirming.danger) && (
               <AlertTriangle />
             )}
@@ -235,6 +256,7 @@ export function ContextMenu({
             <textarea
               className="ui-input ui-textarea"
               placeholder={confirming.confirm!.reason.label}
+              aria-label={confirming.confirm!.reason.label}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={2}
@@ -253,6 +275,7 @@ export function ContextMenu({
           )}
           <div className="hstack" style={{ justifyContent: "flex-end" }}>
             <button
+              type="button"
               className="ui-link"
               onClick={() => {
                 setConfirming(null);
@@ -263,6 +286,7 @@ export function ContextMenu({
               Back
             </button>
             <button
+              type="button"
               className={`ui-btn ${(confirming.confirm?.danger ?? confirming.danger) ? "danger" : ""}`}
               disabled={
                 busy ||
@@ -280,14 +304,18 @@ export function ContextMenu({
         </div>
       ) : (
         <>
-          {menu.title && <div className="title">{menu.title}</div>}
+          {menu.title && <div className="title" id={titleId}>{menu.title}</div>}
           {items.map((it, i) => {
             const Icon = it.icon;
             return (
               <div key={it.key} style={{ display: "contents" }}>
                 {it.sep && i > 0 && <div className="sep" />}
                 <button
+                  type="button"
                   role="menuitem"
+                  id={itemId(i)}
+                  tabIndex={-1}
+                  aria-haspopup={it.confirm ? "dialog" : undefined}
                   className={`mi ${i === active ? "active" : ""} ${it.danger ? "danger" : ""}`}
                   disabled={it.disabled || busy}
                   title={it.title}
@@ -311,18 +339,26 @@ export function ContextMenu({
   );
 }
 
-/** The `⋯` that appears on row hover / focus so touch and keyboard users reach the same menu as right-click. */
+/**
+ * The `⋯` that appears on row hover / focus so touch and keyboard users reach the same menu as right-click. Pass
+ * `expanded` (the menu is open for this row) so a screen reader hears the state.
+ */
 export function RowMenuButton({
   onOpen,
   label = "Actions",
+  expanded = false,
 }: {
   onOpen: (el: Element) => void;
   label?: string;
+  expanded?: boolean;
 }) {
   return (
     <button
+      type="button"
       className="ui-iconbtn"
       aria-label={label}
+      aria-haspopup="menu"
+      aria-expanded={expanded}
       title={label}
       onClick={(e) => {
         e.stopPropagation();
@@ -360,10 +396,13 @@ export function FootActions({
   const rest = actions.filter((a) => a !== primary && a !== second);
   const btn = (a: Action, cls: string) =>
     a.confirm ? (
-      <ConfirmPop
+      <ActionConfirm
         key={a.key}
+        a={a}
+        placement="top-start"
         trigger={
           <button
+            type="button"
             className={`ui-btn ${cls}`}
             disabled={a.disabled}
             title={a.title}
@@ -372,19 +411,11 @@ export function FootActions({
             {a.label}
           </button>
         }
-        title={a.confirm.title}
-        description={a.confirm.description}
-        confirmLabel={a.confirm.confirmLabel}
-        reason={a.confirm.reason}
-        danger={a.confirm.danger}
-        placement="top-start"
-        onConfirm={(reason) =>
-          Promise.resolve(a.onClick?.(reason)).then(() => undefined)
-        }
       />
     ) : (
       <button
         key={a.key}
+        type="button"
         className={`ui-btn ${cls}`}
         disabled={a.disabled}
         title={a.title}
@@ -398,8 +429,11 @@ export function FootActions({
     <>
       {rest.length > 0 && (
         <button
+          type="button"
           className="ui-btn"
           aria-label="More actions"
+          aria-haspopup="menu"
+          aria-expanded={!!menu.menu}
           title="Every other action"
           onClick={(e) => {
             const b = e.currentTarget.getBoundingClientRect();
@@ -441,6 +475,7 @@ export function MoreMenu({
         type="button"
         className="ui-btn"
         aria-haspopup="menu"
+        aria-expanded={!!menu.menu}
         onClick={(e) => menu.openAt(e.currentTarget, items, title)}
       >
         <MoreHorizontal /> {label}

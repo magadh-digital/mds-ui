@@ -4,17 +4,18 @@ import { dropId, moveId, useDragSort } from "./dragsort.js";
 import { Term } from "../display/term.js";
 import { Pop } from "../overlay/pop.js";
 import { Tip } from "../overlay/tip.js";
+import { useClientLayoutEffect } from "./saved.js";
 import { storageKey } from "../core/storage.js";
 
 /**
  * Page layout — the user's order of the rail's pages and which ones are hidden.
  *
  * Saved per module in this browser as `<prefix>.<module>.pages` (core/storage) = `{ order: [to…], hidden: [to…] }`, like the column
- * chooser saves `<prefix>.table.<label>.cols`. `arrangePages` is pure: it sorts a group by the saved order (pages the order
+ * chooser saves `<prefix>.table.<storageId>.cols`. `arrangePages` is pure: it sorts a group by the saved order (pages the order
  * does not know — added after the user arranged theirs — join after the ordered ones) and drops the hidden ones.
  *
  * Three ways to arrange, one state: drag a rail icon; right-click it (`Hide page`, `Move up`, `Move down`); or the
- * `Customize pages` popover at the rail's foot (checkbox = shown, drag or ↑ ↓ to move, `Reset` for the console's own
+ * `Customize pages` popover at the rail's foot (checkbox = shown, drag or ↑ ↓ to move, `Reset` for the app's own
  * order). Hidden pages stay reachable: ⌘K still lists them (hint `hidden from the rail`) and their URLs still work.
  */
 
@@ -67,10 +68,10 @@ export const arrangePages = <T extends PageLike>(
 export const movePage = moveId;
 export const dropPage = dropId;
 
+/** The saved arrangement of one module's pages; the first render (on the server too) is the app's own order. */
 export function usePageLayout(module: string) {
-  const [layout, setLayoutState] = useState<PageLayout>(() =>
-    readPageLayout(module),
-  );
+  const [layout, setLayoutState] = useState<PageLayout>(EMPTY_LAYOUT);
+  useClientLayoutEffect(() => setLayoutState(readPageLayout(module)), [module]);
   const setLayout = useCallback(
     (next: PageLayout | ((prev: PageLayout) => PageLayout)) => {
       setLayoutState((prev) => {
@@ -174,7 +175,7 @@ export function PagesPop<T extends PageLike>({
       width="240px"
       trigger={
         trigger ?? (
-          <button className="rail-item" aria-label="Customize pages">
+          <button type="button" className="rail-item" aria-label="Customize pages">
             <Tip label="Customize pages" placement="right">
               <span className="rail-fill">
                 <SlidersHorizontal />

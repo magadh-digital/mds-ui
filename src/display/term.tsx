@@ -5,8 +5,8 @@ import { storageKey } from "../core/storage.js";
 /**
  * Words with a hover: any label that has a glossary entry shows its description first and its old name under it.
  * `Term` looks a label up by its text (table headers, field names, titles) or by a coded key (`state:…`, `tag:…`); the
- * "old names" preference appends the old name beside the label everywhere. `Party` shows a company by the short name kept
- * in master data when it has one, with the full name on hover.
+ * "old names" preference appends the old name beside the label everywhere. A word with an entry takes the keyboard
+ * focus too, so the meaning shows for keyboard users as well.
  */
 
 /** A glossary row: what the word means, and the name it had before (shown on hover and with "old names"). */
@@ -35,13 +35,15 @@ export function TermsProvider({
   children: ReactNode;
   glossary?: Glossary;
 }) {
-  const [oldNames, set] = useState<boolean>(() => {
+  // the saved choice is read after mount, so the server's HTML and the first render agree
+  const [oldNames, set] = useState(false);
+  useEffect(() => {
     try {
-      return localStorage.getItem(KEY()) === "1";
+      if (localStorage.getItem(KEY()) === "1") set(true);
     } catch {
-      return false;
+      /* private mode */
     }
-  });
+  }, []);
   const setOldNames = useCallback((v: boolean) => {
     set(v);
     try {
@@ -102,7 +104,7 @@ export function Term({
   if (!entry) return <>{children ?? label}</>;
   return (
     <Tip label={<TermBody label={label} entry={entry} />} placement={placement}>
-      <span className="term">
+      <span className="term" tabIndex={0}>
         {children ?? label}
         {oldNames && entry.old && (
           <span className="term-old"> · {entry.old}</span>
@@ -137,67 +139,4 @@ export function useTermTip(): (label: string) => ReactNode {
     const entry = lookup(label);
     return entry ? <TermBody label={label} entry={entry} /> : label;
   };
-}
-
-export type PartyLike =
-  | { id?: string | null; name?: string | null; short_name?: string | null }
-  | null
-  | undefined;
-/** The name to show for a company: the short name kept in master data when there is one, else the full name. */
-export const partyLabel = (p: PartyLike): string | null =>
-  (p?.short_name && p.short_name.trim()) || p?.name || null;
-/** Pure: the first `words` words of a company name ("JAI DURGA IRON PRIVATE LIMITED" → "JAI DURGA"); a leading M/S is skipped; null when nothing would be cut. */
-export const shortName = (name: string, words = 2): string | null => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const body =
-    parts.length > words && /^m\/?s\.?$/i.test(parts[0]!)
-      ? parts.slice(1)
-      : parts;
-  if (body.length <= words) return null;
-  return body.slice(0, words).join(" ");
-};
-/**
- * A company by its short name with the full name on hover; without a short name, the first two words of the name with
- * the full name on hover (lists stay narrow: "CHINTPURNI STEEL", "JAI DURGA"). `full` shows the whole name — the masters
- * tables and detail panels, where the name is the point.
- */
-export function Party({
-  p,
-  empty = "—",
-  className,
-  full,
-}: {
-  p: PartyLike;
-  empty?: ReactNode;
-  className?: string;
-  full?: boolean;
-}) {
-  const label = partyLabel(p);
-  if (!label) return <>{empty}</>;
-  if (p?.short_name && p.name && p.short_name !== p.name)
-    return (
-      <Tip label={p.name}>
-        <span className={className ?? "term"}>{label}</span>
-      </Tip>
-    );
-  const cut = full ? null : shortName(label);
-  if (cut)
-    return (
-      <Tip label={label}>
-        <span className={className ?? "term"}>{cut}</span>
-      </Tip>
-    );
-  return <span className={className}>{label}</span>;
-}
-/** A company known only by a printed name (the bill's own text): the same two-word rule. */
-export function PartyName({
-  name,
-  empty = "—",
-  full,
-}: {
-  name: string | null | undefined;
-  empty?: ReactNode;
-  full?: boolean;
-}) {
-  return <Party p={name ? { name } : null} empty={empty} full={full} />;
 }

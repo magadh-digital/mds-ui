@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronLeft, ChevronRight, type LucideIcon, Maximize2, Minimize2, Pencil, X } from "lucide-react";
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useId, useMemo, useState } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { type Tone } from "../core/types.js";
 import { CopyButton } from "../display/buttons.js";
@@ -25,38 +25,48 @@ const ChromeContext = createContext<ChromeCtx | null>(null);
 
 /**
  * The slide-over stack. A page may keep several slide-overs mounted (a record, a linked record, a new-record form) and
- * two can be open at once — a row clicked while another panel is up, a linked entity opened from inside a panel. Without
- * this, both sat at right: 0 and the one later in the DOM covered the other: the new detail never showed. Now every open
- * slide-over registers here; only the most recently opened one is in view, the ones under it keep their state and come
- * back when it closes. `Esc` and the ‹ button in the head close the top one only.
+ * two can be open at once — a row clicked while another panel is up, a linked entity opened from inside a panel. Every
+ * open slide-over registers in a stack; only the most recently opened one is in view, the ones under it keep their
+ * state (inert, out of the tab order) and come back when it closes. `Esc` and the ‹ button in the head close the top
+ * one only.
+ *
+ * Without a `PanelStackProvider` the slide-overs share one stack for the whole document, so they layer correctly with
+ * no setup; a provider gives its subtree a stack of its own (UIProvider mounts one).
  */
 type StackEntry = { id: string; title: string };
-type StackCtx = {
-  stack: Array<StackEntry>;
+type StackStore = {
+  get: () => Array<StackEntry>;
+  subscribe: (fn: () => void) => () => void;
   push: (e: StackEntry) => void;
   remove: (id: string) => void;
 };
-const PanelStackContext = createContext<StackCtx | null>(null);
+const NO_PANELS: Array<StackEntry> = [];
+function createStack(): StackStore {
+  let stack: Array<StackEntry> = NO_PANELS;
+  const subs = new Set<() => void>();
+  const set = (next: Array<StackEntry>) => {
+    if (next === stack) return;
+    stack = next;
+    subs.forEach((fn) => fn());
+  };
+  return {
+    get: () => stack,
+    subscribe: (fn) => {
+      subs.add(fn);
+      return () => subs.delete(fn);
+    },
+    push: (e) => set([...stack.filter((x) => x.id !== e.id), e]),
+    remove: (id) => set(stack.some((x) => x.id === id) ? stack.filter((x) => x.id !== id) : stack),
+  };
+}
+/** the document's stack, for slide-overs with no provider above them */
+const documentStack = createStack();
+const PanelStackContext = createContext<StackStore | null>(null);
 
 export function PanelStackProvider({ children }: { children: ReactNode }) {
-  const [stack, setStack] = useState<Array<StackEntry>>([]);
-  const push = useCallback(
-    (e: StackEntry) => setStack((s) => [...s.filter((x) => x.id !== e.id), e]),
-    [],
-  );
-  const remove = useCallback(
-    (id: string) =>
-      setStack((s) =>
-        s.some((x) => x.id === id) ? s.filter((x) => x.id !== id) : s,
-      ),
-    [],
-  );
-  const value = useMemo<StackCtx>(
-    () => ({ stack, push, remove }),
-    [stack, push, remove],
-  );
+  const [store] = useState(createStack);
   return (
-    <PanelStackContext.Provider value={value}>
+    <PanelStackContext.Provider value={store}>
       {children}
     </PanelStackContext.Provider>
   );
@@ -111,7 +121,8 @@ export function SlideOver({
   children: ReactNode;
 }) {
   const id = useId();
-  const ctx = useContext(PanelStackContext);
+  const store = useContext(PanelStackContext) ?? documentStack;
+  const stack = useSyncExternalStore(store.subscribe, store.get, () => NO_PANELS);
   const [headEl, setHeadEl] = useState<HTMLElement | null>(null);
   const [footEl, setFootEl] = useState<HTMLElement | null>(null);
   const [counts, setCounts] = useState<Record<string, TabCount>>({});
@@ -127,14 +138,44 @@ export function SlideOver({
   const shownMeta = titleOverride?.meta ?? meta;
   const text = label ?? titleText(title);
   useEffect(() => {
-    if (!ctx || !open) return;
-    ctx.push({ id, title: text });
-    return () => ctx.remove(id);
-  }, [ctx?.push, ctx?.remove, id, open, text]); // eslint-disable-line react-hooks/exhaustive-deps
-  const { top, under } = ctx
-    ? panelPlace(ctx.stack, id)
-    : { top: true, under: null };
+    if (!open) return;
+    store.push({ id, title: text });
+    return () => store.remove(id);
+  }, [store, id, open, text]);
+  const { top, under } = panelPlace(stack, id);
   const shown = open && top;
+
+  // focus: into the panel when it comes into view, back where it was (the row, the button that opened it) on close.
+  // Where it was is read while rendering the open, before this commit makes the panel underneath inert.
+  const sectionRef = useRef<HTMLElement>(null);
+  const restoreTo = useRef<HTMLElement | null>(null);
+  const wasOpen = useRef(false);
+  if (open && !wasOpen.current && typeof document !== "undefined") {
+    const a = document.activeElement;
+    restoreTo.current = a instanceof HTMLElement && a !== document.body ? a : null;
+  }
+  wasOpen.current = open;
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!shown || !el) return;
+    // a panel coming back from under another keeps the focus the one above handed back
+    if (el.contains(document.activeElement)) return;
+    const first = el.querySelector<HTMLElement>("[data-autofocus]");
+    (first ?? el).focus({ preventScroll: true });
+  }, [shown]);
+  useEffect(() => {
+    if (!open) return;
+    const el = sectionRef.current;
+    return () => {
+      const back = restoreTo.current;
+      restoreTo.current = null;
+      const a = document.activeElement;
+      // only when the focus is still ours to give (in this panel or nowhere), and the place to go back to still exists
+      if (!back || !back.isConnected || back.closest("[inert]")) return;
+      if (a && a !== document.body && !(el?.contains(a) ?? false)) return;
+      back.focus({ preventScroll: true });
+    };
+  }, [open]);
   useEffect(() => {
     if (!shown) return;
     // Esc closes the top panel — unless a popover (an editor, a confirm, a menu) is open: that Esc is the popover's;
@@ -150,14 +191,19 @@ export function SlideOver({
   return (
     <ChromeContext.Provider value={chrome}>
       <section
+        ref={sectionRef}
         className={`panel ${shown ? "open" : ""}`}
         aria-hidden={!shown}
-        aria-label="Details"
+        // closed, or under the panel on top: out of the tab order and away from screen readers
+        inert={!shown}
+        tabIndex={-1}
+        aria-label={text || "Details"}
       >
         <div className="head">
           <div className="head-row">
             {open && under && (
               <button
+                type="button"
                 className="ui-iconbtn back"
                 onClick={onClose}
                 aria-label={`Back to ${under.title || "the previous panel"}`}
@@ -171,6 +217,7 @@ export function SlideOver({
             <span className="grow" />
             <ExpandToggle />
             <button
+              type="button"
               className="ui-iconbtn close"
               onClick={onClose}
               aria-label="Close"
@@ -187,6 +234,7 @@ export function SlideOver({
               const c = countOf(counts[t.key]);
               return (
                 <button
+                  type="button"
                   key={t.key}
                   role="tab"
                   aria-selected={tab === t.key}
@@ -264,7 +312,7 @@ export function PanelTabCounts({
   }, [c?.setCounts, key]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
-/** A chip row for the head: `<Chips>` wraps `.ui-chip`s and `.needs-chip`s. */
+/** A chip row for the head: `<Chips>` wraps `ToneChip`s / `StatusChip`s. */
 export function Chips({ children }: { children: ReactNode }) {
   return <div className="chips">{children}</div>;
 }
@@ -365,6 +413,7 @@ function ExpandToggle() {
   const back = windowedView === "popup" ? "Back to the popup" : "Back to the side panel";
   return (
     <button
+      type="button"
       className="ui-iconbtn expand"
       onClick={() => setDetailView(full ? windowedView : "full")}
       aria-label={full ? back : "Full page"}

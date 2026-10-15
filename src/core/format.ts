@@ -1,59 +1,73 @@
-import { date } from "./date.js";
+import { date, type DateLike } from "./date.js";
+import { kitLocale, localeNumber } from "./locale.js";
 
 /**
- * The kit's date, time, money and number formats. Every
- * helper takes nullish input and answers "—".
+ * The kit's date, time, money and number formats. Every helper takes nullish (or unreadable) input and answers "—".
+ * Numbers and money follow the kit's locale (core/locale.ts).
  */
 
-type DateIn = string | number | Date | null | undefined;
-const ok = (v: DateIn) => v != null && v !== "" && date(v).isValid();
+const ok = (v: DateLike) => v != null && v !== "" && date(v).isValid();
 
 /** "15 Oct 2026" */
-export const day = (v: DateIn) => (ok(v) ? date(v).format("DD MMM YYYY") : "—");
+export const day = (v: DateLike) => (ok(v) ? date(v).format("DD MMM YYYY") : "—");
 /** "15 Oct 2026, 02:30 PM" */
-export const dayTime = (v: DateIn) => (ok(v) ? date(v).format("DD MMM YYYY, hh:mm A") : "—");
+export const dayTime = (v: DateLike) => (ok(v) ? date(v).format("DD MMM YYYY, hh:mm A") : "—");
 /** "02:30 PM" */
-export const hhmm = (v: DateIn) => (ok(v) ? date(v).format("hh:mm A") : "—");
+export const hhmm = (v: DateLike) => (ok(v) ? date(v).format("hh:mm A") : "—");
 /** "Oct 2026" */
-export const monthYear = (v: DateIn) => (ok(v) ? date(v).format("MMM YYYY") : "—");
+export const monthYear = (v: DateLike) => (ok(v) ? date(v).format("MMM YYYY") : "—");
 
-/** "just now", "5m ago", "3h ago", "2d ago", then the date */
-export function ago(v: DateIn, now: number = Date.now()) {
+/**
+ * How long ago (or how far ahead): "just now" within a minute either way, then "5m ago" / "3h ago" / "2d ago", or
+ * "in 5m" / "in 3h" / "in 2d" for a future time; past 30 days, the date.
+ */
+export function ago(v: DateLike, now: number = Date.now()) {
   if (!ok(v)) return "—";
-  const m = Math.floor((now - date(v).valueOf()) / 60_000);
+  const diff = now - date(v).valueOf();
+  const m = Math.floor(Math.abs(diff) / 60_000);
   if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
+  const say = (s: string) => (diff < 0 ? `in ${s}` : `${s} ago`);
+  if (m < 60) return say(`${m}m`);
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return say(`${h}h`);
   const d = Math.floor(h / 24);
-  if (d < 30) return `${d}d ago`;
+  if (d < 30) return say(`${d}d`);
   return day(v);
 }
 
 type NumIn = number | string | null | undefined;
 const n = (v: NumIn) => (v == null || v === "" || !Number.isFinite(Number(v)) ? null : Number(v));
+const fixed = (digits?: number) =>
+  digits == null ? undefined : { minimumFractionDigits: digits, maximumFractionDigits: digits };
 
-/** "1,23,456" (Indian grouping); `digits` fixes the decimals */
+/** A number in the kit's locale ("1,23,456" with en-IN); `digits` fixes the decimals */
 export const num = (v: NumIn, digits?: number) => {
   const x = n(v);
-  return x == null
-    ? "—"
-    : x.toLocaleString("en-IN", digits == null ? undefined : { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  return x == null ? "—" : localeNumber(x, fixed(digits));
 };
-/** "₹1,23,456" — whole rupees unless `digits` is given ("₹1,23,456.50") */
+
+const moneyIn = (x: number, currency: string, digits?: number) =>
+  localeNumber(x, {
+    style: "currency",
+    currency,
+    // a whole amount reads without decimals ("₹1,234"); a fractional one with the currency's own ("₹1,234.50")
+    ...(fixed(digits) ?? (Number.isInteger(x) ? { minimumFractionDigits: 0, maximumFractionDigits: 0 } : {})),
+  });
+
+/**
+ * Money in the kit's currency and locale (`kitLocale().currency`): "₹1,23,456", "-₹1,234", "₹1,234.50". A whole
+ * amount shows no decimals and a fractional one the currency's usual decimals; `digits` fixes them ("₹1,23,456.00").
+ */
+export const money = (v: NumIn, digits?: number) => {
+  const x = n(v);
+  return x == null ? "—" : moneyIn(x, kitLocale().currency, digits);
+};
+
+/**
+ * Rupees in the kit's locale, whatever the kit's currency: the same rules as `money` ("₹1,23,456", "₹1,234.50").
+ * @deprecated use `money`, which follows `kitLocale().currency`.
+ */
 export const rupees = (v: NumIn, digits?: number) => {
   const x = n(v);
-  return x == null
-    ? "—"
-    : `₹${x.toLocaleString("en-IN", { minimumFractionDigits: digits ?? 0, maximumFractionDigits: digits ?? 2 })}`;
-};
-/** "12.5 MT" from kilograms */
-export const mt = (kg: NumIn, digits = 1) => {
-  const x = n(kg);
-  return x == null ? "—" : `${(x / 1000).toLocaleString("en-IN", { maximumFractionDigits: digits })} MT`;
-};
-/** "1,234 kg" */
-export const kg = (v: NumIn) => {
-  const x = n(v);
-  return x == null ? "—" : `${Math.round(x).toLocaleString("en-IN")} kg`;
+  return x == null ? "—" : moneyIn(x, "INR", digits);
 };

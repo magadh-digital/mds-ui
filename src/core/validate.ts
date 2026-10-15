@@ -1,8 +1,10 @@
 import { useCallback, useState } from "react";
+import { date } from "./date.js";
+import { localeNumber } from "./locale.js";
 
 /**
- * Form checks that run before Send, so the form says what is wrong per field while the person is still on it
- *; the service's field list is the safety net and lands on the same fields.
+ * Form checks that run before Send, so the form says what is wrong per field while the person is still on it; the
+ * service's field list is the safety net and lands on the same fields.
  * Pure: a rule takes a value and gives a sentence or null.
  */
 
@@ -17,20 +19,19 @@ export type Rule = (v: string | number | null | undefined) => string | null;
 const blank = (v: unknown) =>
   v == null || (typeof v === "string" && v.trim() === "");
 const num = (v: unknown) => (blank(v) ? null : Number(v));
-const fmt = (n: number) => n.toLocaleString("en-IN");
+const fmt = (n: number) => localeNumber(n);
 
 export const required =
   (what = "this"): Rule =>
   (v) =>
     blank(v) ? `${what} is required` : null;
-/** a number in [min, max]; `kg` adds the kilograms-not-tonnes hint when the minimum is a tonne or more */
+/** a number in [min, max] (`unit` is named in the sentence); `integer` wants a whole number, `positive` more than 0 */
 export const numberIn =
   (
     o: {
       min?: number;
       max?: number;
       unit?: string;
-      kg?: boolean;
       integer?: boolean;
       positive?: boolean;
     } = {},
@@ -38,21 +39,21 @@ export const numberIn =
   (v) => {
     if (blank(v)) return null;
     const n = num(v);
-    if (n == null || Number.isNaN(n)) return "must be a number";
+    if (n == null || !Number.isFinite(n)) return "must be a number";
     const u = o.unit ? ` ${o.unit}` : "";
-    // if (o.positive && n === 0) return "cannot be 0";
-    if (o.min != null && n < o.min)
-      return o.kg && o.min >= 1000
-        ? `at least ${fmt(o.min)} kg (type kilograms, not tonnes)`
-        : `at least ${fmt(o.min)}${u}`;
+    if (o.positive && n <= 0 && !(o.min != null && o.min > 0)) return "must be more than 0";
+    if (o.min != null && n < o.min) return `at least ${fmt(o.min)}${u}`;
     if (o.max != null && n > o.max) return `at most ${fmt(o.max)}${u}`;
     if (o.integer && !Number.isInteger(n)) return "must be a whole number";
     return null;
   };
-export const dateLike: Rule = (v) =>
-  blank(v) || /^\d{4}-\d{2}-\d{2}$/.test(String(v))
-    ? null
-    : "must be a date like 2026-09-13";
+/** a real calendar day written YYYY-MM-DD (2026-02-30 and 2026-13-45 are refused) */
+export const dateLike: Rule = (v) => {
+  if (blank(v)) return null;
+  const s = String(v).trim();
+  // a date that rolls over (30 Feb reads as 2 Mar) does not print back as itself
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) && date(s).format("YYYY-MM-DD") === s ? null : "must be a date like 2026-09-13";
+};
 export const digits =
   (n: number, what = "number"): Rule =>
   (v) =>
@@ -63,12 +64,6 @@ export const maxLen =
   (n: number): Rule =>
   (v) =>
     blank(v) || String(v).length <= n ? null : `at most ${n} characters`;
-export const vehicleNo: Rule = (v) =>
-  blank(v)
-    ? null
-    : String(v).replace(/\s+/g, "").length < 4
-      ? "needs at least 4 characters"
-      : null;
 export const all =
   (...rules: Array<Rule>): Rule =>
   (v) =>
@@ -89,7 +84,7 @@ export function check(
 
 /**
  * The form's error state: `set(check(...))` before sending, `fromError(e)` when the service refuses (its fields land
- * under the same keys; a nested `lines.0.bill_wt_kg` lands under both the full path and its leaf), `clear()` on success.
+ * under the same keys; a nested `lines.0.qty` lands under both the full path and its leaf), `clear()` on success.
  * `first` is the sentence a toast or the Send button can show.
  */
 export function useFormErrors() {

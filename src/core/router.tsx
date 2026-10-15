@@ -10,7 +10,7 @@
  *   };
  *   <RouterProvider value={value}>…</RouterProvider>
  */
-import { type AnchorHTMLAttributes, type ComponentType, createContext, type MouseEvent, type ReactNode, useContext, useSyncExternalStore } from "react";
+import { type AnchorHTMLAttributes, type ComponentType, createContext, type MouseEvent, type ReactNode, useContext, useMemo, useSyncExternalStore } from "react";
 
 export type KitLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "onClick"> & {
   to: string;
@@ -53,5 +53,7 @@ export function RouterProvider({ value, children }: { value: KitRouter; children
 export function useKitRouter(): KitRouter {
   const given = useContext(Ctx);
   const pathname = useSyncExternalStore(subscribe, () => location.pathname, () => "/");
-  return given ?? { pathname, navigate: browserNavigate, Link: BrowserLink };
+  // one object per path, so a caller's memo or effect that depends on it does not re-run on every render
+  const fallback = useMemo<KitRouter>(() => ({ pathname, navigate: browserNavigate, Link: BrowserLink }), [pathname]);
+  return given ?? fallback;
 }

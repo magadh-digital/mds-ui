@@ -21,6 +21,19 @@
   border-color: var(--c-accent);
 }
 
+/* a card with no onClick is content, not a button */
+.ecard:not([role="button"]) {
+  cursor: default;
+}
+.ecard:not([role="button"]):hover {
+  border-color: var(--c-border);
+}
+
+.ecard[role="button"]:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
 .ecard .name {
   display: flex;
   align-items: center;

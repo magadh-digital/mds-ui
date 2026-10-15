@@ -1,4 +1,5 @@
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
+import type { Tone } from "../core/types.js";
 
 /**
  * The kit's one status / tone chip. `.ui-chip` coloured by a theme
@@ -6,8 +7,10 @@ import type { CSSProperties, MouseEvent, ReactNode } from "react";
  * words) instead of keeping their own colour tables.
  */
 
-export type ChipTone = "ok" | "warn" | "error" | "muted" | "accent" | "neutral" | "purple";
+/** every kit `Tone`, plus a quiet `muted` and a `purple` for tags */
+export type ChipTone = Tone | "muted" | "purple";
 
+/** @internal */
 export const TONE_VAR: Record<ChipTone, string> = {
   ok: "var(--c-ok)",
   warn: "var(--c-warn)",
@@ -52,13 +55,13 @@ export function ToneChip({
 }
 
 const OK = /^(active|approved|done|completed?|delivered|paid|verified|present|success|settled|checked|closed|yes|ready|in[_ ]?stock|accepted)$/;
-const WARN = /^(pending|draft|requested|waiting|partial|hold|on[_ ]?hold|grace|due|late|in[_ ]?progress|processing|review|half[_ ]?day|extra[_ ]?time|scheduled)$/;
-const ERROR = /^(rejected|cancel+ed|failed|error|expired|overdue|blocked|missing|absent|marked[_ ]?absent|declined|deleted|refused)$/;
+const WARN = /^(pending|draft|requested|waiting|partial|hold|on[_ ]?hold|grace|due|late|in[_ ]?progress|processing|review|scheduled)$/;
+const ERROR = /^(rejected|cancel+ed|failed|error|expired|overdue|blocked|missing|absent|declined|deleted|refused)$/;
 const MUTED = /^(inactive|none|no|unknown|n\/a|archived|disabled|not[_ ]?required)$/;
 
 /**
  * the usual tone of a status word (`APPROVED` → ok, `pending` → warn, `Rejected` → error); `fallback` otherwise.
- * `overrides` gives a page's own words first (`{ ORDER_OUT: "ok", PLACED: "accent" }`, any case).
+ * `overrides` gives a page's own words first (`{ ORDER_OUT: "ok", HALF_DAY: "warn" }`, any case).
  */
 export function statusTone(
   status: string | null | undefined,
@@ -79,12 +82,15 @@ export function statusTone(
 }
 
 /**
- * "MARKED_ABSENT" → "Marked absent": status words for people, not enums. `keep` lists abbreviations that stay in
- * capitals ("MO_APPROVED" with keep ["MO"] → "MO approved").
+ * "ON_HOLD" → "On hold": status words for people, not enums. `keep` lists abbreviations that stay in
+ * capitals ("MO_APPROVED" with keep ["MO"] → "MO approved"). Nothing to show ("", "-", "__") reads "—".
  */
 export const statusLabel = (s: string | null | undefined, keep: ReadonlyArray<string> = []) => {
-  if (!s) return "—";
-  const words = String(s).replace(/[_-]+/g, " ").trim().split(/\s+/);
+  const words = String(s ?? "")
+    .replace(/[_-]+/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!words.length) return "—";
   const kept = new Set(keep.map((k) => k.toUpperCase()));
   return words
     .map((w, i) => (kept.has(w.toUpperCase()) ? w.toUpperCase() : i === 0 ? w[0]!.toUpperCase() + w.slice(1).toLowerCase() : w.toLowerCase()))

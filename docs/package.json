@@ -1,0 +1,24 @@
+{
+  "name": "@mds/ui-docs",
+  "private": true,
+  "type": "module",
+  "description": "The @mds/ui documentation site: built with the kit itself, deployed to Cloudflare Pages.",
+  "scripts": {
+    "props": "bun scripts/props.ts",
+    "dev": "bun run props && vite",
+    "build": "cd .. && bun install --frozen-lockfile && bun run build && cd docs && bun run props && vite build",
+    "preview": "vite preview --port 5195 --strictPort"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "react-docgen-typescript": "^2.4.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.1.0"
+  }
+}

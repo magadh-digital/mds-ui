@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp, Info, type LucideIcon, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { type ReactNode, type Ref, useEffect, useRef, useState } from "react";
+import { localeNumber } from "../core/locale.js";
 import { type Tone } from "../core/types.js";
 import { Dot } from "../display/dot.js";
 import { Term } from "../display/term.js";
@@ -17,6 +18,8 @@ export function Sidebar({
     <aside
       className={`sidebar ${collapsed ? "collapsed" : ""}`}
       aria-hidden={collapsed}
+      // a collapsed sidebar is off screen: its filters must not take focus
+      inert={collapsed}
     >
       <div className="scroll">{children}</div>
       {footer && <div className="foot">{footer}</div>}
@@ -37,6 +40,7 @@ export function CollapseButton({
 }) {
   return (
     <button
+      type="button"
       className="ui-iconbtn"
       onClick={onToggle}
       aria-label={collapsed ? "Show filters" : "Hide filters"}
@@ -184,6 +188,7 @@ export function FilterGroup({
   return (
     <div className="fgroup">
       <button
+        type="button"
         className="head"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
@@ -262,7 +267,7 @@ export function CountCheckbox({
         <Term k={term} label={label} />
       </span>
       {count != null && (
-        <span className="count ui-num">({count.toLocaleString("en-IN")})</span>
+        <span className="count ui-num">({localeNumber(count)})</span>
       )}
     </label>
   );
@@ -292,6 +297,7 @@ export function SidebarLink({
 }) {
   return (
     <button
+      type="button"
       className="ui-link"
       onClick={onClick}
       disabled={disabled}

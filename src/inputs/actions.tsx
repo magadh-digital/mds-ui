@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { type Action } from "../core/types.js";
 import { ActionConfirm } from "../overlay/confirm.js";
+import { localeNumber } from "../core/locale.js";
 
 /**
  * Panel actions: at most two outlined buttons (`primary` fills the one that matters), the rest as text links
@@ -28,7 +29,7 @@ export function ActionRow({
                 <ActionConfirm
                   a={a}
                   trigger={
-                    <button
+                    <button type="button"
                       className={`ui-btn ${a.primary ? "primary" : ""} ${a.danger ? "danger" : ""}`}
                       style={{ flex: 1, justifyContent: "center" }}
                       disabled={a.disabled}
@@ -41,7 +42,7 @@ export function ActionRow({
                 />
               </span>
             ) : (
-              <button
+              <button type="button"
                 key={a.key}
                 className={`ui-btn ${a.primary ? "primary" : ""} ${a.danger ? "danger" : ""}`}
                 style={{ flex: 1, justifyContent: "center" }}
@@ -69,7 +70,7 @@ export function ActionRow({
                 <ActionConfirm
                   a={a}
                   trigger={
-                    <button
+                    <button type="button"
                       className="ui-link"
                       disabled={a.disabled}
                       title={a.title}
@@ -80,7 +81,7 @@ export function ActionRow({
                 />
               </span>
             ) : (
-              <button
+              <button type="button"
                 key={a.key}
                 className="ui-link"
                 onClick={() => void a.onClick?.()}
@@ -99,7 +100,7 @@ export function ActionRow({
 
 /**
  * Shown above the table while rows are selected. `actions` are the ones every selected row shares (see
- * `commonActions` in listpage.tsx): the first `primary` fills, one more is outlined, the rest are links; a `confirm`
+ * the page): the first `primary` fills, one more is outlined, the rest are links; a `confirm`
  * asks first and names the count. `total` + `onSelectAll` offer "Select all N matching" when only a page is picked.
  * `children` is for inputs the action needs (a UTR, a note). Esc clears the selection when the panel is closed.
  */
@@ -148,7 +149,7 @@ export function BulkBar({
           a={a}
           extra={extra}
           trigger={
-            <button className={cls} disabled={a.disabled} title={a.title}>
+            <button type="button" className={cls} disabled={a.disabled} title={a.title}>
               {!asLink && a.icon}
               {a.label}
             </button>
@@ -156,7 +157,7 @@ export function BulkBar({
         />
       );
     return (
-      <button
+      <button type="button"
         key={a.key}
         className={cls}
         onClick={() => void a.onClick?.()}
@@ -171,19 +172,19 @@ export function BulkBar({
   return (
     <div className="bulkbar" role="region" aria-label="Selection">
       <span style={{ fontWeight: 600 }} className="ui-num">
-        {count.toLocaleString("en-IN")} {unit}
+        {localeNumber(count)} {unit}
       </span>
       {summary && <span className="ui-muted ui-num">{summary}</span>}
       {total != null && total > count && onSelectAll && (
-        <button className="ui-link" onClick={onSelectAll}>
-          Select all {total.toLocaleString("en-IN")}
+        <button type="button" className="ui-link" onClick={onSelectAll}>
+          Select all {localeNumber(total)}
         </button>
       )}
       <span style={{ flex: 1 }} />
       {links.map((a) => render(a, true))}
       {children}
       {buttons.map((a) => render(a, false))}
-      <button className="ui-link" onClick={onClear} title="Esc">
+      <button type="button" className="ui-link" onClick={onClear} title="Esc">
         Clear
       </button>
     </div>

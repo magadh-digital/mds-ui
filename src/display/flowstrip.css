@@ -215,7 +215,8 @@
   font-size: var(--fs-sm);
 }
 
-.ui-table tr.exp-row .lstrip {
+/* a strip in a table cell (a table's second row) */
+td .lstrip {
   padding: var(--sp-1) 0;
 }
 

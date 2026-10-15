@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 
-/**
- * `value`, settled for `delay` ms. Lives apart from `console/pickers.tsx`, which loads the data client
- * (`src/data/api.ts` reads `location` at import), so any file can use it, tests included.
- */
+/** `value`, settled: it changes only after `value` has stayed the same for `delay` ms (a search box's server query). */
 export function useDebounced<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {

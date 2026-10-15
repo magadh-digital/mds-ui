@@ -1,11 +1,11 @@
-/* ---------- dialog (dialog.tsx): the .inv-backdrop / .inv-frame / .inv-toolbar parts, same names
-   so both consoles share them — a centred frame over a dim backdrop, max-height to the viewport, a scrolling body,
-   a toolbar row (title · extras · ×) and an optional pinned foot. Under popovers (1500), toasts and the palette. ---------- */
+/* ---------- dialog (dialog.tsx): the .inv-backdrop / .inv-frame / .inv-toolbar parts — a centred frame over a dim
+   backdrop, max-height to the viewport, a scrolling body, a toolbar row (title · extras · ×) and an optional pinned
+   foot. Above the panels and the file viewer (1000); under the palette, menus, toasts and popovers (floating.tsx). ---------- */
 .inv-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(15, 18, 24, 0.55);
-  z-index: 80;
+  z-index: 1100; /* floating.tsx DIALOG_Z (set inline; this is the same value) */
   display: flex;
   align-items: flex-start;
   justify-content: center;

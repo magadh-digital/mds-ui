@@ -1,11 +1,12 @@
 import { X } from "lucide-react";
 import { type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
+import { DIALOG_Z } from "./floating.js";
 
 /**
- * The one dialog of the kit (the `.inv-backdrop` / `.inv-frame` parts, shared by both
- * consoles, same class names): a centred frame over a dim backdrop for the few things a slide-over cannot hold — a form whose table needs
- * the width (a create form), later a confirm that needs fields. Details stay slide-overs.
+ * The one dialog of the kit (the `.inv-backdrop` / `.inv-frame` parts): a centred frame over a dim backdrop for the few
+ * things a slide-over cannot hold — a form whose table needs the width (a create form), a confirm that needs fields.
+ * Details stay slide-overs. It sits above the panels and the file viewer, under toasts and popovers.
  *
  * Esc, one step at a time: an open list or popover inside it closes first (its own handler); a focused text field is
  * left (blurred) next, so a stray Esc never throws a typed form away; then the dialog closes — the top one only, and
@@ -14,10 +15,16 @@ import { createPortal } from "react-dom";
  */
 
 /** an open dialog's backdrop: other Esc handlers stand aside while one is in the document */
+/** @internal */
 export const DIALOG_SELECTOR = ".inv-backdrop";
 /** lists and popovers that take the first Esc (an autocomplete list, a kit Pop, the calendar, a row menu, ⌘K) */
-export const LIST_OPEN_SELECTOR = ".ui-pop, .daterange-pop, .ctxmenu, .cmdk";
+/** @internal */
+// a layer fading out (data-status="close") is already closed: it must not hold Esc or the page keys for its last 100 ms
+export const LIST_OPEN_SELECTOR =
+  '.ui-pop:not([data-status="close"]), .daterange-pop:not([data-status="close"]), .ctxmenu, .cmdk';
+/** @internal */
 export const dialogOpen = () => !!document.querySelector(DIALOG_SELECTOR);
+/** @internal */
 export const listOpen = () => !!document.querySelector(LIST_OPEN_SELECTOR);
 
 const NOT_TEXT = new Set([
@@ -32,6 +39,7 @@ const NOT_TEXT = new Set([
   "image",
 ]);
 /** a field the reader types into (a checkbox is not: Esc there goes on to close) */
+/** @internal */
 export const isTextEntry = (el: Element | null): el is HTMLElement =>
   !!el &&
   (el.tagName === "INPUT"
@@ -164,6 +172,7 @@ function DialogFrame({
     <div
       ref={backdrop}
       className="inv-backdrop"
+      style={{ zIndex: DIALOG_Z }}
       onMouseDown={(e) => {
         downOnBackdrop.current = e.target === e.currentTarget;
       }}

@@ -1,32 +1,66 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Term } from "../display/term.js";
+import { FieldContext, joinIds } from "./field.js";
 
-/** Label-left / control-right row. `hint` renders the ⓘ tooltip text under the label. */
+/**
+ * Label-left / control-right row. The label names the kit control inside (Input, Select, Textarea, Autocomplete,
+ * DateInput, FileInput) and `hint` / `error` describe it (aria-describedby); an `error` marks it invalid. For a control
+ * that is not the kit's, pass its id as `htmlFor`.
+ */
 export function FormRow({
   label,
   hint,
   required,
   error,
+  htmlFor,
   children,
 }: {
   label: string;
   hint?: string;
   required?: boolean;
   error?: string;
+  /** the id of the control the label names, when it is not a kit control */
+  htmlFor?: string;
   children: ReactNode;
 }) {
+  const base = useId();
+  const labelId = `${base}-label`;
+  const hintId = `${base}-hint`;
+  const errorId = `${base}-error`;
+  const [controls, setControls] = useState<Array<string>>([]);
+  const register = useCallback((id: string) => {
+    setControls((c) => (c.includes(id) ? c : [...c, id]));
+    return () => setControls((c) => c.filter((x) => x !== id));
+  }, []);
+  const field = useMemo(
+    () => ({ labelId, describedBy: joinIds(hint && hintId, error && errorId), invalid: !!error, register }),
+    [labelId, hint, hintId, error, errorId, register],
+  );
   return (
     <div className={`frow-f ${error ? "has-error" : ""}`}>
       <div className="frow-label">
-        <span>
+        <label id={labelId} htmlFor={htmlFor ?? controls[0]}>
           <Term label={label} />
-          {required && <span className="ui-muted"> *</span>}
-        </span>
-        {hint && <span className="frow-hint">{hint}</span>}
+          {required && (
+            <span className="ui-muted" aria-hidden>
+              {" "}*
+            </span>
+          )}
+          {required && <span className="sr-only"> (required)</span>}
+        </label>
+        {hint && (
+          <span className="frow-hint" id={hintId}>
+            {hint}
+          </span>
+        )}
       </div>
       <div className="frow-control">
-        {children}
-        {error && <div className="ui-error">{error}</div>}
+        <FieldContext.Provider value={field}>{children}</FieldContext.Provider>
+        {error && (
+          <div className="ui-error" id={errorId}>
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -93,6 +127,7 @@ export function SettingsSection({
   return (
     <div className="ui-card ssec">
       <button
+        type="button"
         className="ssec-head"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
@@ -111,6 +146,7 @@ export function SettingsSection({
                 <span key={l.label}>
                   {i > 0 && <span className="ui-muted"> | </span>}
                   <button
+                    type="button"
                     className="ui-link"
                     onClick={l.onClick}
                     disabled={l.disabled}
@@ -128,23 +164,32 @@ export function SettingsSection({
   );
 }
 
-/** A text input that reports its value on blur or Enter, for inline edits in rows. */
+/**
+ * A text input that reports its value on blur or Enter, for inline edits in rows. A new `value` from the caller shows
+ * only while the field is not being edited, so a refetch never overwrites what is being typed.
+ */
 export function InlineInput({
   value,
   onCommit,
   placeholder,
   type = "text",
   width,
+  label,
 }: {
   value: string;
   onCommit: (v: string) => void;
   placeholder?: string;
   type?: "text" | "number" | "password";
   width?: string;
+  /** the accessible name, when no visible label names the field */
+  label?: string;
 }) {
   const [v, setV] = useState(value);
   const ref = useRef<HTMLInputElement>(null);
-  useEffect(() => setV(value), [value]);
+  const editing = useRef(false);
+  useEffect(() => {
+    if (!editing.current) setV(value);
+  }, [value]);
   return (
     <input
       ref={ref}
@@ -153,8 +198,15 @@ export function InlineInput({
       type={type}
       value={v}
       placeholder={placeholder}
+      aria-label={label}
+      onFocus={() => {
+        editing.current = true;
+      }}
       onChange={(e) => setV(e.target.value)}
-      onBlur={() => v !== value && onCommit(v)}
+      onBlur={() => {
+        editing.current = false;
+        if (v !== value) onCommit(v);
+      }}
       onKeyDown={(e) => {
         if (e.key === "Enter") ref.current?.blur();
         if (e.key === "Escape") setV(value);

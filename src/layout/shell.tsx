@@ -184,7 +184,7 @@ export function AppearancePopover() {
   return (
     <Pop
       trigger={
-        <button className="ui-iconbtn" aria-label="Appearance">
+        <button type="button" className="ui-iconbtn" aria-label="Appearance">
           <SunMoon />
         </button>
       }
@@ -192,6 +192,7 @@ export function AppearancePopover() {
       <div className="group-title">Theme</div>
       {THEMES.map((t) => (
         <button
+          type="button"
           key={t.value}
           className={`item ${theme === t.value ? "active" : ""}`}
           onClick={() => setTheme(t.value)}
@@ -212,6 +213,7 @@ export function AppearancePopover() {
       </div>
       {DENSITIES.map((d) => (
         <button
+          type="button"
           key={d.value}
           className={`item ${density === d.value ? "active" : ""}`}
           onClick={() => setDensity(d.value)}
@@ -233,6 +235,7 @@ export function AppearancePopover() {
       </div>
       {PANEL_WIDTHS.map((w) => (
         <button
+          type="button"
           key={w.value}
           className={`item ${panelWidth === w.value ? "active" : ""}`}
           onClick={() => setPanelWidth(w.value)}
@@ -256,6 +259,7 @@ export function AppearancePopover() {
       </div>
       {DETAIL_VIEWS.map((v) => (
         <button
+          type="button"
           key={v.value}
           className={`item ${detailView === v.value ? "active" : ""}`}
           onClick={() => setDetailView(v.value)}
@@ -284,6 +288,7 @@ export function AppearancePopover() {
         Names
       </div>
       <button
+        type="button"
         className={`item ${oldNames ? "active" : ""}`}
         onClick={() => setOldNames(!oldNames)}
       >
@@ -335,6 +340,7 @@ export function AppShell({
   railFoot,
   homeTo,
   homeTitle,
+  brand,
 }: {
   rail: Array<RailItem>;
   utility: Array<RailItem>;
@@ -362,11 +368,14 @@ export function AppShell({
   search?: ReactNode;
   /** beside the search bar */
   searchSide?: ReactNode;
-  /** given, the M logo links here (a module's page list) */
+  /** given, the logo links here (a module's page list) */
   homeTo?: string;
   homeTitle?: string;
+  /** the logo at the top of the rail: a letter, an <img>, an icon; the first letter of `title` by default */
+  brand?: ReactNode;
 }) {
   const { Link, pathname } = useKitRouter();
+  const logo = brand ?? title.trim().charAt(0).toUpperCase();
   const ctx = contexts.find((c) => c.id === activeContext) ?? contexts[0];
   return (
     <div className="shell">
@@ -378,10 +387,12 @@ export function AppShell({
             title={homeTitle}
             aria-label={homeTitle ?? "Home"}
           >
-            M
+            {logo}
           </Link>
         ) : (
-          <div className="brand">M</div>
+          <div className="brand" aria-hidden>
+            {logo}
+          </div>
         )}
         <RailGroupList
           items={rail}
@@ -404,7 +415,7 @@ export function AppShell({
           <Pop
             placement="bottom-start"
             trigger={
-              <button className="ctx" aria-label="Switch context">
+              <button type="button" className="ctx" aria-label="Switch context">
                 <Dot tone={ctx.tone} />
                 <span style={{ flex: 1, textAlign: "left" }}>{ctx.label}</span>
                 <ChevronDown
@@ -416,6 +427,7 @@ export function AppShell({
             <div className="group-title">{contextTitle}</div>
             {contexts.map((c) => (
               <button
+                type="button"
                 key={c.id}
                 className={`item ${c.id === ctx.id ? "active" : ""}`}
                 onClick={() => onContext(c.id)}
@@ -458,7 +470,7 @@ export function AppShell({
           <AppearancePopover />
           <Pop
             trigger={
-              <button className="avatar" aria-label={user.name}>
+              <button type="button" className="avatar" aria-label={user.name}>
                 {user.initials}
                 {user.badge ? (
                   <span className="badge">{user.badge}</span>

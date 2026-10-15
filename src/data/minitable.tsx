@@ -26,6 +26,7 @@ export function MiniTable<T>({
   onRowContextMenu,
   className,
   rowClassName,
+  label,
 }: {
   rows: Array<T>;
   cols: Array<MiniCol<T>>;
@@ -39,6 +40,8 @@ export function MiniTable<T>({
   onRowContextMenu?: (r: T, at: MenuAnchor) => void;
   /** a class per row (`warn`, `error`, `on`): highlights a suspect or picked row */
   rowClassName?: (r: T) => string;
+  /** the table's accessible name ("Order lines"); the column headers ("Name, Amount") when not given */
+  label?: string;
 }) {
   const columns = useMemo<Array<ColumnDef<T, unknown>>>(
     () =>
@@ -61,7 +64,7 @@ export function MiniTable<T>({
   return (
     <DenseTable<T>
       bare
-      label="mini"
+      label={label ?? cols.map((c) => c.header).join(", ")}
       columns={columns}
       data={rows}
       getRowId={rowKey}

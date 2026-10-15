@@ -1,9 +1,10 @@
 import { ChevronDown, ChevronRight, ChevronUp, Loader2 } from "lucide-react";
 import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { type ColumnDef, type ColumnSizingState, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, type PaginationState, type RowData, type SortingState, useReactTable, type VisibilityState } from "@tanstack/react-table";
-import { ColumnsPop } from "./columns.js";
+import { ColumnsPop, columnIdOf, columnLabel, listedColumns } from "./columns.js";
 import { Pagination } from "./pagination.js";
 import { mergeOrder, useDragSort } from "./dragsort.js";
+import { isRecord, readSaved, useClientLayoutEffect, writeSaved } from "./saved.js";
 import { Term } from "../display/term.js";
 import { dialogOpen } from "../overlay/dialog.js";
 import { type MenuAnchor, RowMenuButton } from "../overlay/menu.js";
@@ -35,6 +36,7 @@ export type DenseTableProps<T> = {
   sorting: SortingState;
   onSortingChange: (s: SortingState) => void;
   pagination: PaginationState;
+  /** also called by the table itself when the page is past the last one (`?page=9` on 150 rows): it moves to the last page */
   onPaginationChange: (p: PaginationState) => void;
   columnVisibility?: VisibilityState;
   /** the user's column order from the customiser (ids of the page's columns); the checkbox, status and menu columns keep their edges */
@@ -57,11 +59,18 @@ export type DenseTableProps<T> = {
    */
   loading: boolean;
   error?: string | null;
-  /** the one-sentence empty row; a node where it carries a link (Vehicles offers to widen its window) */
+  /** the one-sentence empty row; a node where it carries a link (an offer to widen the date range) */
   emptyText?: ReactNode;
   note?: string | null;
   pageSizes?: Array<number>;
+  /** the table's accessible name, and what the rows are in the pager ("21-40 of 683 partners") */
   label: string;
+  /**
+   * the name the table's own column picks and widths are saved under in this browser (`<prefix>.table.<storageId>.cols`
+   * / `.sizes`); `label` by default. Give two tables with the same label different ids, and keep the id when a label
+   * is renamed so saved choices survive.
+   */
+  storageId?: string;
   /** server-side paging and sorting: `data` is one page, `rowCount` the total */
   manual?: boolean;
   rowCount?: number;
@@ -96,7 +105,12 @@ const inField = (t: EventTarget | null) =>
   t instanceof HTMLSelectElement ||
   (t instanceof HTMLElement && t.isContentEditable);
 
-/** The page table: sticky header, kit row heights, sort on header click, footer paginator, selection and a row menu. */
+const ALL = () => true;
+
+/**
+ * The page table: sticky header, kit row heights, sort on a header (click, or Enter / Space on its button), footer
+ * paginator, selection and a row menu. Rows are one tab stop: Tab lands on one row, ↑ ↓ move between them.
+ */
 export function DenseTable<T>({
   columns,
   data,
@@ -118,6 +132,7 @@ export function DenseTable<T>({
   note,
   pageSizes = [25, 50, 100, 200],
   label,
+  storageId,
   manual,
   rowCount,
   selection,
@@ -138,12 +153,21 @@ export function DenseTable<T>({
     () => new Set(selection?.selected ?? []),
     [selection?.selected],
   );
-  const selectable = selection?.selectable ?? (() => true);
+  const selectable = selection?.selectable ?? ALL;
   const anchor = useRef<string | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // the kit's own columns read the page's latest selection / expand / menu through this ref, so they are built once
+  // per `columns` (not on every parent render, which would remount every cell)
+  const live = useRef({ selection, selectedSet, selectable, expand, expandedSet, onRowContextMenu });
+  live.current = { selection, selectedSet, selectable, expand, expandedSet, onRowContextMenu };
+  const hasSelection = !!selection;
+  const hasExpand = !!expand;
+  const hasMenu = !!onRowContextMenu;
 
   const allColumns = useMemo<Array<ColumnDef<T, any>>>(() => {
     const out: Array<ColumnDef<T, any>> = [];
-    if (selection) {
+    if (hasSelection) {
       out.push({
         id: "__sel",
         enableResizing: false,
@@ -152,6 +176,8 @@ export function DenseTable<T>({
         enableHiding: false,
         meta: { cls: "sel" },
         header: ({ table }) => {
+          const { selection, selectedSet, selectable } = live.current;
+          if (!selection) return null;
           const ids = table
             .getRowModel()
             .rows.filter((r) => selectable(r.original))
@@ -177,7 +203,8 @@ export function DenseTable<T>({
           );
         },
         cell: ({ row, table }) => {
-          if (!selectable(row.original)) return null;
+          const { selection, selectedSet, selectable } = live.current;
+          if (!selection || !selectable(row.original)) return null;
           return (
             <input
               type="checkbox"
@@ -210,7 +237,7 @@ export function DenseTable<T>({
         },
       });
     }
-    if (expand) {
+    if (hasExpand) {
       out.push({
         id: "__exp",
         enableResizing: false,
@@ -220,7 +247,8 @@ export function DenseTable<T>({
         meta: { cls: "exp" },
         header: "",
         cell: ({ row }) => {
-          if (expand.has && !expand.has(row.original)) return null;
+          const { expand, expandedSet } = live.current;
+          if (!expand || (expand.has && !expand.has(row.original))) return null;
           const open = expandedSet.has(row.id);
           return (
             <button
@@ -240,7 +268,7 @@ export function DenseTable<T>({
       });
     }
     out.push(...columns);
-    if (onRowContextMenu) {
+    if (hasMenu) {
       out.push({
         id: "__menu",
         enableResizing: false,
@@ -253,7 +281,7 @@ export function DenseTable<T>({
           <RowMenuButton
             onOpen={(el) => {
               const r = el.getBoundingClientRect();
-              onRowContextMenu(row.original, {
+              live.current.onRowContextMenu?.(row.original, {
                 clientX: r.left,
                 clientY: r.bottom + 2,
               });
@@ -263,79 +291,123 @@ export function DenseTable<T>({
       });
     }
     return out;
-  }, [
-    columns,
-    selection,
-    selectedSet,
-    selectable,
-    onRowContextMenu,
-    expand,
-    expandedSet,
-  ]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [columns, hasSelection, hasExpand, hasMenu]);
+
+  // the page's labelled columns (the ones the customiser lists and the header drags), by TanStack's id rule
+  const labelledSet = useMemo(
+    () =>
+      new Set(
+        columns
+          .filter((c) => columnLabel(c) != null)
+          .map((c) => columnIdOf(c))
+          .filter((id): id is string => !!id && !id.startsWith("__")),
+      ),
+    [columns],
+  );
 
   // the order the customiser saved, applied to the page's labelled columns only: the checkbox column stays first, an
   // unlabelled status column right after it, the row-menu column last; columns the saved order does not know follow it
   const fullOrder = useMemo(() => {
     if (!columnOrder?.length) return undefined;
-    const labelled = new Set(
-      columns
-        .filter(
-          (c) =>
-            c.id &&
-            (c.meta?.label || (typeof c.header === "string" && c.header)),
-        )
-        .map((c) => c.id!),
-    );
-    const ids = allColumns.map((c) => c.id!).filter(Boolean);
-    const own = ids.filter((id) => labelled.has(id));
-    const saved = columnOrder.filter((id) => labelled.has(id));
+    const ids = allColumns.map((c) => columnIdOf(c)).filter((id): id is string => !!id);
+    const own = ids.filter((id) => labelledSet.has(id));
+    const saved = columnOrder.filter((id) => labelledSet.has(id));
     return [
-      ...ids.filter((id) => !labelled.has(id) && id !== "__menu"),
+      ...ids.filter((id) => !labelledSet.has(id) && id !== "__menu"),
       ...saved,
       ...own.filter((id) => !saved.includes(id)),
       ...ids.filter((id) => id === "__menu"),
     ];
-  }, [allColumns, columns, columnOrder]);
+  }, [allColumns, labelledSet, columnOrder]);
 
-  // column choices: a page that keeps its
-  // own (`columnVisibility` + `onColumnVisibility`) decides; a table given neither keeps them itself, per table in the
-  // browser; one given only `columnVisibility` is fixed by the page and shows no menu
-  const visKey = storageKey(`table.${label}.cols`);
+  // column choices: a page that keeps its own (`columnVisibility` + `onColumnVisibility`) decides; a table given
+  // neither keeps them itself, per table in the browser; one given only `columnVisibility` is fixed by the page and
+  // shows no menu. Saved choices are read after mount, so a server render and the first client render agree.
+  const saveId = storageId ?? label;
+  const visKey = storageKey(`table.${saveId}.cols`);
   const ownsVisibility = visibilityProp === undefined && onVisibilityProp === undefined;
-  const [ownVisibility, setOwnVisibility] = useState<VisibilityState>(() => {
-    if (!ownsVisibility) return {};
-    try {
-      const v = JSON.parse(localStorage.getItem(visKey) ?? "{}") as unknown;
-      return v && typeof v === "object" && !Array.isArray(v) ? (v as VisibilityState) : {};
-    } catch {
-      return {};
-    }
-  });
+  const [ownVisibility, setOwnVisibility] = useState<VisibilityState>({});
+  useClientLayoutEffect(() => {
+    if (!ownsVisibility) return;
+    const v = readSaved(visKey);
+    setOwnVisibility(isRecord(v) ? (v as VisibilityState) : {});
+  }, [ownsVisibility, visKey]);
   const columnVisibility = ownsVisibility ? ownVisibility : visibilityProp;
   const onColumnVisibility = ownsVisibility
     ? (v: VisibilityState) => {
         setOwnVisibility(v);
-        try {
-          localStorage.setItem(visKey, JSON.stringify(v));
-        } catch {
-          /* private window: the choice lasts this visit */
-        }
+        writeSaved(visKey, v);
       }
     : onVisibilityProp;
 
+  // column widths: dragged on the header's right edge, kept per table in the browser; double-click resets one
+  const sizeKey = storageKey(`table.${saveId}.sizes`);
+  const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
+  const [sizesRead, setSizesRead] = useState<string | null>(null);
+  useClientLayoutEffect(() => {
+    if (!enableColumnResizing) return;
+    const v = readSaved(sizeKey);
+    setColumnSizing(isRecord(v) ? (v as ColumnSizingState) : {});
+    setSizesRead(sizeKey);
+  }, [enableColumnResizing, sizeKey]);
+  useEffect(() => {
+    // only once this key's saved widths are in state, so the defaults never overwrite them
+    if (!enableColumnResizing || sizesRead !== sizeKey) return;
+    writeSaved(sizeKey, Object.keys(columnSizing).length ? columnSizing : undefined);
+  }, [columnSizing, sizeKey, sizesRead, enableColumnResizing]);
+
+  // a page past the last one (`?page=9` on 150 rows) moves to the last page once the data says so; until then a
+  // client-side table already shows the last page
+  const total = manual ? (rowCount ?? data.length) : data.length;
+  const lastPage = Math.max(0, Math.ceil(total / Math.max(pagination.pageSize, 1)) - 1);
+  const pastEnd = pagination.pageIndex > lastPage;
+  const shownPagination = useMemo<PaginationState>(
+    () => (pastEnd && !manual ? { pageIndex: lastPage, pageSize: pagination.pageSize } : pagination),
+    [pastEnd, manual, lastPage, pagination],
+  );
+  const onPage = useRef(onPaginationChange);
+  onPage.current = onPaginationChange;
+  useEffect(() => {
+    if (pastEnd && !loading) onPage.current({ pageIndex: lastPage, pageSize: pagination.pageSize });
+  }, [pastEnd, loading, lastPage, pagination.pageSize]);
+
+  const table = useReactTable({
+    data,
+    columns: allColumns,
+    getRowId,
+    enableColumnResizing,
+    columnResizeMode: "onChange",
+    defaultColumn: { minSize: 36, maxSize: 1200 },
+    onColumnSizingChange: (u) => setColumnSizing((prev) => (typeof u === "function" ? u(prev) : u)),
+    // a page's default sort id may name no column ('none', a server-only key): TanStack warns on every render, so keep only real ids
+    state: {
+      sorting: sorting.filter((st) => allColumns.some((c) => columnIdOf(c) === st.id)),
+      pagination: shownPagination,
+      columnVisibility,
+      columnSizing,
+      ...(fullOrder ? { columnOrder: fullOrder } : {}),
+    },
+    onSortingChange: (u) =>
+      onSortingChange(typeof u === "function" ? u(sorting) : u),
+    onPaginationChange: (u) =>
+      onPaginationChange(typeof u === "function" ? u(shownPagination) : u),
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    autoResetPageIndex: false,
+    manualPagination: !!manual,
+    manualSorting: !!manual,
+    rowCount: manual ? total : undefined,
+  });
+  const rows = table.getRowModel().rows;
+  const colCount = table.getVisibleLeafColumns().length;
+  const leafColumns = table.getAllLeafColumns();
+  // the page waits for a past-the-end page to come back (server paging): a blank body, not "Nothing matches."
+  const waiting = loading || (pastEnd && total > 0);
+
   // header drag: the visible labelled columns in their shown order; a drop re-sequences them inside the
   // page's full order so hidden columns keep their slots, then the customiser's setOrder saves it
-  const labelledIds = useMemo(
-    () =>
-      columns
-        .filter(
-          (c) =>
-            c.id &&
-            (c.meta?.label || (typeof c.header === "string" && c.header)),
-        )
-        .map((c) => c.id!),
-    [columns],
-  );
+  const labelledIds = listedColumns(leafColumns).map((c) => c.id);
   const shownIds = labelledIds.filter((id) => columnVisibility?.[id] !== false);
   const shownOrdered = [
     ...(columnOrder ?? []).filter((id) => shownIds.includes(id)),
@@ -348,66 +420,16 @@ export function DenseTable<T>({
   const colDrag = useDragSort(
     shownOrdered,
     (next) => onColumnOrder?.(mergeOrder(fullOrdered, next)),
-    `cols:${label}`,
+    `cols:${saveId}`,
     "x",
   );
 
-  // column widths: dragged on the header's right edge, kept per table in the browser; double-click resets one
-  const sizeKey = storageKey(`table.${label}.sizes`);
-  const [columnSizing, setColumnSizing] = useState<ColumnSizingState>(() => {
-    if (!enableColumnResizing) return {};
-    try {
-      const v = JSON.parse(localStorage.getItem(sizeKey) ?? "{}") as unknown;
-      return v && typeof v === "object" && !Array.isArray(v) ? (v as ColumnSizingState) : {};
-    } catch {
-      return {};
-    }
-  });
-  useEffect(() => {
-    try {
-      if (Object.keys(columnSizing).length) localStorage.setItem(sizeKey, JSON.stringify(columnSizing));
-      else localStorage.removeItem(sizeKey);
-    } catch {
-      /* private mode or full storage: widths just do not persist */
-    }
-  }, [columnSizing, sizeKey]);
-
-  const table = useReactTable({
-    data,
-    columns: allColumns,
-    getRowId,
-    enableColumnResizing,
-    columnResizeMode: "onChange",
-    defaultColumn: { minSize: 36, maxSize: 1200 },
-    onColumnSizingChange: (u) => setColumnSizing((prev) => (typeof u === "function" ? u(prev) : u)),
-    // a page's default sort id may name no column ('none', a server-only key): TanStack warns on every render, so keep only real ids
-    state: {
-      sorting: sorting.filter((st) =>
-        allColumns.some(
-          (c) =>
-            c.id === st.id || ("accessorKey" in c && c.accessorKey === st.id),
-        ),
-      ),
-      pagination,
-      columnVisibility,
-      columnSizing,
-      ...(fullOrder ? { columnOrder: fullOrder } : {}),
-    },
-    onSortingChange: (u) =>
-      onSortingChange(typeof u === "function" ? u(sorting) : u),
-    onPaginationChange: (u) =>
-      onPaginationChange(typeof u === "function" ? u(pagination) : u),
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    autoResetPageIndex: false,
-    manualPagination: !!manual,
-    manualSorting: !!manual,
-    rowCount: manual ? (rowCount ?? data.length) : undefined,
-  });
-  const total = table.getRowCount();
-  const rows = table.getRowModel().rows;
-  const colCount = table.getVisibleLeafColumns().length;
+  // roving tab stop: one row is in the tab order (the last focused, else the open one, else the first)
+  const [focusRow, setFocusRow] = useState<string | null>(null);
+  const tabRow =
+    (focusRow != null && rows.some((r) => r.id === focusRow) && focusRow) ||
+    (selectedId != null && rows.some((r) => r.id === selectedId) && selectedId) ||
+    rows[0]?.id;
 
   // `[` / `]` move the open panel to the previous / next row; Esc (with the panel closed) clears the selection
   useEffect(() => {
@@ -420,10 +442,8 @@ export function DenseTable<T>({
         if (i >= 0 && next) {
           e.preventDefault();
           onRowClick(next.original);
-          document
-            .querySelector<HTMLElement>(
-              `.ui-table tr[data-id="${CSS.escape(next.id)}"]`,
-            )
+          wrapRef.current
+            ?.querySelector<HTMLElement>(`tr[data-id="${CSS.escape(next.id)}"]`)
             ?.scrollIntoView({ block: "nearest" });
         }
       } else if (
@@ -463,11 +483,10 @@ export function DenseTable<T>({
   return (
     <>
       <div className={`ui-table-host${bare ? " bare" : ""}`}>
-      <div className={`ui-table-wrap${wrapperClassName ? ` ${wrapperClassName}` : ""}`}>
+      <div ref={wrapRef} className={`ui-table-wrap${wrapperClassName ? ` ${wrapperClassName}` : ""}`}>
         <table
           className={`ui-table${lines === 2 ? " two-line" : lines === 3 ? " three-line" : ""}${className ? ` ${className}` : ""}`}
           aria-label={label}
-          aria-multiselectable={selection ? true : undefined}
         >
           <thead>
             {table.getHeaderGroups().map((hg) => (
@@ -483,6 +502,12 @@ export function DenseTable<T>({
                       : { className: "" };
                   const sized = enableColumnResizing && columnSizing[h.column.id] != null;
                   const resizing = h.column.getIsResizing();
+                  const head =
+                    typeof h.column.columnDef.header === "string" ? (
+                      <Term label={h.column.columnDef.header} />
+                    ) : (
+                      flexRender(h.column.columnDef.header, h.getContext())
+                    );
                   return (
                     <th
                       key={h.id}
@@ -505,15 +530,16 @@ export function DenseTable<T>({
                       }
                       {...drag}
                     >
-                      <span className="th">
-                        {typeof h.column.columnDef.header === "string" ? (
-                          <Term label={h.column.columnDef.header} />
-                        ) : (
-                          flexRender(h.column.columnDef.header, h.getContext())
-                        )}
-                        {sorted === "asc" && <ChevronUp />}
-                        {sorted === "desc" && <ChevronDown />}
-                      </span>
+                      {canSort ? (
+                        // a real button, so the sort is reachable by Tab and Enter / Space; its click bubbles to the th
+                        <button type="button" className="th">
+                          {head}
+                          {sorted === "asc" && <ChevronUp aria-hidden />}
+                          {sorted === "desc" && <ChevronDown aria-hidden />}
+                        </button>
+                      ) : (
+                        <span className="th">{head}</span>
+                      )}
                       {h.column.getCanResize() && (
                         <span
                           className="col-resize"
@@ -535,19 +561,19 @@ export function DenseTable<T>({
             ))}
           </thead>
           <tbody>
-            {loading && rows.length === 0 && (
+            {waiting && rows.length === 0 && (
               <tr className="ui-table-pending" style={{ cursor: "default" }}>
                 <td colSpan={colCount} />
               </tr>
             )}
-            {!(loading && rows.length === 0) && error && (
+            {!(waiting && rows.length === 0) && error && (
               <tr>
                 <td colSpan={colCount} className="ui-error">
                   {error}
                 </td>
               </tr>
             )}
-            {!loading && !error && rows.length === 0 && (
+            {!waiting && !error && rows.length === 0 && (
               <tr style={{ cursor: "default" }}>
                 <td colSpan={colCount} className="ui-empty">
                   {emptyText}
@@ -560,9 +586,6 @@ export function DenseTable<T>({
                   <tr
                     data-id={r.id}
                     className={`${selectedId === r.id ? "selected" : ""} ${selectedSet.has(r.id) ? "checked" : ""} ${rowClassName?.(r.original) ?? ""}`}
-                    aria-selected={
-                      selection ? selectedSet.has(r.id) : undefined
-                    }
                     onClick={(e) => {
                       if (selection && (e.metaKey || e.ctrlKey))
                         return toggleRow(r.id, r.original);
@@ -607,9 +630,11 @@ export function DenseTable<T>({
                         ? (e) => e.shiftKey && e.preventDefault()
                         : undefined
                     } // ⇧-click ranges rows, not text
-                    tabIndex={0}
+                    tabIndex={r.id === tabRow ? 0 : -1}
+                    onFocus={() => setFocusRow(r.id)}
                     onKeyDown={(e) => {
-                      if (inField(e.target)) return;
+                      // keys pressed on a control inside a cell (the ⋯ button, a chevron, a checkbox) are that control's
+                      if (e.target !== e.currentTarget) return;
                       // ↑ ↓ move between rows, Enter opens; Space selects, ⌘A selects the page, `.` opens the row menu
                       if (e.key === "Enter") onRowClick?.(r.original);
                       else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -707,8 +732,8 @@ export function DenseTable<T>({
       </div>
       {!bare && (
       <Pagination
-        pageIndex={pagination.pageIndex}
-        pageSize={pagination.pageSize}
+        pageIndex={shownPagination.pageIndex}
+        pageSize={shownPagination.pageSize}
         total={total}
         onChange={(p) => onPaginationChange(p)}
         pageSizes={pageSizes}
@@ -717,7 +742,7 @@ export function DenseTable<T>({
         extra={
           onColumnVisibility && labelledIds.length > 1 ? (
             <ColumnsPop
-              columns={columns}
+              columns={leafColumns}
               visibility={columnVisibility ?? {}}
               onChange={onColumnVisibility}
               order={columnOrder}

@@ -1,13 +1,30 @@
-/* the small button and the select's invalid state (the base .ui-btn / .ui-input / .ui-select live in styles/controls.css) */
+/* the small button, the invalid field and the Pills marker (the base .ui-btn / .ui-input / .ui-select live in styles/controls.css) */
 .ui-btn.sm {
   height: calc(var(--ctl-h) - 6px);
   padding: 0 var(--sp-2);
   font-size: var(--fs-sm);
 }
-.ui-select.fail,
-.ui-textarea.fail {
+.ui-input.invalid,
+.ui-select.invalid,
+.ui-textarea.invalid {
   border-color: var(--c-error);
+}
+.ui-input.invalid:focus,
+.ui-select.invalid:focus,
+.ui-textarea.invalid:focus {
+  border-color: var(--c-error);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-error) 18%, transparent);
 }
 .ui-btn[aria-busy="true"] {
   cursor: progress;
+}
+/* the picked pill carries a tick, so the pick does not rest on colour alone */
+.ui-pills button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.ui-pills button svg {
+  width: 11px;
+  height: 11px;
 }

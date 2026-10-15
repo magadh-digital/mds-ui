@@ -1,8 +1,7 @@
 /**
- * The ⌘K palette. One box to jump to a page, reopen something recent, run a page action, change the
- * appearance, or find an entity by its number or name — without leaving the keyboard. Pages register their actions
- * while mounted (`useCommands`); entity search is an async `CommandSource` the app wires to its list endpoints.
- * `/` still focuses the page's own search box; ⌘K is global.
+ * The ⌘K palette. One box to jump to a page, reopen something recent, run a page action or change the appearance —
+ * without leaving the keyboard. Pages register their actions while mounted (`useCommands`).
+ * `/` still focuses the page's own search box; ⌘K (Ctrl K off a Mac) is global.
  *
  * Navigation goes through `useKitRouter()` (core/router.tsx). The appearance settings are not known at this layer:
  * `AppearancePopover` (layout/shell.tsx) registers them as a `settings` scope, listed last and only while typing.
@@ -14,16 +13,17 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { useKitRouter } from "../core/router.js";
 import { otherServicePages } from "../core/service_pages.js";
 import { storageKey } from "../core/storage.js";
+import { PALETTE_Z } from "./floating.js";
 
 export type Command = {
   id: string;
   label: string;
-  /** muted text after the label: a vehicle number, a party, "current" */
+  /** muted text after the label: a number, a name, "current" */
   hint?: string;
   group: string;
   icon?: LucideIcon;
@@ -32,24 +32,31 @@ export type Command = {
   keywords?: string;
   run: () => void;
 };
-/** Async provider for entity results; called (debounced) once the query has 2+ characters. */
-export type CommandSource = (
-  q: string,
-  signal: AbortSignal,
-) => Promise<Array<Command>>;
 
 // ---------------------------------------------------------------- registry: pages add actions while mounted
 type Getter = () => Array<Command>;
 /** `settings`: listed only while typing, after the page actions, 6 at most, and never under `>` (the appearance) */
 export type CommandScopeOptions = { settings?: boolean };
-const scopes = new Map<string, { get: Getter; settings: boolean }>();
+// one entry per registration (its own token), so unmounting one component never removes another's commands; when two
+// registrations share a scope, the newest is listed and the older one comes back once the newest goes
+const regs = new Map<symbol, { scope: string; get: Getter; settings: boolean }>();
+let regVersion = 0;
 const regListeners = new Set<() => void>();
-export function registerCommands(scope: string, get: Getter, opts: CommandScopeOptions = {}) {
-  scopes.set(scope, { get, settings: !!opts.settings });
+const regChanged = () => {
+  regVersion++;
   regListeners.forEach((l) => l());
+};
+const subscribeRegs = (l: () => void) => {
+  regListeners.add(l);
+  return () => void regListeners.delete(l);
+};
+/** Adds a scope's commands; returns the function that removes this registration (and only this one). */
+export function registerCommands(scope: string, get: Getter, opts: CommandScopeOptions = {}) {
+  const token = Symbol(scope);
+  regs.set(token, { scope, get, settings: !!opts.settings });
+  regChanged();
   return () => {
-    scopes.delete(scope);
-    regListeners.forEach((l) => l());
+    if (regs.delete(token)) regChanged();
   };
 }
 /** `useCommands('receipts', [{ id: 'clear', label: 'Clear filters', group: 'Receipts', run }])` — re-read on every open, so closures stay fresh. */
@@ -59,10 +66,13 @@ export function useCommands(scope: string, cmds: Array<Command>, opts: CommandSc
   const settings = !!opts.settings;
   useEffect(() => registerCommands(scope, () => ref.current, { settings }), [scope, settings]);
 }
-const registered = (settings = false) =>
-  Array.from(scopes.values())
+const registered = (settings = false) => {
+  const latest = new Map<string, { get: Getter; settings: boolean }>();
+  regs.forEach((r) => latest.set(r.scope, r)); // insertion order: the newest registration of a scope wins
+  return Array.from(latest.values())
     .filter((s) => s.settings === settings)
     .flatMap((s) => s.get());
+};
 
 /** a recent item's path with its search, written as TanStack writes search (JSON for anything a plain string can't hold) */
 const withSearch = (to: string, search?: Record<string, unknown>) => {
@@ -86,11 +96,16 @@ const withSearch = (to: string, search?: Record<string, unknown>) => {
 // ---------------------------------------------------------------- open / close from anywhere
 type PaletteState = { open: boolean; q: string };
 let state: PaletteState = { open: false, q: "" };
-const stateListeners = new Set<(s: PaletteState) => void>();
+const stateListeners = new Set<() => void>();
 const setState = (s: PaletteState) => {
   state = s;
-  stateListeners.forEach((l) => l(s));
+  stateListeners.forEach((l) => l());
 };
+const subscribeState = (l: () => void) => {
+  stateListeners.add(l);
+  return () => void stateListeners.delete(l);
+};
+const CLOSED: PaletteState = { open: false, q: "" };
 export const palette = {
   open: (q = "") => setState({ open: true, q }),
   close: () => setState({ open: false, q: "" }),
@@ -108,11 +123,17 @@ export type RecentItem = {
   at: number;
 };
 const RECENT_KEY = () => storageKey("recent");
+const isRecent = (r: unknown): r is RecentItem =>
+  !!r &&
+  typeof r === "object" &&
+  typeof (r as RecentItem).id === "string" &&
+  typeof (r as RecentItem).label === "string" &&
+  typeof (r as RecentItem).to === "string";
+/** @internal The saved recent items; anything else under the key (corrupt, another app's) reads as none. */
 export function readRecent(): Array<RecentItem> {
   try {
-    return JSON.parse(
-      localStorage.getItem(RECENT_KEY()) ?? "[]",
-    ) as Array<RecentItem>;
+    const v: unknown = JSON.parse(localStorage.getItem(RECENT_KEY()) ?? "[]");
+    return Array.isArray(v) ? v.filter(isRecent) : [];
   } catch {
     return [];
   }
@@ -132,6 +153,7 @@ export function rememberRecent(item: Omit<RecentItem, "at">) {
 
 // ---------------------------------------------------------------- matching
 /** 0 = no match. Substring beats subsequence; a hit at a word start beats one mid-word. */
+/** @internal */
 export function score(q: string, text: string): number {
   if (!q) return 1;
   const t = text.toLowerCase();
@@ -160,24 +182,32 @@ const scored = (q: string, c: Command) =>
     c.hint ? score(q, c.hint) * 0.6 : 0,
   );
 
-export const IS_MAC =
-  typeof navigator !== "undefined" &&
-  /Mac|iPhone|iPad/.test(navigator.platform);
-export const MOD = IS_MAC ? "⌘" : "Ctrl";
+/** @internal true on a Mac, iPhone or iPad; call it in the browser only (it reads `navigator`) */
+export const isMac = () =>
+  typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+const never = () => () => {};
+/**
+ * The modifier key's name: "⌘" on a Mac, "Ctrl" elsewhere. The server and the hydrating render both say "Ctrl" (they
+ * agree, so hydration does not fail); a Mac switches to "⌘" right after.
+ */
+export const useModKey = () => useSyncExternalStore(never, () => (isMac() ? "⌘" : "Ctrl"), () => "Ctrl");
+/** a shortcut's keys with `Mod` read as the modifier key ("Mod K" → "⌘ K") */
+const withMod = (kbd: string, mod: string) => kbd.replace(/\bMod\b/g, mod);
 
+/** A line of the `?` list. In `kbd`, `Mod` reads as ⌘ on a Mac and Ctrl elsewhere ("Mod K"). */
 export type Shortcut = { kbd: string; label: string };
 export const DEFAULT_SHORTCUTS: Array<Shortcut> = [
   {
-    kbd: `${MOD} K`,
+    kbd: "Mod K",
     label: "Search: pages of every service, recent items, actions",
   },
   { kbd: "/", label: "Focus the page search box" },
   { kbd: "↑ ↓", label: "Move between rows" },
   { kbd: "Enter", label: "Open the row" },
   { kbd: "Space", label: "Select or deselect the row" },
-  { kbd: `${MOD} click`, label: "Add a row to the selection" },
+  { kbd: "Mod click", label: "Add a row to the selection" },
   { kbd: "⇧ click", label: "Select a range of rows" },
-  { kbd: `${MOD} A`, label: "Select every row on the page" },
+  { kbd: "Mod A", label: "Select every row on the page" },
   { kbd: "[ ]", label: "Previous / next row while the panel is open" },
   { kbd: ".", label: "Row actions (same as right-click)" },
   { kbd: "Esc", label: "Close the menu or panel, then clear the selection" },
@@ -201,20 +231,21 @@ export function CommandPalette({
   pages,
   shortcuts = DEFAULT_SHORTCUTS,
 }: PaletteProps) {
-  const [st, setSt] = useState(state);
+  // read straight from the stores, so a palette.open() or a registration made before this mounted is not missed
+  const st = useSyncExternalStore(subscribeState, () => state, () => CLOSED);
+  const regs = useSyncExternalStore(subscribeRegs, () => regVersion, () => 0);
+  const mod = useModKey();
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
-  const [, bump] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const restoreFocus = useRef<Element | null>(null);
   const { navigate, pathname } = useKitRouter();
+  const baseId = useId();
+  const listId = `${baseId}-list`;
+  const optionId = (i: number) => `${baseId}-opt-${i}`;
 
   useEffect(() => {
-    const l = (s: PaletteState) => setSt(s);
-    stateListeners.add(l);
-    const r = () => bump((n) => n + 1);
-    regListeners.add(r);
     const onKey = (e: KeyboardEvent) => {
       if (
         (e.metaKey || e.ctrlKey) &&
@@ -227,11 +258,7 @@ export function CommandPalette({
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      stateListeners.delete(l);
-      regListeners.delete(r);
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   useEffect(() => {
@@ -274,7 +301,7 @@ export function CommandPalette({
         shortcuts.map((s) => ({
           id: `kbd:${s.kbd}`,
           label: s.label,
-          kbd: s.kbd,
+          kbd: withMod(s.kbd, mod),
           group: "Shortcuts",
           run: () => {},
         })),
@@ -360,7 +387,8 @@ export function CommandPalette({
     );
     settingsByGroup.forEach((items, title) => add(title, items, needle ? 6 : 0));
     return out;
-  }, [st.open, q, pages, shortcuts, pathname, navigate]);
+    // `regs` changes when a page registers or drops its commands, so the list follows while the palette is open
+  }, [st.open, q, pages, shortcuts, pathname, navigate, regs, mod]);
 
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
   useEffect(() => setActive(0), [q]);
@@ -392,17 +420,23 @@ export function CommandPalette({
       e.preventDefault();
       const c = flat[active];
       if (c) run(c);
+    } else if (e.key === "Tab") {
+      // a modal: the search box is its only stop, so Tab stays on it
+      e.preventDefault();
+      inputRef.current?.focus();
     }
   };
   let i = -1;
   return createPortal(
     <div
       className="cmdk-overlay"
+      style={{ zIndex: PALETTE_Z }}
       onMouseDown={(e) => e.target === e.currentTarget && palette.close()}
     >
       <div
         className="cmdk"
         role="dialog"
+        aria-modal="true"
         aria-label="Search and commands"
         onKeyDown={onKey}
       >
@@ -414,11 +448,16 @@ export function CommandPalette({
             onChange={(e) => setQ(e.target.value)}
             placeholder="Jump to a page in any service, or run an action…"
             aria-label="Search"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls={listId}
+            aria-autocomplete="list"
+            aria-activedescendant={flat[active] ? optionId(active) : undefined}
             autoComplete="off"
             spellCheck={false}
           />
         </div>
-        <div className="cmdk-list" ref={listRef} role="listbox">
+        <div className="cmdk-list" ref={listRef} role="listbox" id={listId} aria-label="Results">
           {groups.length === 0 && (
             <div className="cmdk-empty">
               {q
@@ -426,9 +465,11 @@ export function CommandPalette({
                 : "Type to search. Prefix > for actions, ? for shortcuts."}
             </div>
           )}
-          {groups.map((g) => (
-            <div key={g.title}>
-              <div className="cmdk-group">{g.title}</div>
+          {groups.map((g, gi) => (
+            <div key={g.title} role="group" aria-labelledby={`${baseId}-g-${gi}`}>
+              <div className="cmdk-group" id={`${baseId}-g-${gi}`}>
+                {g.title}
+              </div>
               {g.items.map((c) => {
                 i++;
                 const idx = i;
@@ -436,6 +477,7 @@ export function CommandPalette({
                 return (
                   <div
                     key={c.id}
+                    id={optionId(idx)}
                     role="option"
                     aria-selected={idx === active}
                     className={`cmdk-item ${idx === active ? "active" : ""}`}
@@ -479,15 +521,17 @@ export function CommandPalette({
 
 /** The top-bar trigger: a quiet search pill with the shortcut on it. */
 export function PaletteButton() {
+  const mod = useModKey();
   return (
     <button
+      type="button"
       className="search-pill"
       onClick={() => palette.open()}
       aria-label="Search and commands"
     >
       <Search />
       <span>Search or jump to…</span>
-      <kbd className="ui-kbd">{MOD} K</kbd>
+      <kbd className="ui-kbd">{mod} K</kbd>
     </button>
   );
 }

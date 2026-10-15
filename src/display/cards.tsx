@@ -3,7 +3,10 @@ import { type ReactNode } from "react";
 import { type Tone } from "../core/types.js";
 import { Dot, HealthBar } from "./dot.js";
 
-/** An overview card: name + type icon, status dot + sub-label, 24h health bar, provider chip, capability icons. */
+/**
+ * An overview card: name + type icon, status dot + sub-label, 24h health bar, provider chip, capability icons. With
+ * `onClick` the card is a button (Enter or Space opens it); without, it is plain content.
+ */
 export function EntityCard({
   name,
   icon: Icon,
@@ -31,12 +34,22 @@ export function EntityCard({
     <div
       className={`ui-card ecard ${offline ? "offline" : ""}`}
       onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.target !== e.currentTarget) return;
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
     >
       <div className="name">
-        {name} <Icon />
+        {name} <Icon aria-hidden />
       </div>
       <div className={`sub ${offline ? "dim" : ""}`}>
         <Dot tone={tone} /> {subLabel}
@@ -64,7 +77,7 @@ export function EntityCard({
             const I = i.icon;
             return (
               <span key={i.label} title={i.label}>
-                <I /> {i.value}
+                <I aria-label={i.label} role="img" /> {i.value}
               </span>
             );
           })}

@@ -1,11 +1,12 @@
 import { AlertTriangle } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { type Action } from "../core/types.js";
-import { Pop } from "./pop.js";
+import { Pop, type PopPlacement } from "./pop.js";
 
 /**
  * Destructive or irreversible actions ask in a small popover, optionally with a reason.
- * `trigger` is the link/button that opens it.
+ * `trigger` is the link/button that opens it. The popover closes when `onConfirm` resolves; when it throws, the popover
+ * stays open for another try (the caller shows its own error).
  */
 export function ConfirmPop({
   trigger,
@@ -26,17 +27,41 @@ export function ConfirmPop({
   danger?: boolean;
   /** the word the person must type to enable the button (a destructive delete: "DELETE") */
   typed?: string;
-  onConfirm: (reason: string) => void | Promise<void>;
-  placement?: "bottom-end" | "bottom-start" | "top-start";
+  onConfirm: (reason: string) => void | Promise<unknown>;
+  placement?: PopPlacement;
 }) {
+  const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [word, setWord] = useState("");
   const [busy, setBusy] = useState(false);
+  const onOpenChange = (v: boolean) => {
+    if (!v && busy) return; // a running confirm finishes before the popover goes
+    // each opening starts clean: a typed DELETE or a reason never carries over to the next ask
+    if (v) {
+      setText("");
+      setWord("");
+    }
+    setOpen(v);
+  };
+  const run = async () => {
+    setBusy(true);
+    try {
+      await onConfirm(text.trim());
+      setOpen(false);
+    } catch {
+      /* the caller shows its own error; the popover stays open for another try */
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <Pop
       trigger={trigger}
       placement={placement}
       width="calc(var(--panel-w) * 0.8)"
+      label={title}
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <div className="confirm">
         <div className="confirm-title">
@@ -48,6 +73,7 @@ export function ConfirmPop({
           <textarea
             className="ui-input ui-textarea"
             placeholder={reason.label}
+            aria-label={reason.label}
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={2}
@@ -65,22 +91,14 @@ export function ConfirmPop({
         )}
         <div className="hstack" style={{ justifyContent: "flex-end" }}>
           <button
+            type="button"
             className={`ui-btn ${danger ? "danger" : ""}`}
             disabled={
               busy ||
               (reason?.required && !text.trim()) ||
               (!!typed && word.trim() !== typed)
             }
-            onClick={async () => {
-              setBusy(true);
-              try {
-                await onConfirm(text.trim());
-                setText("");
-                setWord("");
-              } finally {
-                setBusy(false);
-              }
-            }}
+            onClick={() => void run()}
           >
             {busy ? "Working…" : confirmLabel}
           </button>
@@ -95,10 +113,12 @@ export function ActionConfirm({
   a,
   trigger,
   extra,
+  placement,
 }: {
   a: Action;
   trigger: ReactNode;
   extra?: ReactNode;
+  placement?: PopPlacement;
 }) {
   const c = a.confirm!;
   return (
@@ -120,7 +140,8 @@ export function ActionConfirm({
       reason={c.reason}
       typed={c.typed}
       danger={c.danger ?? a.danger}
-      onConfirm={(r) => Promise.resolve(a.onClick?.(r)).then(() => undefined)}
+      placement={placement}
+      onConfirm={(r) => a.onClick?.(r)}
     />
   );
 }

@@ -1,13 +1,16 @@
 import { Check, Copy, type LucideIcon, Plus } from "lucide-react";
 import { type ButtonHTMLAttributes, type Ref, useState } from "react";
 
-export function CopyButton({ text }: { text: string }) {
+/** Copies `text` to the clipboard; a tick shows for a moment after. `label` names it ("Copy UTR"). */
+export function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
   const [done, setDone] = useState(false);
   return (
     <button
+      type="button"
       className="ui-iconbtn copy"
       style={{ width: 20, height: 20 }}
-      title="Copy"
+      title={label}
+      aria-label={done ? "Copied" : label}
       onClick={(e) => {
         e.stopPropagation();
         void navigator.clipboard?.writeText(text).then(() => {
@@ -17,9 +20,9 @@ export function CopyButton({ text }: { text: string }) {
       }}
     >
       {done ? (
-        <Check style={{ width: 12, height: 12 }} />
+        <Check aria-hidden style={{ width: 12, height: 12 }} />
       ) : (
-        <Copy style={{ width: 12, height: 12 }} />
+        <Copy aria-hidden style={{ width: 12, height: 12 }} />
       )}
     </button>
   );
@@ -52,7 +55,7 @@ export function IconAction({
       aria-label={label}
       {...rest}
     >
-      <Icon />
+      <Icon aria-hidden />
     </button>
   );
 }
@@ -73,7 +76,7 @@ export function AddLink({
       className={`ui-link nowrap ${className ?? ""}`}
       {...rest}
     >
-      <Plus /> {label}
+      <Plus aria-hidden /> {label}
     </button>
   );
 }

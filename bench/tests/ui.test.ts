@@ -309,7 +309,7 @@ describe("Tier 1: controls, DateInput, ConfirmDialog, toggles, chips, stats", ()
   });
   test("Input invalid, Select placeholder + options, Textarea, Checkbox with count", async () => {
     await page.type('input[aria-label="Name"]', "bad");
-    expect(await page.$eval('input[aria-label="Name"]', (e) => [e.classList.contains("fail"), e.getAttribute("aria-invalid")])).toEqual([true, "true"]);
+    expect(await page.$eval('input[aria-label="Name"]', (e) => [e.classList.contains("invalid"), e.getAttribute("aria-invalid")])).toEqual([true, "true"]);
     expect(await page.$$eval('select[aria-label="Unit"] option', (o) => o.map((x) => x.textContent))).toEqual(["All units", "Kilogram", "Metric ton"]);
     await page.select('select[aria-label="Unit"]', "mt");
     await page.type('textarea[aria-label="Note"]', "hello");
@@ -324,7 +324,7 @@ describe("Tier 1: controls, DateInput, ConfirmDialog, toggles, chips, stats", ()
     // view the month of min (Oct 2026): the 1st is before min → disabled and not pickable
     while ((await page.$eval(".daterange-title", (e) => e.textContent)) !== "October 2026")
       await page.click((await page.$eval(".daterange-title", (e) => e.textContent!)) > "October 2026" ? ".daterange-nav.prev" : ".daterange-nav.next");
-    expect(await page.$eval('.daterange-day[data-day="2026-10-01"]', (e) => (e as HTMLButtonElement).disabled)).toBe(true);
+    expect(await page.$eval('.daterange-day[data-day="2026-10-01"]', (e) => e.getAttribute("aria-disabled"))).toBe("true");
     await page.click('.daterange-day[data-day="2026-10-01"]').catch(() => {});
     expect(await more("day1")).toBe("");
     await page.click('.daterange-day[data-day="2026-10-12"]');

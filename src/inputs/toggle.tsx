@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { localeNumber } from "../core/locale.js";
 
 export type ToggleOption<T extends string> = {
   value: T;
@@ -64,7 +65,7 @@ export function ToggleGroup<T extends string>(props: Single<T> | Multiple<T>) {
             {o.label}
             {o.count != null && (
               <span className="ui-toggle-count ui-num">
-                {o.count.toLocaleString("en-IN")}
+                {localeNumber(o.count)}
               </span>
             )}
           </button>

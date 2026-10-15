@@ -36,51 +36,6 @@
     inset 0 -1px 0 var(--c-accent);
 }
 
-/* a file drop zone (statement upload): dashed hairline, accent while a file hovers */
-.dropzone {
-  border: 1px dashed var(--c-border);
-  border-radius: var(--radius-md);
-  padding: var(--sp-3);
-  text-align: center;
-  color: var(--c-muted);
-  cursor: pointer;
-  font-size: var(--fs-sm);
-}
-
-.dropzone:hover,
-.dropzone:focus-visible {
-  border-color: var(--c-accent);
-  color: var(--c-text);
-  outline: 0;
-}
-
-.dropzone.over {
-  border-color: var(--c-accent);
-  background: var(--c-accent-soft);
-  color: var(--c-text);
-}
-
-.upq {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2px var(--sp-2);
-  font-size: var(--fs-sm);
-  align-items: center;
-}
-
-.upq .name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.upq .msg {
-  grid-column: 1 / -1;
-  font-size: var(--fs-xs);
-  color: var(--c-muted);
-  padding-bottom: 4px;
-}
-
 .ui-table tbody tr.checked:hover td {
   background: color-mix(in srgb, var(--c-accent-soft), var(--c-hover));
 }

@@ -1,6 +1,6 @@
-import { type ColumnDef, type VisibilityState } from "@tanstack/react-table";
+import { type Column, type ColumnDef, type VisibilityState } from "@tanstack/react-table";
 import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
-import { useDragSort } from "./dragsort.js";
+import { moveId, useDragSort } from "./dragsort.js";
 import { Pop } from "../overlay/pop.js";
 
 /** Pure: the ids in the saved order first, then the ones the saved order does not know in their own order; ids it names that no longer exist are dropped. */
@@ -12,18 +12,38 @@ export const orderColumns = (
   ...ids.filter((id) => !order.includes(id)),
 ];
 
-/** Pure: a column the customiser lists — it has an id and something to call it by (the status-dot column has neither and stays pinned first). */
+/**
+ * @internal
+ * A column def's id, worked out the way TanStack Table v8 does: `id`, else `accessorKey` (dots become `_`), else a
+ * string `header`. Lets the kit name a column before the table instance exists; once it does, read
+ * `table.getAllLeafColumns()` instead.
+ */
+export const columnIdOf = <T,>(c: ColumnDef<T, any>): string | undefined => {
+  const key = (c as { accessorKey?: unknown }).accessorKey;
+  return (
+    c.id ??
+    (typeof key === "string" ? key.replace(/\./g, "_") : undefined) ??
+    (typeof c.header === "string" ? c.header : undefined)
+  );
+};
+
+/**
+ * Pure: the name the customiser lists a column under: `meta.label`, else a string `header`; null for a column with
+ * neither (a status dot, the checkbox and menu columns), which stays where the page put it.
+ */
 export const columnLabel = <T,>(c: ColumnDef<T, any>): string | null =>
-  c.id
-    ? (c.meta?.label ??
-      (typeof c.header === "string" && c.header ? c.header : null))
-    : null;
+  c.meta?.label ?? (typeof c.header === "string" && c.header ? c.header : null);
+
+/** @internal the table's own columns the customiser lists: labelled, and not the kit's `__` columns */
+export const listedColumns = <T,>(columns: Array<Column<T, unknown>>) =>
+  columns.filter((c) => !c.id.startsWith("__") && columnLabel(c.columnDef) != null);
 
 /**
  * `Customize Columns`: every labelled column with a checkbox (a column the page cannot do without has its box disabled)
  * and, when the page keeps an order, a grip to drag the row and ↑ ↓ arrows that move it one place (the table's header
  * cells drag too); `Reset order` returns to the page's own order.
- * Both choices are the user's and live in localStorage per page (see useListState).
+ * `columns` are the table's own columns (`table.getAllLeafColumns()`), so ids come from TanStack and columns built with
+ * `columnHelper.accessor("name")` (no explicit `id`) are listed too.
  */
 export function ColumnsPop<T>({
   columns,
@@ -32,27 +52,22 @@ export function ColumnsPop<T>({
   order,
   onOrder,
 }: {
-  columns: Array<ColumnDef<T, any>>;
+  columns: Array<Column<T, unknown>>;
   visibility: VisibilityState;
   onChange: (v: VisibilityState) => void;
   order?: Array<string>;
   onOrder?: (o: Array<string>) => void;
 }) {
-  const listed = columns.filter((c) => columnLabel(c) != null);
-  const byId = new Map(listed.map((c) => [c.id!, c] as const));
+  const listed = listedColumns(columns);
+  const byId = new Map(listed.map((c) => [c.id, c] as const));
   const ids = orderColumns(
-    listed.map((c) => c.id!),
+    listed.map((c) => c.id),
     order ?? [],
   );
   const drag = useDragSort(ids, (next) => onOrder?.(next), "columns");
   const move = (id: string, dir: -1 | 1) => {
-    const i = ids.indexOf(id);
-    const j = i + dir;
-    if (i < 0 || j < 0 || j >= ids.length) return;
-    const next = [...ids];
-    next[i] = ids[j]!;
-    next[j] = ids[i]!;
-    onOrder?.(next);
+    const next = moveId(ids, id, dir);
+    if (next !== ids) onOrder?.(next);
   };
   return (
     <Pop
@@ -66,7 +81,7 @@ export function ColumnsPop<T>({
       <div className="group-title">Columns</div>
       {ids.map((id, i) => {
         const c = byId.get(id)!;
-        const fixed = c.enableHiding === false;
+        const fixed = !c.getCanHide();
         const { className: dragCls, ...dnd } = onOrder
           ? drag.props(id)
           : { className: "" };
@@ -93,7 +108,7 @@ export function ColumnsPop<T>({
                   onChange({ ...visibility, [id]: e.target.checked })
                 }
               />
-              <span>{columnLabel(c)}</span>
+              <span>{columnLabel(c.columnDef)}</span>
             </label>
             {onOrder && (
               <span className="colmove">

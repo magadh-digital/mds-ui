@@ -38,10 +38,3 @@
 .ui-table tr.exp-row:hover td {
   background: var(--c-canvas);
 }
-
-.ui-table tr.exp-row .mini td {
-  background: transparent;
-  padding: 0 var(--sp-1);
-  height: calc(var(--row-h) - 4px);
-  white-space: nowrap;
-}

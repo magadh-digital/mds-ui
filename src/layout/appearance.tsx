@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { storageKey } from "../core/storage.js";
+import { useClientLayoutEffect } from "../data/saved.js";
 
 export type Density = "compact" | "comfortable" | "large";
 export type Theme = "light" | "dark" | "system";
@@ -16,7 +17,7 @@ export const PANEL_WIDTHS: Array<{
   { value: "wide", label: "Wide", hint: "800 px", px: 800 },
   { value: "wider", label: "Wider", hint: "960 px", px: 960 },
 ];
-/** where a record opens: the right slide-over, a popup centred over the page, or the whole page (15 Sep) */
+/** where a record opens: the right slide-over, a popup centred over the page, or the whole page */
 export type DetailView = "panel" | "popup" | "full";
 export const DETAIL_VIEWS: Array<{
   value: DetailView;
@@ -68,7 +69,7 @@ const systemDark = () =>
   typeof matchMedia !== "undefined" &&
   matchMedia("(prefers-color-scheme: dark)").matches;
 
-/** Same logic as the inline script in index.html (which runs before first paint). */
+/** Sets the appearance attributes on <html>. An app can run the same logic in an inline script before first paint. */
 export function applyAppearance(
   density: Density,
   theme: Theme,
@@ -100,36 +101,40 @@ type Ctx = {
 };
 const AppearanceContext = createContext<Ctx | null>(null);
 
+/**
+ * Theme, density, panel width and detail view for the reader, remembered in this browser. The first render (on the
+ * server too) uses the defaults; the saved choices are read right after mount, before the first paint.
+ */
 export function AppearanceProvider({ children }: { children: ReactNode }) {
-  const [density, setDensityState] = useState<Density>(() =>
-    read(DENSITY_KEY(), ["compact", "comfortable", "large"], defaultDensity()),
-  );
-  const [theme, setThemeState] = useState<Theme>(() =>
-    read(THEME_KEY(), ["light", "dark", "system"], "system"),
-  );
-  const [panelWidth, setPanelWidthState] = useState<PanelWidth>(() =>
-    read(PANEL_KEY(), ["narrow", "default", "wide", "wider"], "default"),
-  );
-  const [detailView, setDetailViewState] = useState<DetailView>(() =>
-    read(DETAIL_KEY(), ["panel", "popup", "full"], "panel"),
-  );
+  const [density, setDensityState] = useState<Density>("compact");
+  const [theme, setThemeState] = useState<Theme>("system");
+  const [panelWidth, setPanelWidthState] = useState<PanelWidth>("default");
+  const [detailView, setDetailViewState] = useState<DetailView>("panel");
   // full page is its own state: leaving it goes back to the last side panel / popup choice
-  const [windowedView, setWindowedView] = useState<"panel" | "popup">(() => {
-    const cur = read(DETAIL_KEY(), ["panel", "popup", "full"], "panel");
-    return cur === "full" ? read(DETAIL_LAST_KEY(), ["panel", "popup"], "panel") : cur;
-  });
-  const [sysDark, setSysDark] = useState(systemDark);
+  const [windowedView, setWindowedView] = useState<"panel" | "popup">("panel");
+  const [sysDark, setSysDark] = useState(false);
+  const [ready, setReady] = useState(false);
 
+  useClientLayoutEffect(() => {
+    setDensityState(read<Density>(DENSITY_KEY(), ["compact", "comfortable", "large"], defaultDensity()));
+    setThemeState(read<Theme>(THEME_KEY(), ["light", "dark", "system"], "system"));
+    setPanelWidthState(read<PanelWidth>(PANEL_KEY(), ["narrow", "default", "wide", "wider"], "default"));
+    const cur = read<DetailView>(DETAIL_KEY(), ["panel", "popup", "full"], "panel");
+    setDetailViewState(cur);
+    setWindowedView(cur === "full" ? read<"panel" | "popup">(DETAIL_LAST_KEY(), ["panel", "popup"], "panel") : cur);
+    setSysDark(systemDark());
+    setReady(true);
+  }, []);
   useEffect(() => {
     const mq = matchMedia("(prefers-color-scheme: dark)");
     const fn = (e: MediaQueryListEvent) => setSysDark(e.matches);
     mq.addEventListener("change", fn);
     return () => mq.removeEventListener("change", fn);
   }, []);
-  useEffect(
-    () => applyAppearance(density, theme, panelWidth, detailView),
-    [density, theme, panelWidth, detailView, sysDark],
-  );
+  useClientLayoutEffect(() => {
+    // not before the saved choices are in: the page's own early script may already have applied them
+    if (ready) applyAppearance(density, theme, panelWidth, detailView);
+  }, [ready, density, theme, panelWidth, detailView, sysDark]);
 
   const setDensity = useCallback((d: Density) => {
     setDensityState(d);
@@ -180,7 +185,8 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
       setTheme,
       setPanelWidth,
       setDetailView,
-    , windowedView],
+      windowedView,
+    ],
   );
   return (
     <AppearanceContext.Provider value={value}>

@@ -4,13 +4,13 @@
   "description": "A light React UI kit for data-heavy apps: dense tables, toolbars, filters, side panels, pickers, a date range, a file viewer, an app shell and \u2318K palette. Plain CSS variables; React is the only peer.",
   "license": "MIT",
   "author": "MagadhTech",
-  "homepage": "https://github.com/MagadhTech/mds-ui#readme",
+  "homepage": "https://github.com/magadh-digital/mds-ui#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MagadhTech/mds-ui.git"
+    "url": "git+https://github.com/magadh-digital/mds-ui.git"
   },
   "bugs": {
-    "url": "https://github.com/MagadhTech/mds-ui/issues"
+    "url": "https://github.com/magadh-digital/mds-ui/issues"
   },
   "keywords": [
     "react",

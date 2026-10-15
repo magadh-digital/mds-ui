@@ -1,7 +1,10 @@
 import { RefreshCw } from "lucide-react";
-import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from "react";
+import { createContext, type ReactNode, type RefObject, useContext, useEffect, useRef, useState } from "react";
 import { CollapseButton, SearchBox } from "./sidebar.js";
+import { useClientLayoutEffect } from "./saved.js";
+import { localeNumber } from "../core/locale.js";
 import { Term } from "../display/term.js";
+import { dialogOpen, listOpen } from "../overlay/dialog.js";
 
 export type ToolbarSearch = {
   value: string;
@@ -12,21 +15,74 @@ export type ToolbarSearch = {
 };
 
 /**
+ * Tabs a host puts in every toolbar below it (an app shell: the sister-page strip of a merged rail entry), shown when
+ * the page passes no `tabs` of its own. One rendered toolbar per page, so the strip appears once.
+ */
+export const ToolbarTabsContext = createContext<ReactNode>(null);
+
+// ---------------------------------------------------------------- page keys (`/` and `R`)
+// One window listener for every mounted toolbar. A key goes to the most recently mounted toolbar that is on screen
+// (not inside a closed or covered panel, a collapsed sidebar or anything `inert` / `aria-hidden`) and has the thing
+// the key asks for (a search box for `/`, a refresh for `R`), so two toolbars never both answer one key.
+type PageKeys = {
+  root: HTMLElement | null;
+  focusSearch: (() => void) | null;
+  refresh: (() => void) | null;
+};
+const mounted: Array<PageKeys> = [];
+
+const inTextField = (t: EventTarget | null) =>
+  t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+
+const onScreen = (el: HTMLElement | null) =>
+  !!el && el.isConnected && el.getClientRects().length > 0 && !el.closest('[inert], [aria-hidden="true"]');
+
+function onPageKey(e: KeyboardEvent) {
+  if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+  const slash = e.key === "/";
+  if (!slash && e.key !== "r" && e.key !== "R") return;
+  // not while typing, not under a dialog or the file viewer, not while a list, popover, menu or ⌘K is open
+  if (inTextField(e.target) || inTextField(document.activeElement)) return;
+  if (dialogOpen() || listOpen()) return;
+  for (let i = mounted.length - 1; i >= 0; i--) {
+    const t = mounted[i]!;
+    const run = slash ? t.focusSearch : t.refresh;
+    if (!run || !onScreen(t.root)) continue;
+    e.preventDefault();
+    run();
+    return;
+  }
+}
+
+function usePageKeys(root: RefObject<HTMLElement | null>, focusSearch: (() => void) | null, refresh: (() => void) | null) {
+  const entry = useRef<PageKeys>({ root: null, focusSearch: null, refresh: null }).current;
+  useClientLayoutEffect(() => {
+    entry.root = root.current;
+    entry.focusSearch = focusSearch;
+    entry.refresh = refresh;
+  });
+  useEffect(() => {
+    mounted.push(entry);
+    if (mounted.length === 1) window.addEventListener("keydown", onPageKey);
+    return () => {
+      const i = mounted.indexOf(entry);
+      if (i >= 0) mounted.splice(i, 1);
+      if (mounted.length === 0) window.removeEventListener("keydown", onPageKey);
+    };
+  }, [entry]);
+}
+
+/**
  * The list page's head (the UI rules in AGENTS.md), right to left: refresh, search, filters (date / one select),
  * then the page's own figures and buttons:
  *   [title · count · chips] ··········· [children: figures, buttons] [filters] [search] [refresh]
  * - `search` is always a visible box; `/` focuses it from anywhere on the page with its text selected (type to
  *   replace, Backspace to clear); Esc leaves the box and keeps the text.
  * - `filters` holds the few filters a page has (a date, one select) when it needs no sidebar.
- * - the refresh icon spins while `refreshing` is true or while the promise `onRefresh` returns is pending; `r`
+ * - the refresh icon spins while `refreshing` is true or while the promise `onRefresh` returns is pending; `R`
  *   refreshes from anywhere on the page.
+ * - with several toolbars mounted (a page and a panel), `/` and `R` go to the most recently mounted one on screen.
  */
-/**
- * Tabs a host puts in every toolbar below it (an app shell: the sister-page strip of a merged rail entry), shown when
- * the page passes no `tabs` of its own. One rendered toolbar per page, so the strip appears once.
- */
-export const ToolbarTabsContext = createContext<ReactNode>(null);
-
 export function Toolbar({
   title,
   count,
@@ -52,28 +108,15 @@ export function Toolbar({
   refreshing?: boolean;
   filters?: ReactNode;
   search?: ToolbarSearch;
-  /** sister pages joined under one rail entry (erp/page_tabs.tsx PageTabs): shown in place of the title */
+  /** sister pages joined under one rail entry (a `Seg` or `Tabs`): shown in place of the title */
   tabs?: ReactNode;
   children?: ReactNode;
 }) {
   const hostTabs = useContext(ToolbarTabsContext);
   tabs ??= hostTabs;
   const [pending, setPending] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (!search) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
-      const t = e.target as HTMLElement | null;
-      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-      e.preventDefault();
-      // focus with the current text selected, so typing replaces it and Backspace clears it
-      searchRef.current?.focus();
-      searchRef.current?.select();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [!!search]);
   const spinning = !!refreshing || pending;
   const refresh = async () => {
     if (!onRefresh) return;
@@ -89,24 +132,19 @@ export function Toolbar({
       }
     }
   };
-  // `r` refreshes from anywhere on the page (not while typing, not under a dialog / the file viewer)
-  useEffect(() => {
-    if (!onRefresh) return;
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.key !== "r" && e.key !== "R") || e.metaKey || e.ctrlKey || e.altKey) return;
-      const t = e.target as HTMLElement | null;
-      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-      if (document.querySelector(".inv-backdrop, .cmdk")) return;
-      e.preventDefault();
-      void refreshRef.current();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [!!onRefresh]);
-  const refreshRef = useRef(refresh);
-  refreshRef.current = refresh;
+  usePageKeys(
+    rootRef,
+    search
+      ? () => {
+          // focus with the current text selected, so typing replaces it and Backspace clears it
+          searchRef.current?.focus();
+          searchRef.current?.select();
+        }
+      : null,
+    onRefresh ? () => void refresh() : null,
+  );
   return (
-    <div className="toolbar">
+    <div className="toolbar" ref={rootRef}>
       {collapsed && onExpand && (
         <CollapseButton collapsed onToggle={onExpand} />
       )}
@@ -121,7 +159,7 @@ export function Toolbar({
       )}
       {count != null && (
         <span className="ui-muted ui-num toolbar-count">
-          {count.toLocaleString("en-IN")} {unit}
+          {localeNumber(count)} {unit}
         </span>
       )}
       {chips?.map((c) => (
@@ -145,6 +183,7 @@ export function Toolbar({
       )}
       {onRefresh && (
         <button
+          type="button"
           className="ui-iconbtn"
           onClick={() => void refresh()}
           aria-label="Refresh"

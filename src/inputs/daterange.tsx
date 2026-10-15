@@ -1,13 +1,16 @@
 import { autoUpdate, flip, FloatingFocusManager, FloatingPortal, offset, shift, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
 import { useState } from "react";
 import { date, type KitDate } from "../core/date.js";
+import { kitLocale } from "../core/locale.js";
 import { CalendarMonth as Month, DateTrigger as Trigger, iso } from "./calendar.js";
-import { isInsideLayer, useLayerMotion } from "../overlay/floating.js";
+import { useFieldControl } from "./field.js";
+import { Seg } from "./seg.js";
+import { isInsideLayer, LAYER_Z, useLayerMotion } from "../overlay/floating.js";
 
 /**
  * The date control every list uses, one field that reads like a date, a calendar
- * where a range is two clicks on the same grid, a Day / Range switch and the shortcuts the office reaches for (today,
- * yesterday, 7 and 30 days, this and last month, financial year, all time). Values are YYYY-MM-DD strings kept in the
+ * where a range is two clicks on the same grid, a Day / Range switch and the usual shortcuts (today, yesterday, 7 and
+ * 30 days, this and last month, the financial year from the kit locale's `fyStartMonth`, all time). Values are YYYY-MM-DD strings kept in the
  * URL; a blank side is open-ended. The calendar is the kit's own (it replaced react-datepicker; same look and keys).
  */
 
@@ -18,17 +21,26 @@ type Mode = "day" | "range";
 
 const D = "YYYY-MM-DD";
 const FMT = "MMM D, YYYY";
+/** @internal a "YYYY-MM-DD" string, else undefined */
 export const dateOnly = (v: unknown) =>
   typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : undefined;
 const fmt = (d: Date | string) => date(d).format(FMT);
 
-/** Indian financial year: 1 Apr to 31 Mar. */
+/** The financial year around `now`, from the kit locale's `fyStartMonth` (0 = January: the calendar year). */
 const fyBounds = (now = date()) => {
-  const y = now.month() >= 3 ? now.year() : now.year() - 1;
+  const m = kitLocale().fyStartMonth;
+  const y = now.month() >= m ? now.year() : now.year() - 1;
   return {
-    from: date(new Date(y, 3, 1)).format(D),
-    to: date(new Date(y + 1, 2, 31)).format(D),
+    from: date(new Date(y, m, 1)).format(D),
+    // the day before the next year's first day
+    to: date(new Date(y + 1, m, 0)).format(D),
   };
+};
+/** "Apr to Mar" in the kit's locale */
+const fyMonths = () => {
+  const m = kitLocale().fyStartMonth;
+  const f = new Intl.DateTimeFormat(kitLocale().locale, { month: "short" });
+  return `${f.format(new Date(2023, m, 1))} to ${f.format(new Date(2023, (m + 11) % 12, 1))}`;
 };
 export const presetRange = (key: PresetKey, now = date()): RangeValue => {
   const t = now.format(D);
@@ -68,7 +80,7 @@ const PRESETS: Array<{ key: PresetKey; label: string; title: string }> = [
   { key: "30d", label: "30 days", title: "Last 30 days" },
   { key: "month", label: "This month", title: "This month" },
   { key: "last_month", label: "Last month", title: "Last month" },
-  { key: "fy", label: "This FY", title: "This financial year (Apr to Mar)" },
+  { key: "fy", label: "This FY", title: "This financial year" },
   { key: "all", label: "All", title: "No date limit" },
 ];
 const same = (a: RangeValue, b: RangeValue) =>
@@ -95,13 +107,17 @@ export function DateRange({
   allowAll = true,
   emptyLabel = "All time",
   presets,
+  label,
 }: {
   value: RangeValue;
   onChange: (v: RangeValue) => void;
   allowAll?: boolean;
   emptyLabel?: string;
   presets?: Array<PresetKey>;
+  /** the field's accessible name, read before the dates ("Bill dates, Oct 1, 2026 – Oct 15, 2026") */
+  label?: string;
 }) {
+  const { id: fieldId, field } = useFieldControl();
   const [open, setOpenState] = useState(false);
   const [mode, setMode] = useState<Mode>(
     value.from && value.to && value.from !== value.to ? "range" : "day",
@@ -142,7 +158,7 @@ export function DateRange({
     setDraft(d);
     setHover(null);
   };
-  const label = draft
+  const text = draft
     ? hover
       ? `${fmt(draft.valueOf() <= hover.valueOf() ? draft.toDate() : hover.toDate())} – ${fmt(draft.valueOf() <= hover.valueOf() ? hover.toDate() : draft.toDate())}`
       : `${fmt(draft.toDate())} → …`
@@ -165,30 +181,21 @@ export function DateRange({
 
   const footer = (
     <div className="daterange-foot">
-      <div className="ui-seg" role="tablist" style={{ alignSelf: "stretch" }}>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === "day"}
-          className={mode === "day" ? "active" : ""}
-          onClick={() => {
-            setMode("day");
+      <Seg<Mode>
+        label="Pick a day or a range"
+        options={[
+          { value: "day", label: "Day" },
+          { value: "range", label: "Range" },
+        ]}
+        value={mode}
+        onChange={(m) => {
+          setMode(m);
+          if (m === "day") {
             setDraft(null);
             setHover(null);
-          }}
-        >
-          Day
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === "range"}
-          className={mode === "range" ? "active" : ""}
-          onClick={() => setMode("range")}
-        >
-          Range
-        </button>
-      </div>
+          }
+        }}
+      />
       <div
         className="daterange-shortcuts"
         // two even rows whatever the number of shortcuts; one row when there are only a few
@@ -200,7 +207,8 @@ export function DateRange({
           <button
             key={p.key}
             type="button"
-            title={p.title}
+            title={p.key === "fy" ? `${p.title} (${fyMonths()})` : p.title}
+            aria-pressed={active === p.key}
             className={active === p.key ? "active" : ""}
             onClick={() => {
               if (p.key !== "today" && p.key !== "yesterday" && p.key !== "all")
@@ -219,7 +227,10 @@ export function DateRange({
       <div className="daterange-wrap">
         <Trigger
           ref={refs.setReference}
-          label={label}
+          id={fieldId}
+          label={text}
+          name={label}
+          labelledBy={field?.labelId}
           pending={!!draft}
           empty={!isSet && !draft}
           open={open}
@@ -235,10 +246,10 @@ export function DateRange({
               ref={refs.setFloating}
               className="daterange-pop"
               data-status={motion.status}
-              style={{ ...floatingStyles, ...motion.styles, zIndex: 2000 }}
+              style={{ ...floatingStyles, ...motion.styles, zIndex: LAYER_Z }}
               {...getFloatingProps()}
             >
-              <div className="daterange-cal" role="dialog" aria-label="Pick dates">
+              <div className="daterange-cal" role="dialog" aria-label={label ? `Pick ${label}` : "Pick dates"}>
                 <Month
                   view={view}
                   setView={setView}

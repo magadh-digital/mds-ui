@@ -5,6 +5,7 @@
 import { useState } from "react";
 
 const TONES = ["var(--c-accent)", "var(--c-ok)", "var(--c-warn)", "var(--c-purple)", "var(--c-error)", "var(--c-muted)"];
+/** @internal up to two initials of a name (a leading "M/S" is skipped) */
 export const initials = (name: string) => {
   const words = name.replace(/^m\/?s\.?\s+/i, "").trim().split(/\s+/).filter(Boolean);
   return ((words[0]?.[0] ?? "") + (words.length > 1 ? words[words.length - 1]![0] : (words[0]?.[1] ?? ""))).toUpperCase();

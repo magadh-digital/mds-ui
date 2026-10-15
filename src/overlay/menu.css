@@ -1,7 +1,7 @@
 /* ---------- context menu ---------- */
 .ctxmenu {
   position: fixed;
-  z-index: 950;
+  z-index: 1300; /* floating.tsx MENU_Z (set inline; this is the same value) */
   min-width: calc(200px * var(--layout-scale));
   background: var(--c-surface);
   color: var(--c-text);

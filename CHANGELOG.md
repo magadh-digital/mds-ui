@@ -21,4 +21,11 @@ All notable changes to `@mds/ui`. Versions below 1.0 may change the API in a min
   detail view).
 - **Router-free:** the shell and palette use a small adapter (`RouterProvider`); the browser's history by default.
 - **Storage:** saved choices live under a configurable prefix (`configureStorage`), `mds-ui` by default.
+- **Accessibility:** keyboard sorting and roving row focus in tables, labelled form fields (`FormRow`), announced
+  toasts, menus, palette and Autocomplete highlights, focus moved into and back out of panels, popovers, the file
+  viewer and dialogs; hidden panels and a collapsed sidebar are `inert`.
+- **Locale:** `configureLocale` / `UIProvider locale` for numbers, `money()`, the calendar's first weekday and the
+  financial year.
+- **SSR-safe:** saved choices are read after mount; nothing touches the browser at import time; the package imports
+  in Node and type-checks under `node16`.
 - Three runtime dependencies (`@floating-ui/react`, `lucide-react`, `@tanstack/react-table`); React is the only peer.

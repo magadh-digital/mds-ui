@@ -1,7 +1,8 @@
 name: Release
 
-# Push a tag like v0.3.0 (matching package.json's version) to publish to npm. Every check and the browser tests run
-# first; npm records where the package was built (provenance).
+# Push a tag like v0.3.0 (matching package.json's version) on a commit that is on main to publish to npm. A tag on any
+# other branch stops here. Every check and the browser tests run first; npm records where the package was built
+# (provenance).
 on:
   push:
     tags: ["v*"]
@@ -15,6 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the whole history, so the check below can see main
+      - name: The tagged commit is on main
+        run: |
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "tag $GITHUB_REF_NAME ($GITHUB_SHA) is not on main"; exit 1; }
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.3.2

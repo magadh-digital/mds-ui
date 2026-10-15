@@ -16,6 +16,11 @@
   transition: transform 0.18s ease;
 }
 
+/* the panel takes focus when it opens (so Tab starts inside it); the frame itself shows no ring */
+.panel:focus {
+  outline: none;
+}
+
 .panel.open {
   transform: translateX(0);
   border-left-color: var(--c-border);
@@ -362,108 +367,4 @@
 
 .pblock .ui-muted {
   display: block;
-}
-
-.mini {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--fs-sm);
-}
-
-.mini th {
-  text-align: left;
-  font-weight: 600;
-  color: var(--c-muted);
-  font-size: var(--fs-xs);
-  padding: 0 var(--sp-1) var(--sp-1);
-}
-
-.mini td {
-  padding: 0 var(--sp-1);
-  height: calc(var(--row-h) - 4px);
-  border-top: 1px solid var(--c-border);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: calc(260px * var(--ui-scale));
-}
-
-.mini .right {
-  text-align: right;
-}
-
-/* a table whose rows carry two lines (a product and its specs): rows grow, cells wrap, numbers stay right */
-.mini.rows2 td {
-  height: auto;
-  padding: 5px var(--sp-1);
-  white-space: normal;
-  vertical-align: top;
-  max-width: none;
-  line-height: 1.4;
-}
-
-.mini td .sub {
-  display: block;
-  color: var(--c-muted);
-  font-size: var(--fs-xs);
-}
-
-.mini td .ui-link {
-  font-size: var(--fs-xs);
-}
-
-.mini td.acts,
-.mini th.acts {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.mini td[rowspan] {
-  vertical-align: top;
-  border-right: 1px solid var(--c-border);
-  padding-right: var(--sp-2);
-}
-
-.mini td[rowspan]+td {
-  padding-left: var(--sp-2);
-}
-
-.mini .right {
-  font-variant-numeric: tabular-nums;
-}
-
-.stepper {
-  display: flex;
-  gap: 2px;
-}
-
-.stepper span {
-  flex: 1;
-  height: 6px;
-  border-radius: 2px;
-  background: var(--c-neutral);
-}
-
-.stepper span.done {
-  background: var(--c-ok);
-}
-
-.stepper span.now {
-  background: var(--c-accent);
-}
-
-.stepper span.bad {
-  background: var(--c-error);
-}
-
-.finding {
-  display: flex;
-  gap: var(--sp-2);
-  align-items: flex-start;
-  padding: var(--sp-1) 0;
-  font-size: var(--fs-sm);
-}
-
-.finding .ui-dot {
-  margin-top: 5px;
 }
