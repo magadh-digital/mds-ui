@@ -50,7 +50,7 @@ export function ToggleGroup<T extends string>(props: Single<T> | Multiple<T>) {
   const hint = (on: boolean) =>
     props.multiple ? undefined : on && props.clearable !== false ? "Click again to show all" : undefined;
   return (
-    <div className={`ui-seg ui-toggle${props.multiple ? " multiple" : ""}`} role="group" aria-label={label}>
+    <div className={`mds-seg mds-toggle${props.multiple ? " multiple" : ""}`} role="group" aria-label={label}>
       {options.map((o) => {
         const on = isOn(o.value);
         return (
@@ -64,7 +64,7 @@ export function ToggleGroup<T extends string>(props: Single<T> | Multiple<T>) {
           >
             {o.label}
             {o.count != null && (
-              <span className="ui-toggle-count ui-num">
+              <span className="mds-toggle-count mds-num">
                 {localeNumber(o.count)}
               </span>
             )}

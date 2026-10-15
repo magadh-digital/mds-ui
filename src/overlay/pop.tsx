@@ -158,7 +158,7 @@ export function Pop({
         setOpen={setOpen}
         placement={placement}
         label={label}
-        className="ui-pop"
+        className="mds-pop"
         style={{ width: width ?? "auto", minWidth: 180 }}
       >
         {children}
@@ -201,13 +201,13 @@ export function EditPop({
         focusField
         labelledBy={title ? titleId : undefined}
         label={label}
-        className="ui-pop ui-editpop"
+        className="mds-pop mds-editpop"
         style={{ width, maxWidth: "92vw", minWidth: 180 }}
       >
         {title && (
-          <div className="ui-editpop-title">
+          <div className="mds-editpop-title">
             <span id={titleId}>{title}</span>
-            <button type="button" className="ui-iconbtn sm" aria-label="Close" onClick={close}>
+            <button type="button" className="mds-iconbtn sm" aria-label="Close" onClick={close}>
               <X />
             </button>
           </div>
@@ -266,8 +266,8 @@ export function HoverPop({
         hover={{ onEnter: show, onLeave: hide }}
         focus={false}
         label={label}
-        className="ui-pop"
-        style={{ width: width ?? "auto", minWidth: 220, fontSize: "var(--fs-sm)" }}
+        className="mds-pop"
+        style={{ width: width ?? "auto", minWidth: 220, fontSize: "var(--mds-fs-sm)" }}
       >
         {children}
       </PopLayer>

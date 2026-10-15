@@ -1,19 +1,19 @@
 /* the small dialog a ConfirmDialog asks in */
-.inv-frame.sm {
+.mds-inv-frame.sm {
   width: min(420px, 100%);
 }
-.confirm-dialog {
+.mds-confirm-dialog {
   display: grid;
-  gap: var(--sp-2);
-  padding: var(--sp-1) 0;
+  gap: var(--mds-sp-2);
+  padding: var(--mds-sp-1) 0;
 }
-.inv-frame .confirm-title {
+.mds-inv-frame .mds-confirm-title {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--mds-sp-2);
 }
-.inv-frame .confirm-title svg {
-  width: var(--icon-sm);
-  height: var(--icon-sm);
-  color: var(--c-error);
+.mds-inv-frame .mds-confirm-title svg {
+  width: var(--mds-icon-sm);
+  height: var(--mds-icon-sm);
+  color: var(--mds-c-error);
 }

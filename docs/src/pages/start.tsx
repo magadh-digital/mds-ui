@@ -40,7 +40,7 @@ function Orders() {
   const [range, setRange] = useState({});
   const [q, setQ] = useState("");
   return (
-    <div className="main">
+    <div className="mds-main">
       <Toolbar
         title="Orders"
         count={rows.length}
@@ -69,12 +69,12 @@ export function Theming() {
     <Page title="Theming" lead="Every colour and size is a CSS variable. A theme is a set of values; dark mode comes free.">
       <Section title="Override the variables">
         <Code lang="css">{`
-:root { --c-accent: #0f766e; --c-accent-soft: rgba(15, 118, 110, 0.1); }
-:root.dark { --c-accent: #2dd4bf; }`}</Code>
+:root { --mds-c-accent: #0f766e; --mds-c-accent-soft: rgba(15, 118, 110, 0.1); }
+:root[data-mds-theme="dark"] { --mds-c-accent: #2dd4bf; }`}</Code>
         <p>
-          The main ones: <code>--c-canvas</code>, <code>--c-surface</code>, <code>--c-text</code>, <code>--c-muted</code>,{" "}
-          <code>--c-border</code>, <code>--c-accent</code>, <code>--c-ok</code>, <code>--c-warn</code>, <code>--c-error</code>,{" "}
-          <code>--c-purple</code>, <code>--radius-md</code>, <code>--ui-scale</code>, <code>--table-row-h</code>.
+          The main ones: <code>--mds-c-canvas</code>, <code>--mds-c-surface</code>, <code>--mds-c-text</code>, <code>--mds-c-muted</code>,{" "}
+          <code>--mds-c-border</code>, <code>--mds-c-accent</code>, <code>--mds-c-ok</code>, <code>--mds-c-warn</code>, <code>--mds-c-error</code>,{" "}
+          <code>--mds-c-purple</code>, <code>--mds-radius-md</code>, <code>--mds-ui-scale</code>, <code>--mds-table-row-h</code>.
         </p>
       </Section>
       <Section title="Density and the reader's theme">

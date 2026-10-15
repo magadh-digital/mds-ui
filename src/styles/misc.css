@@ -1,23 +1,23 @@
 /* ---------- misc ---------- */
 
-.hstack {
+.mds-hstack {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--mds-sp-2);
 }
 
-.vstack {
+.mds-vstack {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: var(--mds-sp-1);
 }
 
 
 
-.ui-foot label {
+.mds-foot label {
   white-space: nowrap;
 }
 
-.sidebar .scroll {
-  padding-bottom: var(--sp-4);
+.mds-sidebar .scroll {
+  padding-bottom: var(--mds-sp-4);
 }

@@ -1,133 +1,133 @@
 /* ---------- shell ---------- */
-.shell {
+.mds-shell {
   display: grid;
-  grid-template-columns: var(--rail-w) minmax(0, 1fr);
-  grid-template-rows: var(--topbar-h) auto minmax(0, 1fr);
+  grid-template-columns: var(--mds-rail-w) minmax(0, 1fr);
+  grid-template-rows: var(--mds-topbar-h) auto minmax(0, 1fr);
   height: 100vh;
   overflow: clip;
 }
 
-.banner {
+.mds-banner {
   grid-column: 2;
   grid-row: 2;
 }
 
-.rail {
+.mds-rail {
   grid-row: 1 / -1;
-  background: var(--c-surface);
-  border-right: 1px solid var(--c-border);
+  background: var(--mds-c-surface);
+  border-right: 1px solid var(--mds-c-border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--sp-2) 0;
+  padding: var(--mds-sp-2) 0;
   gap: 2px;
 }
 
-.rail .brand {
-  width: var(--icon-md);
-  height: var(--icon-md);
+.mds-rail .brand {
+  width: var(--mds-icon-md);
+  height: var(--mds-icon-md);
   border-radius: 6px;
-  background: var(--c-accent);
+  background: var(--mds-c-accent);
   color: #fff;
   display: grid;
   place-items: center;
   font-weight: 700;
-  font-size: var(--fs-sm);
-  margin-bottom: var(--sp-3);
+  font-size: var(--mds-fs-sm);
+  margin-bottom: var(--mds-sp-3);
 }
 
-.rail .spacer {
+.mds-rail .spacer {
   flex: 1;
 }
 
-.rail .divider {
+.mds-rail .divider {
   width: 60%;
-  border-top: 1px solid var(--c-border);
-  margin: var(--sp-2) 0;
+  border-top: 1px solid var(--mds-c-border);
+  margin: var(--mds-sp-2) 0;
 }
 
-.rail-item {
-  width: calc(var(--rail-w) - 12px);
-  height: calc(var(--rail-w) - 12px);
-  border-radius: var(--radius-md);
+.mds-rail-item {
+  width: calc(var(--mds-rail-w) - 12px);
+  height: calc(var(--mds-rail-w) - 12px);
+  border-radius: var(--mds-radius-md);
   display: grid;
   place-items: center;
-  color: var(--c-muted);
+  color: var(--mds-c-muted);
   background: transparent;
   border: 0;
   cursor: pointer;
 }
 
-.rail-item:hover {
-  background: var(--c-hover);
-  color: var(--c-text);
+.mds-rail-item:hover {
+  background: var(--mds-c-hover);
+  color: var(--mds-c-text);
 }
 
-.rail-item.active,
-.rail-item[data-status="active"] {
-  color: var(--c-accent);
-  background: var(--c-accent-soft);
+.mds-rail-item.active,
+.mds-rail-item[data-status="active"] {
+  color: var(--mds-c-accent);
+  background: var(--mds-c-accent-soft);
 }
 
-.rail-item svg {
-  width: var(--icon-md);
-  height: var(--icon-md);
+.mds-rail-item svg {
+  width: var(--mds-icon-md);
+  height: var(--mds-icon-md);
 }
 
 /* pages: the rail icons drag into the user's order; a 2 px accent line marks where the lifted one lands */
-.rail-item.dragging {
+.mds-rail-item.dragging {
   opacity: 0.35;
 }
 
-.rail-item.drop-before {
-  box-shadow: 0 -2px 0 0 var(--c-accent);
+.mds-rail-item.drop-before {
+  box-shadow: 0 -2px 0 0 var(--mds-c-accent);
 }
 
-.rail-item.drop-after {
-  box-shadow: 0 2px 0 0 var(--c-accent);
+.mds-rail-item.drop-after {
+  box-shadow: 0 2px 0 0 var(--mds-c-accent);
 }
 
-.rail-item .rail-fill {
+.mds-rail-item .rail-fill {
   display: grid;
   place-items: center;
   width: 100%;
   height: 100%;
 }
 
-.topbar {
+.mds-topbar {
   grid-column: 2;
   display: flex;
   align-items: center;
-  background: var(--c-canvas);
-  border-bottom: 1px solid var(--c-border);
-  padding: 0 var(--sp-3) 0 0;
+  background: var(--mds-c-canvas);
+  border-bottom: 1px solid var(--mds-c-border);
+  padding: 0 var(--mds-sp-3) 0 0;
   position: relative;
 }
 
-.topbar .ctx {
+.mds-topbar .ctx {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: 0 var(--sp-3);
+  gap: var(--mds-sp-2);
+  padding: 0 var(--mds-sp-3);
   height: 100%;
   border: 0;
   background: transparent;
   cursor: pointer;
   font-weight: 600;
-  font-size: var(--fs-md);
-  min-width: calc(var(--sidebar-w) * 0.55);
-  border-right: 1px solid var(--c-border);
+  font-size: var(--mds-fs-md);
+  min-width: calc(var(--mds-sidebar-w) * 0.55);
+  border-right: 1px solid var(--mds-c-border);
   flex: none;
   white-space: nowrap;
 }
 
-.topbar .ctx:hover {
-  background: var(--c-hover);
+.mds-topbar .ctx:hover {
+  background: var(--mds-c-hover);
 }
 
 /* seven app tabs: the row scrolls sideways when it must (no visible scrollbar), tabs never wrap; below 1400px the
    inactive tabs shrink to their icons (the label stays as a tooltip) so the context button and the right group keep their room */
-.topbar .tabs {
+.mds-topbar .tabs {
   display: flex;
   height: 100%;
   flex: 1 1 auto;
@@ -136,116 +136,116 @@
   scrollbar-width: none;
 }
 
-.topbar .tabs::-webkit-scrollbar {
+.mds-topbar .tabs::-webkit-scrollbar {
   display: none;
 }
 
-.topbar .tab {
+.mds-topbar .tab {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: 0 var(--sp-4);
+  gap: var(--mds-sp-2);
+  padding: 0 var(--mds-sp-4);
   height: 100%;
-  color: var(--c-muted);
+  color: var(--mds-c-muted);
   font-weight: 600;
-  border-right: 1px solid var(--c-border);
+  border-right: 1px solid var(--mds-c-border);
   flex: none;
   white-space: nowrap;
 }
 
-.topbar .tab:hover {
-  color: var(--c-text);
+.mds-topbar .tab:hover {
+  color: var(--mds-c-text);
 }
 
-.topbar .tab.active,
-.topbar .tab[data-status="active"] {
-  background: var(--c-surface);
-  color: var(--c-accent);
+.mds-topbar .tab.active,
+.mds-topbar .tab[data-status="active"] {
+  background: var(--mds-c-surface);
+  color: var(--mds-c-accent);
 }
 
-.topbar .tab svg {
-  width: var(--icon-sm);
-  height: var(--icon-sm);
+.mds-topbar .tab svg {
+  width: var(--mds-icon-sm);
+  height: var(--mds-icon-sm);
 }
 
 /* the faint app title sits after the tabs in the flow (it used to be centred absolutely and landed on the seventh tab);
    it is the first thing to give way: it shrinks to an ellipsis and disappears below 1600px */
-.topbar .title {
+.mds-topbar .title {
   flex: 0 1 auto;
   min-width: 0;
-  margin-left: var(--sp-4);
+  margin-left: var(--mds-sp-4);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--c-neutral);
+  color: var(--mds-c-neutral);
   font-weight: 600;
-  font-size: var(--fs-lg);
+  font-size: var(--mds-fs-lg);
   pointer-events: none;
   letter-spacing: 0.02em;
 }
 
-.topbar .right {
+.mds-topbar .right {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--mds-sp-2);
   flex: none;
-  padding-left: var(--sp-2);
+  padding-left: var(--mds-sp-2);
 }
 
 @media (max-width: 1400px) {
-  .topbar .tab:not(.active) .tab-label {
+  .mds-topbar .tab:not(.active) .tab-label {
     display: none;
   }
 
-  .topbar .tab {
-    padding: 0 var(--sp-3);
+  .mds-topbar .tab {
+    padding: 0 var(--mds-sp-3);
   }
 }
 
 @media (max-width: 1200px) {
-  .topbar .search-pill>span {
+  .mds-topbar .mds-search-pill>span {
     display: none;
   }
 
-  .topbar .search-pill {
+  .mds-topbar .mds-search-pill {
     min-width: 0;
   }
 }
 
-.avatar {
+.mds-shell-avatar {
   position: relative;
-  width: calc(var(--icon-md) + 8px);
-  height: calc(var(--icon-md) + 8px);
+  width: calc(var(--mds-icon-md) + 8px);
+  height: calc(var(--mds-icon-md) + 8px);
   border-radius: 6px;
-  background: var(--c-accent);
+  background: var(--mds-c-accent);
   color: #fff;
   display: grid;
   place-items: center;
   font-weight: 700;
-  font-size: var(--fs-xs);
+  font-size: var(--mds-fs-xs);
   border: 0;
   cursor: pointer;
 }
 
-.avatar .badge {
+.mds-shell-avatar .badge {
   position: absolute;
   right: -4px;
   bottom: -4px;
   min-width: 14px;
   height: 14px;
   border-radius: 7px;
-  background: var(--c-surface);
-  color: var(--c-text);
+  background: var(--mds-c-surface);
+  color: var(--mds-c-text);
   font-size: 9px;
   font-weight: 700;
   display: grid;
   place-items: center;
-  border: 1px solid var(--c-border);
+  border: 1px solid var(--mds-c-border);
   padding: 0 3px;
 }
 
-.content {
+.mds-content {
   grid-column: 2;
   grid-row: 3;
   display: flex;
@@ -254,7 +254,7 @@
   overflow: hidden;
 }
 
-.main {
+.mds-main {
   flex: 1;
   min-width: 0;
   min-height: 0;

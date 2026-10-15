@@ -1,20 +1,20 @@
 /* DateInput: days outside min/max, the Today / Clear row, the invalid field */
-.daterange-day.disabled,
-.daterange-day[aria-disabled="true"] {
+.mds-daterange-day.disabled,
+.mds-daterange-day[aria-disabled="true"] {
   opacity: 0.3;
   cursor: not-allowed;
   background: transparent;
 }
-.dateinput-foot {
+.mds-dateinput-foot {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: var(--sp-1) var(--sp-3) var(--sp-2);
+  padding: var(--mds-sp-1) var(--mds-sp-3) var(--mds-sp-2);
 }
-.dateinput.invalid .ui-btn.daterange {
-  border-color: var(--c-error) !important;
+.mds-dateinput.invalid .mds-btn.daterange {
+  border-color: var(--mds-c-error) !important;
 }
-.ui-btn.daterange:disabled {
+.mds-btn.daterange:disabled {
   opacity: 0.55;
   cursor: default;
 }

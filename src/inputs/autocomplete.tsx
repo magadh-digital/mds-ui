@@ -237,7 +237,7 @@ function AutocompleteInner(props: AutocompleteProps) {
       size({
         apply({ rects, elements }) {
           const w = `${rects.reference.width}px`;
-          elements.floating.style.setProperty("--reference-width", w);
+          elements.floating.style.setProperty("--mds-reference-width", w);
           elements.floating.style.width = w;
         },
       }),
@@ -351,25 +351,25 @@ function AutocompleteInner(props: AutocompleteProps) {
         data-highlighted={current === o.value ? "" : undefined}
         data-state={checked ? "checked" : "unchecked"}
         data-disabled={o.disabled ? "" : undefined}
-        className={`item ui-ac-item ${o.className || ""}`.trim()}
+        className={`item mds-ac-item ${o.className || ""}`.trim()}
         style={o.style}
         // keep the focus in the box while a row is clicked
         onMouseDown={(e) => e.preventDefault()}
         onMouseMove={() => !o.disabled && current !== o.value && setActive(o.value)}
         onClick={() => pick(o)}
       >
-        <span className="ui-ac-text">
-          <span className="ui-ac-label">{o.label}</span>
+        <span className="mds-ac-text">
+          <span className="mds-ac-label">{o.label}</span>
           {o.hintNode ? (
-            <span className="ui-muted ui-ac-hint" style={{ display: "block", width: "100%" }}>
+            <span className="mds-muted mds-ac-hint" style={{ display: "block", width: "100%" }}>
               {o.hintNode}
             </span>
           ) : o.hint ? (
-            <span className="ui-muted ui-ac-hint">{o.hint}</span>
+            <span className="mds-muted mds-ac-hint">{o.hint}</span>
           ) : null}
         </span>
         {checked && (
-          <span className="ui-ac-check" aria-hidden>
+          <span className="mds-ac-check" aria-hidden>
             <Check />
           </span>
         )}
@@ -380,15 +380,15 @@ function AutocompleteInner(props: AutocompleteProps) {
   return (
     <FloatingNode id={nodeId}>
       <div
-        className={`ui-ac${multi ? " multiple" : ""}${compact ? " compact" : ""}${className ? ` ${className}` : ""}`}
+        className={`mds-ac${multi ? " multiple" : ""}${compact ? " compact" : ""}${className ? ` ${className}` : ""}`}
         style={style}
         data-disabled={disabled ? "" : undefined}
       >
-        <div className="ui-ac-control" ref={refs.setReference}>
+        <div className="mds-ac-control" ref={refs.setReference}>
           <input
             ref={inputRef}
             id={inputId}
-            className={`ui-input ui-ac-input${bad ? " invalid" : ""}`}
+            className={`mds-input mds-ac-input${bad ? " invalid" : ""}`}
             role="combobox"
             aria-expanded={open}
             aria-controls={open ? listId : undefined}
@@ -413,13 +413,13 @@ function AutocompleteInner(props: AutocompleteProps) {
               if (!to || !refs.floating.current?.contains(to)) setOpen(false);
             }}
           />
-          <div className="ui-ac-indicators">
+          <div className="mds-ac-indicators">
             {clearable && !disabled && (multi
               ? selected.some((v) => !locked(v)) && (
                   // the picks but the locked ones go, and the search with them
                   <button
                     type="button"
-                    className="ui-iconbtn sm"
+                    className="mds-iconbtn sm"
                     aria-label="Clear"
                     title="Clear"
                     onClick={() => {
@@ -433,7 +433,7 @@ function AutocompleteInner(props: AutocompleteProps) {
               : selected.length > 0 && (
                   <button
                     type="button"
-                    className="ui-iconbtn sm"
+                    className="mds-iconbtn sm"
                     aria-label="Clear"
                     title="Clear"
                     onClick={() => {
@@ -450,7 +450,7 @@ function AutocompleteInner(props: AutocompleteProps) {
                 ))}
             <button
               type="button"
-              className="ui-iconbtn sm"
+              className="mds-iconbtn sm"
               aria-label="Open"
               title="Open"
               tabIndex={-1}
@@ -473,9 +473,9 @@ function AutocompleteInner(props: AutocompleteProps) {
               return (
                 <span
                   key={v}
-                  className="ui-chip ui-ac-chip"
+                  className="mds-chip ui-ac-chip"
                   title={o.hint ? `${o.label} · ${o.hint}` : o.label}
-                  style={{ maxWidth: "100%", color: "var(--c-text)", paddingRight: fixed ? undefined : 2 }}
+                  style={{ maxWidth: "100%", color: "var(--mds-c-text)", paddingRight: fixed ? undefined : 2 }}
                 >
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{o.label}</span>
                   {!fixed && (
@@ -492,7 +492,7 @@ function AutocompleteInner(props: AutocompleteProps) {
                         padding: 0,
                         border: 0,
                         background: "transparent",
-                        color: "var(--c-muted)",
+                        color: "var(--mds-c-muted)",
                         cursor: "pointer",
                       }}
                     >
@@ -513,25 +513,25 @@ function AutocompleteInner(props: AutocompleteProps) {
             role="listbox"
             {...listName}
             aria-multiselectable={multi || undefined}
-            className={`ui-pop ui-ac-pop${compact ? " compact" : ""}`}
+            className={`mds-pop mds-ac-pop${compact ? " compact" : ""}`}
             data-status={motion.status}
-            style={{ ...floatingStyles, ...motion.styles, zIndex: LAYER_Z, maxWidth: "var(--reference-width, 100%)", boxSizing: "border-box" }}
+            style={{ ...floatingStyles, ...motion.styles, zIndex: LAYER_Z, maxWidth: "var(--mds-reference-width, 100%)", boxSizing: "border-box" }}
             {...getFloatingProps()}
           >
             {flat.length === 0 && (
-              <div className="ui-muted ui-ac-empty">{loading ? "Searching…" : emptyText}</div>
+              <div className="mds-muted mds-ac-empty">{loading ? "Searching…" : emptyText}</div>
             )}
             {groups
               ? groups.map(([g, rs], gi) => (
                   <div
                     key={g || "_"}
                     role="group"
-                    className="ui-ac-group"
+                    className="mds-ac-group"
                     aria-labelledby={g ? `${listId}-g${gi}` : undefined}
                     aria-label={g ? undefined : "Other"}
                   >
                     {g && (
-                      <div className="group-title ui-ac-group-label" id={`${listId}-g${gi}`} role="presentation">
+                      <div className="group-title mds-ac-group-label" id={`${listId}-g${gi}`} role="presentation">
                         {g}
                       </div>
                     )}

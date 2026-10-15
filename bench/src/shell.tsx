@@ -3,6 +3,7 @@
 import { createRoot } from "react-dom/client";
 import { BarChart3, Package, Settings, ShoppingCart, Users } from "lucide-react";
 import "@mds/ui/styles.css";
+import "@mds/ui/reset.css";
 import { AppShell, AppearanceProvider, CommandPalette, PaletteButton, useKitRouter, useRailLayout, type GatedItem } from "@mds/ui";
 
 const PRIMARY: Array<GatedItem> = [
@@ -28,7 +29,7 @@ function Frame() {
       user={{ initials: "SK", name: "Satyam" }}
       search={<PaletteButton />}
     >
-      <div className="main" style={{ padding: 24 }}>
+      <div className="mds-main" style={{ padding: 24 }}>
         <output data-testid="path">{pathname}</output>
       </div>
       {L.menu}

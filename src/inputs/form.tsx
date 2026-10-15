@@ -37,27 +37,27 @@ export function FormRow({
     [labelId, hint, hintId, error, errorId, register],
   );
   return (
-    <div className={`frow-f ${error ? "has-error" : ""}`}>
-      <div className="frow-label">
+    <div className={`mds-frow-f ${error ? "has-error" : ""}`}>
+      <div className="mds-frow-label">
         <label id={labelId} htmlFor={htmlFor ?? controls[0]}>
           <Term label={label} />
           {required && (
-            <span className="ui-muted" aria-hidden>
+            <span className="mds-muted" aria-hidden>
               {" "}*
             </span>
           )}
-          {required && <span className="sr-only"> (required)</span>}
+          {required && <span className="mds-sr-only"> (required)</span>}
         </label>
         {hint && (
-          <span className="frow-hint" id={hintId}>
+          <span className="mds-frow-hint" id={hintId}>
             {hint}
           </span>
         )}
       </div>
-      <div className="frow-control">
+      <div className="mds-frow-control">
         <FieldContext.Provider value={field}>{children}</FieldContext.Provider>
         {error && (
-          <div className="ui-error" id={errorId}>
+          <div className="mds-error" id={errorId}>
             {error}
           </div>
         )}
@@ -82,12 +82,12 @@ export function SaveBar({
 }) {
   if (!dirty) return null;
   return (
-    <div className="savebar">
-      <span className="ui-muted">Unsaved changes</span>
+    <div className="mds-savebar">
+      <span className="mds-muted">Unsaved changes</span>
       <span style={{ flex: 1 }} />
       <button
         type="button"
-        className="ui-link"
+        className="mds-link"
         onClick={onReset}
         disabled={saving}
       >
@@ -95,7 +95,7 @@ export function SaveBar({
       </button>
       <button
         type="button"
-        className="ui-btn primary"
+        className="mds-btn primary"
         onClick={onSave}
         disabled={saving}
       >
@@ -125,29 +125,29 @@ export function SettingsSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="ui-card ssec">
+    <div className="mds-card mds-ssec">
       <button
         type="button"
-        className="ssec-head"
+        className="mds-ssec-head"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
       >
-        <span className="ssec-title">{title}</span>
-        {description && <span className="ui-muted">{description}</span>}
+        <span className="mds-ssec-title">{title}</span>
+        {description && <span className="mds-muted">{description}</span>}
         <span style={{ flex: 1 }} />
-        <span className={`chev ${open ? "open" : ""}`} />
+        <span className={`mds-chev ${open ? "open" : ""}`} />
       </button>
       {open && (
-        <div className="ssec-body">
+        <div className="mds-ssec-body">
           {children}
           {links && links.length > 0 && (
-            <div className="ssec-links">
+            <div className="mds-ssec-links">
               {links.map((l, i) => (
                 <span key={l.label}>
-                  {i > 0 && <span className="ui-muted"> | </span>}
+                  {i > 0 && <span className="mds-muted"> | </span>}
                   <button
                     type="button"
-                    className="ui-link"
+                    className="mds-link"
                     onClick={l.onClick}
                     disabled={l.disabled}
                     title={l.title}
@@ -193,7 +193,7 @@ export function InlineInput({
   return (
     <input
       ref={ref}
-      className="ui-input"
+      className="mds-input"
       style={width ? { width } : undefined}
       type={type}
       value={v}

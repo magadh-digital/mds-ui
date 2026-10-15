@@ -61,19 +61,19 @@ export function SeriesChart({
       : (i * (W - padL - padR)) / (days.length - 1));
   const y = (v: number) => padT + (H - padT - padB) * (1 - v / niceMax);
   const palette = [
-    "var(--c-accent)",
-    "var(--c-ok)",
-    "var(--c-warn)",
-    "var(--c-error)",
+    "var(--mds-c-accent)",
+    "var(--mds-c-ok)",
+    "var(--mds-c-warn)",
+    "var(--mds-c-error)",
     "#8b5cf6",
     "#06b6d4",
     "#ec4899",
   ];
-  if (!days.length) return <div className="ui-empty">{empty}</div>;
+  if (!days.length) return <div className="mds-empty">{empty}</div>;
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => f * niceMax);
   const labelEvery = Math.max(1, Math.ceil(days.length / 8));
   return (
-    <div className="chart" onMouseLeave={() => setHover(null)}>
+    <div className="mds-chart" onMouseLeave={() => setHover(null)}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
@@ -88,7 +88,7 @@ export function SeriesChart({
               x2={W - padR}
               y1={y(t)}
               y2={y(t)}
-              stroke="var(--c-border)"
+              stroke="var(--mds-c-border)"
               strokeWidth="1"
             />
             <text
@@ -96,7 +96,7 @@ export function SeriesChart({
               y={y(t) + 4}
               textAnchor="end"
               fontSize="11"
-              fill="var(--c-muted)"
+              fill="var(--mds-c-muted)"
             >
               {fmtShort(t)}
             </text>
@@ -110,7 +110,7 @@ export function SeriesChart({
               y={H - 6}
               textAnchor="middle"
               fontSize="11"
-              fill="var(--c-muted)"
+              fill="var(--mds-c-muted)"
             >
               {d.slice(5)}
             </text>
@@ -148,7 +148,7 @@ export function SeriesChart({
             x2={x(hover)}
             y1={padT}
             y2={H - padB}
-            stroke="var(--c-muted)"
+            stroke="var(--mds-c-muted)"
             strokeDasharray="3 3"
           />
         )}
@@ -164,20 +164,20 @@ export function SeriesChart({
           />
         ))}
       </svg>
-      <div className="chart-legend">
+      <div className="mds-chart-legend">
         {series.map((s, si) => {
           const v =
             hover != null
               ? (s.points.find((p) => p.x === days[hover])?.y ?? 0)
               : s.points.reduce((a, p) => a + p.y, 0);
           return (
-            <span key={s.key} className="chart-key">
+            <span key={s.key} className="mds-chart-key">
               <span
                 className="swatch"
                 style={{ background: s.color ?? palette[si % palette.length] }}
               />
               {s.label}
-              <span className="ui-num ui-muted">
+              <span className="mds-num mds-muted">
                 {hover != null ? `${days[hover]} · ` : "total "}
                 {fmtShort(v)}
                 {unit}
@@ -205,11 +205,11 @@ export function Timelines({
   labels?: [string, string, string];
 }) {
   return (
-    <div className="timelines">
+    <div className="mds-timelines">
       {rows.map((r) => (
         <div
           key={r.key}
-          className={`timeline ${r.onOpen ? "clickable" : ""}`}
+          className={`mds-timeline ${r.onOpen ? "clickable" : ""}`}
           onClick={r.onOpen}
           role={r.onOpen ? "button" : undefined}
           tabIndex={r.onOpen ? 0 : undefined}
@@ -225,12 +225,12 @@ export function Timelines({
               : undefined
           }
         >
-          <span className="tl-label">{r.label}</span>
+          <span className="mds-tl-label">{r.label}</span>
           <span className="tl-bar">
             <HealthBar segments={r.segments} labels={labels} />
           </span>
-          <span className="tl-right ui-num ui-muted">{r.right}</span>
-          {r.onOpen && <span className="chev" aria-hidden />}
+          <span className="mds-tl-right mds-num mds-muted">{r.right}</span>
+          {r.onOpen && <span className="mds-chev" aria-hidden />}
         </div>
       ))}
     </div>
@@ -253,21 +253,21 @@ export function IconStrip({
   icon: LucideIcon;
 }) {
   return (
-    <div className="strip">
-      <div className="ui-label">{title}</div>
-      <div className="strip-tiles">
-        {items.length === 0 && <span className="ui-muted">—</span>}
+    <div className="mds-strip">
+      <div className="mds-label">{title}</div>
+      <div className="mds-strip-tiles">
+        {items.length === 0 && <span className="mds-muted">—</span>}
         {items.map((i) => (
           <button
             type="button"
             key={i.key}
-            className="tile"
+            className="mds-tile"
             onClick={i.onClick}
             title={i.label}
           >
-            <span className="tile-value ui-num">{i.value}</span>
+            <span className="mds-tile-value mds-num">{i.value}</span>
             <Icon aria-hidden />
-            <span className="tile-label">{i.label}</span>
+            <span className="mds-tile-label">{i.label}</span>
           </button>
         ))}
       </div>

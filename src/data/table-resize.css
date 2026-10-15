@@ -1,5 +1,5 @@
 /* ---------- column resize handle (table.tsx): the header's right edge ---------- */
-.ui-table th .col-resize {
+.mds-table th .col-resize {
   position: absolute;
   top: 0;
   right: -3px;
@@ -11,32 +11,32 @@
   z-index: 1;
 }
 
-.ui-table th .col-resize::after {
+.mds-table th .col-resize::after {
   content: "";
   position: absolute;
   top: 25%;
   bottom: 25%;
   left: 3px;
   width: 1px;
-  background: var(--c-border);
+  background: var(--mds-c-border);
   opacity: 0;
   transition: opacity 0.1s;
 }
 
-.ui-table th:hover .col-resize::after,
-.ui-table th .col-resize:hover::after {
+.mds-table th:hover .col-resize::after,
+.mds-table th .col-resize:hover::after {
   opacity: 1;
 }
 
-.ui-table th .col-resize:hover::after,
-.ui-table th.resizing .col-resize::after {
-  background: var(--c-accent);
+.mds-table th .col-resize:hover::after,
+.mds-table th.resizing .col-resize::after {
+  background: var(--mds-c-accent);
   opacity: 1;
   top: 0;
   bottom: 0;
   width: 2px;
 }
 
-.ui-table th.resizing {
+.mds-table th.resizing {
   cursor: col-resize;
 }

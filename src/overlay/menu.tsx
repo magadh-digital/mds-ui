@@ -225,7 +225,7 @@ export function ContextMenu({
   return createPortal(
     <div
       ref={ref}
-      className="ctxmenu"
+      className="mds-ctxmenu"
       role={confirming ? "dialog" : "menu"}
       tabIndex={-1}
       aria-labelledby={confirming ? `${baseId}-confirm` : menu.title ? titleId : undefined}
@@ -242,19 +242,19 @@ export function ContextMenu({
       onContextMenu={(e) => e.preventDefault()}
     >
       {confirming ? (
-        <div className="confirm">
-          <div className="confirm-title" id={`${baseId}-confirm`}>
+        <div className="mds-confirm">
+          <div className="mds-confirm-title" id={`${baseId}-confirm`}>
             {(confirming.confirm?.danger ?? confirming.danger) && (
               <AlertTriangle />
             )}
             {confirming.confirm!.title}
           </div>
           {confirming.confirm!.description && (
-            <div className="ui-muted">{confirming.confirm!.description}</div>
+            <div className="mds-muted">{confirming.confirm!.description}</div>
           )}
           {confirming.confirm!.reason && (
             <textarea
-              className="ui-input ui-textarea"
+              className="mds-input mds-textarea"
               placeholder={confirming.confirm!.reason.label}
               aria-label={confirming.confirm!.reason.label}
               value={reason}
@@ -265,7 +265,7 @@ export function ContextMenu({
           )}
           {confirming.confirm!.typed && (
             <input
-              className="ui-input"
+              className="mds-input"
               placeholder={`Type ${confirming.confirm!.typed} to confirm`}
               aria-label={`Type ${confirming.confirm!.typed} to confirm`}
               value={typedWord}
@@ -273,10 +273,10 @@ export function ContextMenu({
               autoFocus={!confirming.confirm!.reason}
             />
           )}
-          <div className="hstack" style={{ justifyContent: "flex-end" }}>
+          <div className="mds-hstack" style={{ justifyContent: "flex-end" }}>
             <button
               type="button"
-              className="ui-link"
+              className="mds-link"
               onClick={() => {
                 setConfirming(null);
                 setTypedWord("");
@@ -287,7 +287,7 @@ export function ContextMenu({
             </button>
             <button
               type="button"
-              className={`ui-btn ${(confirming.confirm?.danger ?? confirming.danger) ? "danger" : ""}`}
+              className={`mds-btn ${(confirming.confirm?.danger ?? confirming.danger) ? "danger" : ""}`}
               disabled={
                 busy ||
                 (confirming.confirm!.reason?.required && !reason.trim()) ||
@@ -326,8 +326,8 @@ export function ContextMenu({
                   <span style={{ flex: 1, whiteSpace: "nowrap" }}>
                     {it.label}
                   </span>
-                  {it.confirm && <span className="ui-muted">…</span>}
-                  {it.kbd && <kbd className="ui-kbd">{it.kbd}</kbd>}
+                  {it.confirm && <span className="mds-muted">…</span>}
+                  {it.kbd && <kbd className="mds-kbd">{it.kbd}</kbd>}
                 </button>
               </div>
             );
@@ -355,7 +355,7 @@ export function RowMenuButton({
   return (
     <button
       type="button"
-      className="ui-iconbtn"
+      className="mds-iconbtn"
       aria-label={label}
       aria-haspopup="menu"
       aria-expanded={expanded}
@@ -403,7 +403,7 @@ export function FootActions({
         trigger={
           <button
             type="button"
-            className={`ui-btn ${cls}`}
+            className={`mds-btn ${cls}`}
             disabled={a.disabled}
             title={a.title}
           >
@@ -416,7 +416,7 @@ export function FootActions({
       <button
         key={a.key}
         type="button"
-        className={`ui-btn ${cls}`}
+        className={`mds-btn ${cls}`}
         disabled={a.disabled}
         title={a.title}
         onClick={() => void a.onClick?.()}
@@ -430,7 +430,7 @@ export function FootActions({
       {rest.length > 0 && (
         <button
           type="button"
-          className="ui-btn"
+          className="mds-btn"
           aria-label="More actions"
           aria-haspopup="menu"
           aria-expanded={!!menu.menu}
@@ -473,7 +473,7 @@ export function MoreMenu({
     <>
       <button
         type="button"
-        className="ui-btn"
+        className="mds-btn"
         aria-haspopup="menu"
         aria-expanded={!!menu.menu}
         onClick={(e) => menu.openAt(e.currentTarget, items, title)}

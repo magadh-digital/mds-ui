@@ -175,7 +175,7 @@ export function PagesPop<T extends PageLike>({
       width="240px"
       trigger={
         trigger ?? (
-          <button type="button" className="rail-item" aria-label="Customize pages">
+          <button type="button" className="mds-rail-item" aria-label="Customize pages">
             <Tip label="Customize pages" placement="right">
               <span className="rail-fill">
                 <SlidersHorizontal />
@@ -199,20 +199,20 @@ export function PagesPop<T extends PageLike>({
       <div
         style={{
           display: "flex",
-          gap: "var(--sp-2)",
+          gap: "var(--mds-sp-2)",
           alignItems: "center",
-          padding: "6px var(--sp-1) 2px",
+          padding: "6px var(--mds-sp-1) 2px",
         }}
       >
         <button
           type="button"
-          className="ui-link"
+          className="mds-link"
           disabled={!customized}
           onClick={onReset}
         >
           Reset
         </button>
-        <span className="ui-muted" style={{ fontSize: "var(--fs-xs)" }}>
+        <span className="mds-muted" style={{ fontSize: "var(--mds-fs-xs)" }}>
           Drag or use the arrows · saved in this browser
         </span>
       </div>
@@ -246,12 +246,12 @@ function PageGroup<T extends PageLike>({
         const last = shown && visible <= 1;
         const { className, ...dnd } = drag.props(p.to);
         return (
-          <div key={p.to} className={`colrow pagerow${className}`} {...dnd}>
+          <div key={p.to} className={`mds-colrow mds-pagerow${className}`} {...dnd}>
             <span className="draghandle" aria-hidden>
               <GripVertical />
             </span>
             <label
-              className={`ui-check${last ? " disabled" : ""}`}
+              className={`mds-check${last ? " disabled" : ""}`}
               title={
                 last
                   ? "keep one page"
@@ -270,10 +270,10 @@ function PageGroup<T extends PageLike>({
                 <Term label={p.label} />
               </span>
             </label>
-            <span className="colmove">
+            <span className="mds-colmove">
               <button
                 type="button"
-                className="ui-iconbtn"
+                className="mds-iconbtn"
                 aria-label="Move up"
                 title="Move up"
                 disabled={i === 0}
@@ -283,7 +283,7 @@ function PageGroup<T extends PageLike>({
               </button>
               <button
                 type="button"
-                className="ui-iconbtn"
+                className="mds-iconbtn"
                 aria-label="Move down"
                 title="Move down"
                 disabled={i === ids.length - 1}

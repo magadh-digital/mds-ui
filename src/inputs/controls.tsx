@@ -33,12 +33,12 @@ export function Button({ variant = "outline", size = "md", icon, loading, classN
   return (
     <button
       type={type}
-      className={cx("ui-btn", variant !== "outline" && variant, size === "sm" && "sm", className)}
+      className={cx("mds-btn", variant !== "outline" && variant, size === "sm" && "sm", className)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
     >
-      {loading ? <Loader2 className="ui-spin" aria-hidden /> : icon}
+      {loading ? <Loader2 className="mds-spin" aria-hidden /> : icon}
       {children}
     </button>
   );
@@ -61,7 +61,7 @@ export function IconButton({ label, size = "md", danger, active, className, chil
       aria-label={label}
       title={rest.title ?? label}
       aria-pressed={active ?? undefined}
-      className={cx("ui-iconbtn", size === "sm" && "sm", danger && "danger", active && "active", className)}
+      className={cx("mds-iconbtn", size === "sm" && "sm", danger && "danger", active && "active", className)}
       {...rest}
     >
       {children}
@@ -71,7 +71,7 @@ export function IconButton({ label, size = "md", danger, active, className, chil
 
 /** A button that reads like a link (a quiet action inside text or a footer). */
 export function LinkButton({ className, type = "button", ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { ref?: Ref<HTMLButtonElement> }) {
-  return <button type={type} className={cx("ui-link", className)} {...rest} />;
+  return <button type={type} className={cx("mds-link", className)} {...rest} />;
 }
 
 /** the id, invalid state and aria-describedby a field control gets from its props and the FormRow around it */
@@ -91,7 +91,7 @@ export function Input({ invalid, className, id, "aria-describedby": describedBy,
   return (
     <input
       id={f.id}
-      className={cx("ui-input", f.bad && "invalid", className)}
+      className={cx("mds-input", f.bad && "invalid", className)}
       aria-invalid={f.bad || undefined}
       aria-describedby={f.describedBy}
       {...rest}
@@ -106,7 +106,7 @@ export function Textarea({ invalid, className, rows = 3, id, "aria-describedby":
     <textarea
       rows={rows}
       id={f.id}
-      className={cx("ui-input ui-textarea", f.bad && "invalid", className)}
+      className={cx("mds-input mds-textarea", f.bad && "invalid", className)}
       aria-invalid={f.bad || undefined}
       aria-describedby={f.describedBy}
       {...rest}
@@ -130,7 +130,7 @@ export function Select({ options, placeholder, invalid, className, children, id,
   return (
     <select
       id={f.id}
-      className={cx("ui-select", f.bad && "invalid", className)}
+      className={cx("mds-select", f.bad && "invalid", className)}
       aria-invalid={f.bad || undefined}
       aria-describedby={f.describedBy}
       {...rest}
@@ -156,7 +156,7 @@ type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "onCha
 };
 export function Checkbox({ label, checked, onChange, count, disabled, className, ...rest }: CheckboxProps) {
   return (
-    <label className={cx("ui-check", disabled && "disabled", className)}>
+    <label className={cx("mds-check", disabled && "disabled", className)}>
       <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} {...rest} />
       <span>{label}</span>
       {count != null && <span className="count">{localeNumber(count)}</span>}

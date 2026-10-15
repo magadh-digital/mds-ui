@@ -67,8 +67,8 @@ const stripDemoHeader = (s: string) => s.replace(/^\/\/[^\n]*\n/, "");
 /** The props of a component, from the TypeScript types and their doc comments (scripts/props.ts). */
 export function Props({ of }: { of: string }) {
   const doc = PROPS[of];
-  if (!doc) return <p className="ui-muted">No props found for {of}.</p>;
-  if (!doc.props.length) return <p className="ui-muted">{of} takes no props.</p>;
+  if (!doc) return <p className="mds-muted">No props found for {of}.</p>;
+  if (!doc.props.length) return <p className="mds-muted">{of} takes no props.</p>;
   return (
     <div className="doc-props">
       <MiniTable
@@ -79,8 +79,8 @@ export function Props({ of }: { of: string }) {
         cols={[
           { key: "name", header: "Prop", cell: (p) => <code className="doc-prop">{p.name}{p.required ? "" : "?"}</code> },
           { key: "type", header: "Type", cell: (p) => <code className="doc-type">{p.type}</code> },
-          { key: "default", header: "Default", cell: (p) => (p.default ? <code>{p.default}</code> : <span className="ui-muted">—</span>) },
-          { key: "doc", header: "Description", cell: (p) => p.description || <span className="ui-muted">—</span> },
+          { key: "default", header: "Default", cell: (p) => (p.default ? <code>{p.default}</code> : <span className="mds-muted">—</span>) },
+          { key: "doc", header: "Description", cell: (p) => p.description || <span className="mds-muted">—</span> },
         ]}
       />
       <p className="doc-source">

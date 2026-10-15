@@ -1,14 +1,14 @@
 /* ---------- expandable rows (lines under a record) ---------- */
-.ui-table td.exp {
+.mds-table td.exp {
   width: 22px;
   padding: 0 2px;
   text-align: center;
 }
 
-.ui-table td.exp button {
+.mds-table td.exp button {
   border: 0;
   background: transparent;
-  color: var(--c-muted);
+  color: var(--mds-c-muted);
   cursor: pointer;
   display: inline-grid;
   place-items: center;
@@ -17,24 +17,24 @@
   border-radius: 3px;
 }
 
-.ui-table td.exp button:hover {
-  background: var(--c-hover);
-  color: var(--c-accent);
+.mds-table td.exp button:hover {
+  background: var(--mds-c-hover);
+  color: var(--mds-c-accent);
 }
 
-.ui-table td.exp button svg {
+.mds-table td.exp button svg {
   width: 12px;
   height: 12px;
 }
 
-.ui-table tr.exp-row td {
-  background: var(--c-canvas);
-  padding: var(--sp-2) var(--sp-3) var(--sp-2) calc(var(--sp-3) + 48px);
+.mds-table tr.exp-row td {
+  background: var(--mds-c-canvas);
+  padding: var(--mds-sp-2) var(--mds-sp-3) var(--mds-sp-2) calc(var(--mds-sp-3) + 48px);
   white-space: normal;
   height: auto;
   cursor: default;
 }
 
-.ui-table tr.exp-row:hover td {
-  background: var(--c-canvas);
+.mds-table tr.exp-row:hover td {
+  background: var(--mds-c-canvas);
 }

@@ -76,7 +76,7 @@ function ToastRow({ t }: { t: ToastItem }) {
   const held = (el: HTMLElement) => el.matches(":hover") || el.contains(document.activeElement);
   return (
     <div
-      className={`toast ${t.kind}`}
+      className={`mds-toast ${t.kind}`}
       tabIndex={0}
       onClick={() => toast.dismiss(t.id)}
       onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
@@ -100,7 +100,7 @@ function ToastRow({ t }: { t: ToastItem }) {
       <span>{t.text}</span>
       <button
         type="button"
-        className="toast-x"
+        className="mds-toast-x"
         aria-label="Dismiss"
         tabIndex={-1}
         onClick={(e) => {
@@ -125,13 +125,13 @@ export function Toaster() {
   const errors = list.filter((t) => t.kind === "error");
   const others = list.filter((t) => t.kind !== "error");
   return createPortal(
-    <div className="toasts" style={{ zIndex: TOAST_Z }}>
-      <div className="toasts-region" role="status" aria-live="polite">
+    <div className="mds-toasts" style={{ zIndex: TOAST_Z }}>
+      <div className="mds-toasts-region" role="status" aria-live="polite">
         {others.map((t) => (
           <ToastRow key={t.id} t={t} />
         ))}
       </div>
-      <div className="toasts-region" role="alert" aria-live="assertive">
+      <div className="mds-toasts-region" role="alert" aria-live="assertive">
         {errors.map((t) => (
           <ToastRow key={t.id} t={t} />
         ))}

@@ -37,7 +37,7 @@ export const TIP_Z = 1800;
  * Clicks inside these are not "outside" for an open popover: layers the kit portals to <body> that are not children in
  * the layer tree (the row menu, a toast), and anything marked `data-kit-layer`.
  */
-const INSIDE = ".ctxmenu, .ui-ac-pop, .daterange-pop, .toasts, [data-kit-layer]";
+const INSIDE = ".mds-ctxmenu, .mds-ac-pop, .mds-daterange-pop, .mds-toasts, [data-kit-layer]";
 /** @internal */
 export const isInsideLayer = (target: EventTarget | null) =>
   !!(target as Element | null)?.closest?.(INSIDE);

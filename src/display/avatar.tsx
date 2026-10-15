@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 
-const TONES = ["var(--c-accent)", "var(--c-ok)", "var(--c-warn)", "var(--c-purple)", "var(--c-error)", "var(--c-muted)"];
+const TONES = ["var(--mds-c-accent)", "var(--mds-c-ok)", "var(--mds-c-warn)", "var(--mds-c-purple)", "var(--mds-c-error)", "var(--mds-c-muted)"];
 /** @internal up to two initials of a name (a leading "M/S" is skipped) */
 export const initials = (name: string) => {
   const words = name.replace(/^m\/?s\.?\s+/i, "").trim().split(/\s+/).filter(Boolean);
@@ -21,7 +21,7 @@ export function Avatar({ name, src, size = 28, title }: { name: string; src?: st
   const c = toneOf(name || "?");
   return (
     <span
-      className="ui-avatar"
+      className="mds-avatar"
       title={title ?? name}
       aria-label={name}
       role="img"

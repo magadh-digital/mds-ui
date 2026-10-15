@@ -78,7 +78,7 @@ function RailLink({
     <Tip label={termTip(item.label)} placement="right">
       <Link
         to={item.to}
-        className={`rail-item${lit ? " active" : ""}${className ?? ""}`}
+        className={`mds-rail-item${lit ? " active" : ""}${className ?? ""}`}
         activeOptions={{ exact: item.exact }}
         aria-current={lit ? "page" : undefined}
         aria-label={item.label}
@@ -184,7 +184,7 @@ export function AppearancePopover() {
   return (
     <Pop
       trigger={
-        <button type="button" className="ui-iconbtn" aria-label="Appearance">
+        <button type="button" className="mds-iconbtn" aria-label="Appearance">
           <SunMoon />
         </button>
       }
@@ -208,7 +208,7 @@ export function AppearancePopover() {
           {theme === t.value && <Check />}
         </button>
       ))}
-      <div className="group-title" style={{ marginTop: "var(--sp-2)" }}>
+      <div className="group-title" style={{ marginTop: "var(--mds-sp-2)" }}>
         Density
       </div>
       {DENSITIES.map((d) => (
@@ -221,8 +221,8 @@ export function AppearancePopover() {
           <span style={{ flex: 1 }}>
             {d.label}
             <span
-              className="ui-muted"
-              style={{ marginLeft: 8, fontSize: "var(--fs-xs)" }}
+              className="mds-muted"
+              style={{ marginLeft: 8, fontSize: "var(--mds-fs-xs)" }}
             >
               {d.hint}
             </span>
@@ -230,7 +230,7 @@ export function AppearancePopover() {
           {density === d.value && <Check />}
         </button>
       ))}
-      <div className="group-title" style={{ marginTop: "var(--sp-2)" }}>
+      <div className="group-title" style={{ marginTop: "var(--mds-sp-2)" }}>
         Detail panel
       </div>
       {PANEL_WIDTHS.map((w) => (
@@ -245,8 +245,8 @@ export function AppearancePopover() {
           <span style={{ flex: 1 }}>
             {w.label}
             <span
-              className="ui-muted"
-              style={{ marginLeft: 8, fontSize: "var(--fs-xs)" }}
+              className="mds-muted"
+              style={{ marginLeft: 8, fontSize: "var(--mds-fs-xs)" }}
             >
               {w.hint}
             </span>
@@ -254,7 +254,7 @@ export function AppearancePopover() {
           {panelWidth === w.value && <Check />}
         </button>
       ))}
-      <div className="group-title" style={{ marginTop: "var(--sp-2)" }}>
+      <div className="group-title" style={{ marginTop: "var(--mds-sp-2)" }}>
         Detail view
       </div>
       {DETAIL_VIEWS.map((v) => (
@@ -275,8 +275,8 @@ export function AppearancePopover() {
           <span style={{ flex: 1 }}>
             {v.label}
             <span
-              className="ui-muted"
-              style={{ marginLeft: 8, fontSize: "var(--fs-xs)" }}
+              className="mds-muted"
+              style={{ marginLeft: 8, fontSize: "var(--mds-fs-xs)" }}
             >
               {v.hint}
             </span>
@@ -284,7 +284,7 @@ export function AppearancePopover() {
           {detailView === v.value && <Check />}
         </button>
       ))}
-      <div className="group-title" style={{ marginTop: "var(--sp-2)" }}>
+      <div className="group-title" style={{ marginTop: "var(--mds-sp-2)" }}>
         Names
       </div>
       <button
@@ -296,8 +296,8 @@ export function AppearancePopover() {
         <span style={{ flex: 1 }}>
           Old names beside labels
           <span
-            className="ui-muted"
-            style={{ marginLeft: 8, fontSize: "var(--fs-xs)" }}
+            className="mds-muted"
+            style={{ marginLeft: 8, fontSize: "var(--mds-fs-xs)" }}
           >
             hover any label for its meaning
           </span>
@@ -305,9 +305,9 @@ export function AppearancePopover() {
         {oldNames && <Check />}
       </button>
       <div
-        className="ui-muted"
+        className="mds-muted"
         style={{
-          fontSize: "var(--fs-xs)",
+          fontSize: "var(--mds-fs-xs)",
           padding: "6px 8px 2px",
           display: "flex",
           alignItems: "center",
@@ -378,8 +378,8 @@ export function AppShell({
   const logo = brand ?? title.trim().charAt(0).toUpperCase();
   const ctx = contexts.find((c) => c.id === activeContext) ?? contexts[0];
   return (
-    <div className="shell">
-      <nav className="rail" aria-label="Sections">
+    <div className="mds-shell">
+      <nav className="mds-rail" aria-label="Sections">
         {homeTo ? (
           <Link
             to={homeTo}
@@ -410,7 +410,7 @@ export function AppShell({
         />
         {railFoot}
       </nav>
-      <header className="topbar">
+      <header className="mds-topbar">
         {ctx && (
           <Pop
             placement="bottom-start"
@@ -419,7 +419,7 @@ export function AppShell({
                 <Dot tone={ctx.tone} />
                 <span style={{ flex: 1, textAlign: "left" }}>{ctx.label}</span>
                 <ChevronDown
-                  style={{ width: 14, height: 14, color: "var(--c-muted)" }}
+                  style={{ width: 14, height: 14, color: "var(--mds-c-muted)" }}
                 />
               </button>
             }
@@ -470,7 +470,7 @@ export function AppShell({
           <AppearancePopover />
           <Pop
             trigger={
-              <button type="button" className="avatar" aria-label={user.name}>
+              <button type="button" className="mds-shell-avatar" aria-label={user.name}>
                 {user.initials}
                 {user.badge ? (
                   <span className="badge">{user.badge}</span>
@@ -483,8 +483,8 @@ export function AppShell({
           </Pop>
         </div>
       </header>
-      {banner ? <div className="banner">{banner}</div> : null}
-      <div className="content">{children}</div>
+      {banner ? <div className="mds-banner">{banner}</div> : null}
+      <div className="mds-content">{children}</div>
     </div>
   );
 }

@@ -58,20 +58,20 @@ export function ConfirmPop({
     <Pop
       trigger={trigger}
       placement={placement}
-      width="calc(var(--panel-w) * 0.8)"
+      width="calc(var(--mds-panel-w) * 0.8)"
       label={title}
       open={open}
       onOpenChange={onOpenChange}
     >
-      <div className="confirm">
-        <div className="confirm-title">
+      <div className="mds-confirm">
+        <div className="mds-confirm-title">
           {danger && <AlertTriangle />}
           {title}
         </div>
-        {description && <div className="ui-muted">{description}</div>}
+        {description && <div className="mds-muted">{description}</div>}
         {reason && (
           <textarea
-            className="ui-input ui-textarea"
+            className="mds-input mds-textarea"
             placeholder={reason.label}
             aria-label={reason.label}
             value={text}
@@ -81,7 +81,7 @@ export function ConfirmPop({
         )}
         {typed && (
           <input
-            className="ui-input"
+            className="mds-input"
             placeholder={`Type ${typed} to confirm`}
             aria-label={`Type ${typed} to confirm`}
             value={word}
@@ -89,10 +89,10 @@ export function ConfirmPop({
             autoFocus
           />
         )}
-        <div className="hstack" style={{ justifyContent: "flex-end" }}>
+        <div className="mds-hstack" style={{ justifyContent: "flex-end" }}>
           <button
             type="button"
-            className={`ui-btn ${danger ? "danger" : ""}`}
+            className={`mds-btn ${danger ? "danger" : ""}`}
             disabled={
               busy ||
               (reason?.required && !text.trim()) ||

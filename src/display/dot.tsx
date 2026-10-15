@@ -30,7 +30,7 @@ export const Dot = ({
   const name = label ?? title;
   return (
     <span
-      className={`ui-dot ${tone} ${needs ? "needs" : ""}`}
+      className={`mds-dot ${tone} ${needs ? "needs" : ""}`}
       title={title}
       role={name ? "img" : undefined}
       aria-label={name ? `${name}${needs ? ", needs you" : ""}` : undefined}
@@ -58,13 +58,13 @@ export function HealthBar({
   const summary = label ?? `Health: ${[...counts].map(([t, n]) => `${n} ${TONE_WORD[t] ?? t}`).join(", ") || "no data"}`;
   return (
     <div>
-      <div className="ui-health" role="img" aria-label={labels ? `${summary} (${labels[0]} to ${labels[2]})` : summary}>
+      <div className="mds-health" role="img" aria-label={labels ? `${summary} (${labels[0]} to ${labels[2]})` : summary}>
         {segments.map((s, i) => (
           <span key={i} className={s} />
         ))}
       </div>
       {labels && (
-        <div className="ui-health-labels" aria-hidden>
+        <div className="mds-health-labels" aria-hidden>
           <span>{labels[0]}</span>
           <span>{labels[1]}</span>
           <span>{labels[2]}</span>

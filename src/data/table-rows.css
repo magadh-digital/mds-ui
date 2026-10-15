@@ -1,10 +1,10 @@
 /* a highlighted row (DenseTable / MiniTable `rowClassName`) */
-.ui-table tr.error > td {
-  background: color-mix(in srgb, var(--c-error) 10%, transparent);
+.mds-table tr.error > td {
+  background: color-mix(in srgb, var(--mds-c-error) 10%, transparent);
 }
-.ui-table tr.warn > td {
-  background: color-mix(in srgb, var(--c-warn) 12%, transparent);
+.mds-table tr.warn > td {
+  background: color-mix(in srgb, var(--mds-c-warn) 12%, transparent);
 }
-.ui-table tr.on > td {
-  background: var(--c-accent-soft);
+.mds-table tr.on > td {
+  background: var(--mds-c-accent-soft);
 }

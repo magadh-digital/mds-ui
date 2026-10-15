@@ -16,12 +16,12 @@ import { DIALOG_Z } from "./floating.js";
 
 /** an open dialog's backdrop: other Esc handlers stand aside while one is in the document */
 /** @internal */
-export const DIALOG_SELECTOR = ".inv-backdrop";
+export const DIALOG_SELECTOR = ".mds-inv-backdrop";
 /** lists and popovers that take the first Esc (an autocomplete list, a kit Pop, the calendar, a row menu, ⌘K) */
 /** @internal */
 // a layer fading out (data-status="close") is already closed: it must not hold Esc or the page keys for its last 100 ms
 export const LIST_OPEN_SELECTOR =
-  '.ui-pop:not([data-status="close"]), .daterange-pop:not([data-status="close"]), .ctxmenu, .cmdk';
+  '.mds-pop:not([data-status="close"]), .mds-daterange-pop:not([data-status="close"]), .mds-ctxmenu, .mds-cmdk';
 /** @internal */
 export const dialogOpen = () => !!document.querySelector(DIALOG_SELECTOR);
 /** @internal */
@@ -171,7 +171,7 @@ function DialogFrame({
   return (
     <div
       ref={backdrop}
-      className="inv-backdrop"
+      className="mds-inv-backdrop"
       style={{ zIndex: DIALOG_Z }}
       onMouseDown={(e) => {
         downOnBackdrop.current = e.target === e.currentTarget;
@@ -184,7 +184,7 @@ function DialogFrame({
     >
       <div
         ref={frame}
-        className={`inv-frame ${size}`}
+        className={`mds-inv-frame ${size}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={label ? undefined : titleId}
@@ -192,7 +192,7 @@ function DialogFrame({
         tabIndex={-1}
         onKeyDown={onKeyDown}
       >
-        <div className="inv-toolbar">
+        <div className="mds-inv-toolbar">
           <span className="inv-title" id={titleId}>
             {title}
           </span>
@@ -200,7 +200,7 @@ function DialogFrame({
           {toolbar}
           <button
             type="button"
-            className="ui-iconbtn"
+            className="mds-iconbtn"
             onClick={() => close.current()}
             aria-label="Close"
             title="Close (Esc)"
@@ -208,8 +208,8 @@ function DialogFrame({
             <X />
           </button>
         </div>
-        <div className="inv-body">{children}</div>
-        {footer && <div className="inv-foot">{footer}</div>}
+        <div className="mds-inv-body">{children}</div>
+        {footer && <div className="mds-inv-foot">{footer}</div>}
       </div>
     </div>
   );

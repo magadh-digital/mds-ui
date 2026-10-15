@@ -394,7 +394,7 @@ export function CommandPalette({
   useEffect(() => setActive(0), [q]);
   useEffect(() => {
     listRef.current
-      ?.querySelector<HTMLElement>(".cmdk-item.active")
+      ?.querySelector<HTMLElement>(".mds-cmdk-item.active")
       ?.scrollIntoView({ block: "nearest" });
   }, [active]);
 
@@ -429,18 +429,18 @@ export function CommandPalette({
   let i = -1;
   return createPortal(
     <div
-      className="cmdk-overlay"
+      className="mds-cmdk-overlay"
       style={{ zIndex: PALETTE_Z }}
       onMouseDown={(e) => e.target === e.currentTarget && palette.close()}
     >
       <div
-        className="cmdk"
+        className="mds-cmdk"
         role="dialog"
         aria-modal="true"
         aria-label="Search and commands"
         onKeyDown={onKey}
       >
-        <div className="cmdk-input">
+        <div className="mds-cmdk-input">
           <Search />
           <input
             ref={inputRef}
@@ -457,9 +457,9 @@ export function CommandPalette({
             spellCheck={false}
           />
         </div>
-        <div className="cmdk-list" ref={listRef} role="listbox" id={listId} aria-label="Results">
+        <div className="mds-cmdk-list" ref={listRef} role="listbox" id={listId} aria-label="Results">
           {groups.length === 0 && (
-            <div className="cmdk-empty">
+            <div className="mds-cmdk-empty">
               {q
                 ? "Nothing matches."
                 : "Type to search. Prefix > for actions, ? for shortcuts."}
@@ -467,7 +467,7 @@ export function CommandPalette({
           )}
           {groups.map((g, gi) => (
             <div key={g.title} role="group" aria-labelledby={`${baseId}-g-${gi}`}>
-              <div className="cmdk-group" id={`${baseId}-g-${gi}`}>
+              <div className="mds-cmdk-group" id={`${baseId}-g-${gi}`}>
                 {g.title}
               </div>
               {g.items.map((c) => {
@@ -480,7 +480,7 @@ export function CommandPalette({
                     id={optionId(idx)}
                     role="option"
                     aria-selected={idx === active}
-                    className={`cmdk-item ${idx === active ? "active" : ""}`}
+                    className={`mds-cmdk-item ${idx === active ? "active" : ""}`}
                     onMouseEnter={() => setActive(idx)}
                     onClick={() => run(c)}
                   >
@@ -488,29 +488,29 @@ export function CommandPalette({
                     <span className="label">{c.label}</span>
                     {c.hint && <span className="hint">{c.hint}</span>}
                     <span style={{ flex: 1 }} />
-                    {c.kbd && <kbd className="ui-kbd">{c.kbd}</kbd>}
+                    {c.kbd && <kbd className="mds-kbd">{c.kbd}</kbd>}
                   </div>
                 );
               })}
             </div>
           ))}
         </div>
-        <div className="cmdk-foot">
+        <div className="mds-cmdk-foot">
           <span>
-            <kbd className="ui-kbd">↑↓</kbd> move
+            <kbd className="mds-kbd">↑↓</kbd> move
           </span>
           <span>
-            <kbd className="ui-kbd">↵</kbd> open
+            <kbd className="mds-kbd">↵</kbd> open
           </span>
           <span>
-            <kbd className="ui-kbd">esc</kbd> close
+            <kbd className="mds-kbd">esc</kbd> close
           </span>
           <span style={{ flex: 1 }} />
           <span>
-            <kbd className="ui-kbd">&gt;</kbd> actions
+            <kbd className="mds-kbd">&gt;</kbd> actions
           </span>
           <span>
-            <kbd className="ui-kbd">?</kbd> shortcuts
+            <kbd className="mds-kbd">?</kbd> shortcuts
           </span>
         </div>
       </div>
@@ -525,13 +525,13 @@ export function PaletteButton() {
   return (
     <button
       type="button"
-      className="search-pill"
+      className="mds-search-pill"
       onClick={() => palette.open()}
       aria-label="Search and commands"
     >
       <Search />
       <span>Search or jump to…</span>
-      <kbd className="ui-kbd">{mod} K</kbd>
+      <kbd className="mds-kbd">{mod} K</kbd>
     </button>
   );
 }

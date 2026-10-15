@@ -86,20 +86,20 @@ export function LaneStrip({
   };
   let first = true;
   return (
-    <div className="lstrip" role="group" aria-label={label} onKeyDown={onKeyDown}>
+    <div className="mds-lstrip" role="group" aria-label={label} onKeyDown={onKeyDown}>
       {lanes.map((ln) => (
-        <div key={ln.lane} className="lstrip-lane" role="list" aria-label={ln.label}>
-          <span className="lstrip-label">{ln.label}</span>
-          <span className="lstrip-nodes">
+        <div key={ln.lane} className="mds-lstrip-lane" role="list" aria-label={ln.label}>
+          <span className="mds-lstrip-label">{ln.label}</span>
+          <span className="mds-lstrip-nodes">
             {ln.nodes.map((n) => {
               const focusable = n.state !== "not_needed";
               const nav = focusable && first;
               if (nav) first = false;
               return (
-                <span key={n.key} className="lstrip-cell" role="listitem">
+                <span key={n.key} className="mds-lstrip-cell" role="listitem">
                   {n.join && (
                     <span
-                      className={`lstrip-join ${n.join}`}
+                      className={`mds-lstrip-join ${n.join}`}
                       aria-label={n.join === "needs" ? "then" : "beside"}
                       title={
                         n.join === "needs"
@@ -111,7 +111,7 @@ export function LaneStrip({
                     </span>
                   )}
                   {n.after?.length ? (
-                    <span className="lstrip-after" title={`after ${n.after.join(", ")}`}>
+                    <span className="mds-lstrip-after" title={`after ${n.after.join(", ")}`}>
                       ↳ after {n.after.join(", ")}
                     </span>
                   ) : null}
@@ -141,7 +141,7 @@ function Node({
   nav: boolean;
   onOpen?: (key: string) => void;
 }) {
-  const cls = `lstrip-node ${n.state}${n.changed ? " changed" : ""}${n.current ? " current" : ""}${n.fact ? " fact" : ""}`;
+  const cls = `mds-lstrip-node ${n.state}${n.changed ? " changed" : ""}${n.current ? " current" : ""}${n.fact ? " fact" : ""}`;
   const body = (
     <>
       <span className="n1">
@@ -176,7 +176,7 @@ function Node({
     </button>
   );
   return n.pop ? (
-    <Pop trigger={button} placement="bottom-start" width="calc(320px * var(--ui-scale))">
+    <Pop trigger={button} placement="bottom-start" width="calc(320px * var(--mds-ui-scale))">
       {n.pop}
     </Pop>
   ) : (

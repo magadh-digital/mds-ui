@@ -187,7 +187,7 @@ export function FileViewer({
   return createPortal(
     <div
       ref={root}
-      className="inv-backdrop fv"
+      className="mds-inv-backdrop mds-fv"
       role="dialog"
       aria-modal="true"
       tabIndex={-1}
@@ -197,57 +197,57 @@ export function FileViewer({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="fv-head">
-        <div className="fv-title">
-          <span className="fv-name" title={name}>
+      <div className="mds-fv-head">
+        <div className="mds-fv-title">
+          <span className="mds-fv-name" title={name}>
             {name}
           </span>
           {many && (
-            <span className="fv-count ui-num">
+            <span className="mds-fv-count mds-num">
               {index + 1} / {files.length}
             </span>
           )}
-          {file.caption && <span className="fv-caption">{file.caption}</span>}
+          {file.caption && <span className="mds-fv-caption">{file.caption}</span>}
         </div>
-        <div className="fv-tools">
+        <div className="mds-fv-tools">
           {asImage && (
             <>
-              <button type="button" className="fv-btn" onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} aria-label="Zoom out" title="Zoom out (−)">
+              <button type="button" className="mds-fv-btn" onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} aria-label="Zoom out" title="Zoom out (−)">
                 <ZoomOut />
               </button>
-              <button type="button" className="fv-btn fv-zoom ui-num" onClick={() => setZoom(1)} title="Actual fit (0)" aria-label={`Zoom ${Math.round(zoom * 100)}%, reset`}>
+              <button type="button" className="mds-fv-btn mds-fv-zoom mds-num" onClick={() => setZoom(1)} title="Actual fit (0)" aria-label={`Zoom ${Math.round(zoom * 100)}%, reset`}>
                 {Math.round(zoom * 100)}%
               </button>
-              <button type="button" className="fv-btn" onClick={() => setZoom((z) => Math.min(z + 0.25, 4))} aria-label="Zoom in" title="Zoom in (+)">
+              <button type="button" className="mds-fv-btn" onClick={() => setZoom((z) => Math.min(z + 0.25, 4))} aria-label="Zoom in" title="Zoom in (+)">
                 <ZoomIn />
               </button>
-              <button type="button" className="fv-btn" onClick={() => setRotate((r) => (r + 90) % 360)} aria-label="Rotate" title="Rotate (R)">
+              <button type="button" className="mds-fv-btn" onClick={() => setRotate((r) => (r + 90) % 360)} aria-label="Rotate" title="Rotate (R)">
                 <RotateCw />
               </button>
             </>
           )}
-          <a className="fv-btn" href={file.src} target="_blank" rel="noreferrer" aria-label="Open in a new tab" title="Open in a new tab">
+          <a className="mds-fv-btn" href={file.src} target="_blank" rel="noreferrer" aria-label="Open in a new tab" title="Open in a new tab">
             <ExternalLink />
           </a>
-          <a className="fv-btn" href={file.src} download={name} aria-label="Download" title="Download">
+          <a className="mds-fv-btn" href={file.src} download={name} aria-label="Download" title="Download">
             <Download />
           </a>
-          <button type="button" className="fv-btn" onClick={onClose} aria-label="Close" title="Close (Esc)">
+          <button type="button" className="mds-fv-btn" onClick={onClose} aria-label="Close" title="Close (Esc)">
             <X />
           </button>
         </div>
       </div>
 
-      <div className="fv-stage" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="mds-fv-stage" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
         {many && (
-          <button type="button" className="fv-nav prev" onClick={() => go(-1)} aria-label="Previous (←)" title="Previous (←)">
+          <button type="button" className="mds-fv-nav prev" onClick={() => go(-1)} aria-label="Previous (←)" title="Previous (←)">
             <ChevronLeft />
           </button>
         )}
         {asImage ? (
           <img
             key={file.src}
-            className="fv-img"
+            className="mds-fv-img"
             src={file.src}
             alt={name}
             style={{ transform: `scale(${zoom}) rotate(${rotate}deg)` }}
@@ -255,37 +255,37 @@ export function FileViewer({
             onDoubleClick={() => setZoom((z) => (z === 1 ? 2 : 1))}
           />
         ) : kind === "pdf" || kind === "unknown" ? (
-          <iframe key={file.src} className="fv-frame" src={file.src} title={name} />
+          <iframe key={file.src} className="mds-fv-frame" src={file.src} title={name} />
         ) : (
-          <div className="fv-card">
+          <div className="mds-fv-card">
             <FileText />
-            <span className="fv-name">{name}</span>
-            <span className="ui-muted">This file type cannot be shown here.</span>
-            <div className="hstack" style={{ gap: 8 }}>
-              <a className="ui-btn" href={file.src} target="_blank" rel="noreferrer">
+            <span className="mds-fv-name">{name}</span>
+            <span className="mds-muted">This file type cannot be shown here.</span>
+            <div className="mds-hstack" style={{ gap: 8 }}>
+              <a className="mds-btn" href={file.src} target="_blank" rel="noreferrer">
                 <ExternalLink /> Open
               </a>
-              <a className="ui-btn primary" href={file.src} download={name}>
+              <a className="mds-btn primary" href={file.src} download={name}>
                 <Download /> Download
               </a>
             </div>
           </div>
         )}
         {many && (
-          <button type="button" className="fv-nav next" onClick={() => go(1)} aria-label="Next (→)" title="Next (→)">
+          <button type="button" className="mds-fv-nav next" onClick={() => go(1)} aria-label="Next (→)" title="Next (→)">
             <ChevronRight />
           </button>
         )}
       </div>
 
       {many && (
-        <div className="fv-strip" role="group" aria-label="Files">
+        <div className="mds-fv-strip" role="group" aria-label="Files">
           {files.map((f, i) => (
             <button type="button"
               key={`${f.src}-${i}`}
               aria-current={i === index ? "true" : undefined}
               aria-label={`${nameOf(f)} (${i + 1} of ${files.length})`}
-              className={`fv-thumb${i === index ? " on" : ""}`}
+              className={`mds-fv-thumb${i === index ? " on" : ""}`}
               onClick={() => onIndex(i)}
               title={nameOf(f)}
             >
@@ -304,7 +304,7 @@ function ThumbImage({ file }: { file: ViewerFile }) {
   const kind = kindOf(file);
   if (broken || kind === "pdf" || kind === "file")
     return (
-      <span className="fv-thumb-icon">
+      <span className="mds-fv-thumb-icon">
         <FileText />
         <span>{kind === "pdf" ? "PDF" : kind === "file" ? "File" : ""}</span>
       </span>
@@ -332,14 +332,14 @@ export function FileThumb({
   const label = useMemo(() => (file ? nameOf(file) : emptyLabel), [file, emptyLabel]);
   if (!file?.src)
     return (
-      <span className={`fv-tile ${size} empty`}>
-        <span className="ui-muted">{emptyLabel}</span>
+      <span className={`mds-fv-tile ${size} empty`}>
+        <span className="mds-muted">{emptyLabel}</span>
       </span>
     );
   return (
     <button
       type="button"
-      className={`fv-tile ${size}`}
+      className={`mds-fv-tile ${size}`}
       onClick={(e) => {
         e.stopPropagation();
         onOpen?.();
@@ -348,7 +348,7 @@ export function FileThumb({
       aria-label={`Open ${label}`}
     >
       {kind === "pdf" || kind === "file" || broken ? (
-        <span className="fv-thumb-icon">
+        <span className="mds-fv-thumb-icon">
           <FileText />
           <span>{broken ? "Unavailable" : kind === "pdf" ? "PDF" : "File"}</span>
         </span>

@@ -9,7 +9,9 @@ it, and before you change the kit itself.
 - Keep it light: React, lucide-react and TanStack Table are peers. Run `bun run size` after a change, and don't add a
   dependency without a reason.
 - Styles are plain CSS on the variables in `src/styles/tokens.css`. Themes and dark mode come from CSS variables; no
-  CSS-in-JS. A component's stylesheet sits next to it; add a new one to `src/styles/order.json`.
+  CSS-in-JS. Every class and variable starts with `mds-` (classes that can match on their own; modifiers chained to a
+  kit class, like `.mds-btn.primary`, need no prefix); the build wraps the sheet in `@layer mds`. Never add a rule for
+  `html`, `body`, `*` or a bare element: page-wide defaults belong in the opt-in `src/styles/reset.css`. A component's stylesheet sits next to it; add a new one to `src/styles/order.json`.
 - Folders are layers (see README "Layout"): `core` ← `overlay` ← `inputs`/`display` ← `data` ← `layout`. Import only
   from your own layer or below. Put a new component in the folder of its kind, one component per file.
 - Public API changes need a version bump and a line in the changelog.
@@ -90,7 +92,7 @@ it, and before you change the kit itself.
 | Empty state | `Empty` (`display/empty.tsx`; `compact` inside panels) |
 | Confirm a risky action | `ConfirmPop` / `Action.confirm` / the row menu's `confirm`. Destructive deletes pass `typed: "DELETE"`. Never `window.confirm`, `alert` or `prompt`. |
 | Toast | `toast` (`overlay/toast.tsx`) |
-| Buttons and fields | `Button` (`variant`, `size`, `loading`), `IconButton` (needs a `label`), `LinkButton`, `Input`, `Select`, `Textarea`, `Checkbox` (`inputs/controls.tsx`); never a bare `<button className="ui-btn">` in new code |
+| Buttons and fields | `Button` (`variant`, `size`, `loading`), `IconButton` (needs a `label`), `LinkButton`, `Input`, `Select`, `Textarea`, `Checkbox` (`inputs/controls.tsx`); never a bare `<button className="mds-btn">` in new code |
 | One date in a form | `DateInput` (`inputs/dateinput.tsx`, `min`/`max`); never `<input type="date">` |
 | A confirm started from code (a menu item, the end of a flow) | `useConfirm()` / `ConfirmDialog` (`overlay/confirmdialog.tsx`), same spec as `ConfirmPop` |
 | Headline figures in a toolbar | `ToolbarStats` (`display/stats.tsx`) |

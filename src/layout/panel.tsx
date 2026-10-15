@@ -192,7 +192,7 @@ export function SlideOver({
     <ChromeContext.Provider value={chrome}>
       <section
         ref={sectionRef}
-        className={`panel ${shown ? "open" : ""}`}
+        className={`mds-panel ${shown ? "open" : ""}`}
         aria-hidden={!shown}
         // closed, or under the panel on top: out of the tab order and away from screen readers
         inert={!shown}
@@ -204,7 +204,7 @@ export function SlideOver({
             {open && under && (
               <button
                 type="button"
-                className="ui-iconbtn back"
+                className="mds-iconbtn back"
                 onClick={onClose}
                 aria-label={`Back to ${under.title || "the previous panel"}`}
                 title={`Back to ${under.title || "the previous panel"}`}
@@ -218,7 +218,7 @@ export function SlideOver({
             <ExpandToggle />
             <button
               type="button"
-              className="ui-iconbtn close"
+              className="mds-iconbtn close"
               onClick={onClose}
               aria-label="Close"
             >
@@ -314,7 +314,7 @@ export function PanelTabCounts({
 }
 /** A chip row for the head: `<Chips>` wraps `ToneChip`s / `StatusChip`s. */
 export function Chips({ children }: { children: ReactNode }) {
-  return <div className="chips">{children}</div>;
+  return <div className="mds-chips">{children}</div>;
 }
 
 /** The numbers that decide the record, right under the tabs: label above, value below, an optional muted or toned note. */
@@ -327,9 +327,9 @@ export type Stat = {
 };
 export function StatTiles({ items }: { items: Array<Stat> }) {
   return (
-    <div className="stats">
+    <div className="mds-stats">
       {items.map((t) => (
-        <div key={t.label} className="stat" title={t.title}>
+        <div key={t.label} className="mds-stat" title={t.title}>
           <div className="stat-l">
             <Term label={t.label} />
           </div>
@@ -356,7 +356,7 @@ export function FlowStrip({
   label?: string;
 }) {
   return (
-    <div className="flow" role="list" aria-label={label}>
+    <div className="mds-flow" role="list" aria-label={label}>
       {steps.map((st) => (
         <div
           key={st.label}
@@ -374,11 +374,11 @@ export function FlowStrip({
 }
 /** One sentence on where the record stands, under the tiles. */
 export function StatusLine({ children }: { children: ReactNode }) {
-  return <p className="status-line">{children}</p>;
+  return <p className="mds-status-line">{children}</p>;
 }
 /** Two blocks side by side (billing | shipping); they stack when the panel is narrow. */
 export function PanelColumns({ children }: { children: ReactNode }) {
-  return <div className="pcols">{children}</div>;
+  return <div className="mds-pcols">{children}</div>;
 }
 /** A labelled block inside `PanelColumns`: a small muted label, then lines. */
 export function PanelBlock({
@@ -391,7 +391,7 @@ export function PanelBlock({
   children: ReactNode;
 }) {
   return (
-    <div className="pblock">
+    <div className="mds-pblock">
       <div className="pblock-label">
         <span>
           <Term label={label} />
@@ -414,7 +414,7 @@ function ExpandToggle() {
   return (
     <button
       type="button"
-      className="ui-iconbtn expand"
+      className="mds-iconbtn expand"
       onClick={() => setDetailView(full ? windowedView : "full")}
       aria-label={full ? back : "Full page"}
       title={full ? back : "Show as a full page"}
@@ -434,9 +434,9 @@ export function PanelSection({
   children: ReactNode;
 }) {
   return (
-    <div className="psec">
+    <div className="mds-psec">
       {title && (
-        <div className="psec-title">
+        <div className="mds-psec-title">
           <span>
             <Term label={title} />
           </span>
@@ -457,7 +457,7 @@ export type KV = {
 };
 export function KeyValue({ items }: { items: Array<KV> }) {
   return (
-    <div className="kv">
+    <div className="mds-kv">
       {items.map((it) => (
         <div key={it.k} style={{ display: "contents" }}>
           <div className="k">
@@ -509,8 +509,8 @@ export function FoldSection({
   const isOpen = open ?? own;
   const toggle = () => (onToggle ? onToggle(!isOpen) : setOwn(!isOpen));
   return (
-    <div className={`psec ${isOpen ? "" : "collapsed"}`}>
-      <div className="psec-title">
+    <div className={`mds-psec ${isOpen ? "" : "collapsed"}`}>
+      <div className="mds-psec-title">
         <button
           type="button"
           className="toggle"
@@ -521,14 +521,14 @@ export function FoldSection({
           <span>
             <Term label={title} />
             {count != null ? (
-              <span className="ui-muted" style={{ fontWeight: 500 }}>
+              <span className="mds-muted" style={{ fontWeight: 500 }}>
                 {" "}
                 · {count}
               </span>
             ) : null}
           </span>
         </button>
-        <span className="hstack" style={{ gap: "var(--sp-2)" }}>
+        <span className="mds-hstack" style={{ gap: "var(--mds-sp-2)" }}>
           {action}
           {onEdit && !editing && (
             <button

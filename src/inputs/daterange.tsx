@@ -180,7 +180,7 @@ export function DateRange({
   ]);
 
   const footer = (
-    <div className="daterange-foot">
+    <div className="mds-daterange-foot">
       <Seg<Mode>
         label="Pick a day or a range"
         options={[
@@ -197,7 +197,7 @@ export function DateRange({
         }}
       />
       <div
-        className="daterange-shortcuts"
+        className="mds-daterange-shortcuts"
         // two even rows whatever the number of shortcuts; one row when there are only a few
         style={{
           gridTemplateColumns: `repeat(${shown.length > 3 ? Math.ceil(shown.length / 2) : shown.length}, minmax(0, 1fr))`,
@@ -223,8 +223,8 @@ export function DateRange({
     </div>
   );
   return (
-    <div className="daterange-root">
-      <div className="daterange-wrap">
+    <div className="mds-daterange-root">
+      <div className="mds-daterange-wrap">
         <Trigger
           ref={refs.setReference}
           id={fieldId}
@@ -244,12 +244,12 @@ export function DateRange({
           <FloatingFocusManager context={context} modal={false} initialFocus={-1} returnFocus>
             <div
               ref={refs.setFloating}
-              className="daterange-pop"
+              className="mds-daterange-pop"
               data-status={motion.status}
               style={{ ...floatingStyles, ...motion.styles, zIndex: LAYER_Z }}
               {...getFloatingProps()}
             >
-              <div className="daterange-cal" role="dialog" aria-label={label ? `Pick ${label}` : "Pick dates"}>
+              <div className="mds-daterange-cal" role="dialog" aria-label={label ? `Pick ${label}` : "Pick dates"}>
                 <Month
                   view={view}
                   setView={setView}

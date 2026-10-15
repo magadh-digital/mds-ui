@@ -18,9 +18,9 @@ const gone = (sel: string) =>
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const input = (label: string) => `input[aria-label="${label}"]`;
 // the list that is open now (one that is fading out keeps its node for ~90 ms)
-const AC = '.ui-ac-pop:not([data-status="close"])';
-const options = () => page.$$eval(`${AC} [role=option]`, (els) => els.map((e) => e.querySelector(".ui-ac-label")?.textContent));
-const TABLE = '[data-testid="table"] .ui-table';
+const AC = '.mds-ac-pop:not([data-status="close"])';
+const options = () => page.$$eval(`${AC} [role=option]`, (els) => els.map((e) => e.querySelector(".mds-ac-label")?.textContent));
+const TABLE = '[data-testid="table"] .mds-table';
 const clickOutside = () => page.mouse.click(5, 880);
 
 beforeAll(async () => {
@@ -45,18 +45,18 @@ afterAll(async () => {
 
 describe("page", () => {
   test("renders with no errors", async () => {
-    expect(await visible(".toolbar")).toBe(true);
-    expect(await visible(".ui-table")).toBe(true);
+    expect(await visible(".mds-toolbar")).toBe(true);
+    expect(await visible(".mds-table")).toBe(true);
     expect(errors).toEqual([]);
   });
   test("UIProvider alone: toasts show (the provider mounts the toast host); glossary hover on a header", async () => {
-    await page.click(".ui-table"); // the R shortcut works from anywhere but a text field
+    await page.click(".mds-table"); // the R shortcut works from anywhere but a text field
     await page.keyboard.press("r");
-    await page.waitForSelector(".toasts .toast", { timeout: 2000 });
-    expect(await page.$$eval(".toasts .toast", (els) => els.map((e) => e.textContent).join(" "))).toContain("Refreshed");
-    await page.hover('[data-testid="table"] .term');
+    await page.waitForSelector(".mds-toasts .mds-toast", { timeout: 2000 });
+    expect(await page.$$eval(".mds-toasts .mds-toast", (els) => els.map((e) => e.textContent).join(" "))).toContain("Refreshed");
+    await page.hover('[data-testid="table"] .mds-term');
     await sleep(450);
-    expect(await page.$eval(".ui-tip", (e) => e.textContent)).toContain("Bill value with tax");
+    expect(await page.$eval(".mds-tip", (e) => e.textContent)).toContain("Bill value with tax");
     await page.mouse.move(5, 880);
   });
   test("formats (the kit's date(), rupees)", async () => {
@@ -82,25 +82,25 @@ describe("Autocomplete (single)", () => {
     await page.keyboard.press("Enter");
     expect(await out("ac-single-out")).toBe("muz");
     expect(await page.$eval(input("City"), (e) => (e as HTMLInputElement).value)).toBe("Muzaffarpur");
-    expect(await gone(".ui-ac-pop")).toBe(true);
+    expect(await gone(".mds-ac-pop")).toBe(true);
   });
   test("reopening shows every row with the pick ticked", async () => {
     await page.click(input("City"));
     expect((await options()).length).toBe(6);
-    const checked = await page.$$eval(`${AC} [data-state=checked] .ui-ac-label`, (els) => els.map((e) => e.textContent));
+    const checked = await page.$$eval(`${AC} [data-state=checked] .mds-ac-label`, (els) => els.map((e) => e.textContent));
     expect(checked).toEqual(["Muzaffarpur"]);
   });
   test("arrows move (skipping disabled rows) and wrap", async () => {
     await page.keyboard.press("ArrowDown"); // Ranchi
     await page.keyboard.press("ArrowDown"); // Dhanbad is disabled → Kolkātā
-    const hl = await page.$eval(`${AC} [data-highlighted] .ui-ac-label`, (e) => e.textContent);
+    const hl = await page.$eval(`${AC} [data-highlighted] .mds-ac-label`, (e) => e.textContent);
     expect(hl).toBe("Kolkātā");
     await page.keyboard.press("ArrowDown"); // wraps to Patna
-    expect(await page.$eval(`${AC} [data-highlighted] .ui-ac-label`, (e) => e.textContent)).toBe("Patna");
+    expect(await page.$eval(`${AC} [data-highlighted] .mds-ac-label`, (e) => e.textContent)).toBe("Patna");
   });
   test("Escape closes without changing the pick; clearing the text keeps it", async () => {
     await page.keyboard.press("Escape");
-    expect(await gone(".ui-ac-pop")).toBe(true);
+    expect(await gone(".mds-ac-pop")).toBe(true);
     expect(await out("ac-single-out")).toBe("muz");
     await page.click(input("City"), { clickCount: 3 });
     await page.keyboard.press("Backspace");
@@ -118,9 +118,9 @@ describe("Autocomplete (single)", () => {
   });
   test("an outside click closes the list", async () => {
     await page.click(input("City"));
-    expect(await visible(".ui-ac-pop")).toBe(true);
+    expect(await visible(".mds-ac-pop")).toBe(true);
     await clickOutside();
-    expect(await gone(".ui-ac-pop")).toBe(true);
+    expect(await gone(".mds-ac-pop")).toBe(true);
   });
 });
 
@@ -129,7 +129,7 @@ describe("Autocomplete (multiple)", () => {
     await page.click(input("Cities"));
     const rows = await page.$$(`${AC} [role=option]`);
     await rows[3]!.click(); // Ranchi
-    expect(await visible(".ui-ac-pop")).toBe(true);
+    expect(await visible(".mds-ac-pop")).toBe(true);
     expect(await out("ac-multi-out")).toBe("patna,ranchi");
     const chips = await page.$$eval('[data-testid="ac-multi"] .ui-ac-chip', (els) => els.map((e) => e.textContent));
     expect(chips).toEqual(["Patna", "Ranchi"]);
@@ -151,11 +151,11 @@ describe("Autocomplete (multiple)", () => {
 describe("Autocomplete (groups, server search)", () => {
   test("groups: groupOrder first, then A→Z", async () => {
     await page.click(input("Grouped"));
-    const heads = await page.$$eval(`${AC} .ui-ac-group-label`, (els) => els.map((e) => e.textContent));
+    const heads = await page.$$eval(`${AC} .mds-ac-group-label`, (els) => els.map((e) => e.textContent));
     expect(heads).toEqual(["Jharkhand", "Bengal", "Bihar"]);
     // typing highlights the first row as shown (Ranchi under Jharkhand), not the first in the data (Patna)
     await page.type(input("Grouped"), "a");
-    expect(await page.$eval(`${AC} [data-highlighted] .ui-ac-label`, (e) => e.textContent)).toBe("Ranchi");
+    expect(await page.$eval(`${AC} [data-highlighted] .mds-ac-label`, (e) => e.textContent)).toBe("Ranchi");
     await page.keyboard.press("Enter");
     expect(await out("ac-grouped-out")).toBe("ranchi");
   });
@@ -173,10 +173,10 @@ describe("Popovers", () => {
   test("Tip shows on hover", async () => {
     await page.hover('[data-testid="tip-trigger"]');
     await sleep(450);
-    expect(await page.$eval(".ui-tip", (e) => e.textContent)).toBe("A tooltip");
+    expect(await page.$eval(".mds-tip", (e) => e.textContent)).toBe("A tooltip");
     await page.mouse.move(5, 880);
     await sleep(200);
-    expect(await gone(".ui-tip")).toBe(true);
+    expect(await gone(".mds-tip")).toBe(true);
   });
   test("Pop opens on click, a pick inside it does not close it, Escape closes it", async () => {
     await page.click('[data-testid="pop-trigger"]');
@@ -221,7 +221,7 @@ describe("Popovers", () => {
   });
   test("ConfirmPop: the button waits for DELETE, then confirms", async () => {
     await page.click('[data-testid="confirm-trigger"]');
-    const btn = '.confirm button.ui-btn';
+    const btn = '.mds-confirm button.mds-btn';
     expect(await page.$eval(btn, (e) => (e as HTMLButtonElement).disabled)).toBe(true);
     await page.type('input[aria-label="Type DELETE to confirm"]', "DELETE");
     expect(await page.$eval(btn, (e) => (e as HTMLButtonElement).disabled)).toBe(false);
@@ -233,69 +233,69 @@ describe("Popovers", () => {
 
 describe("DateRange (the kit's calendar)", () => {
   const trigger = '[data-testid="daterange"] button.daterange';
-  const day = (iso: string) => `.daterange-day[data-day="${iso}"]`;
+  const day = (iso: string) => `.mds-daterange-day[data-day="${iso}"]`;
   test("opens on the current month; a second click on the field closes it", async () => {
     await page.click(trigger);
-    expect(await visible(".daterange-cal")).toBe(true);
-    const title = await page.$eval(".daterange-title", (e) => e.textContent);
+    expect(await visible(".mds-daterange-cal")).toBe(true);
+    const title = await page.$eval(".mds-daterange-title", (e) => e.textContent);
     expect(title).toBe(new Date().toLocaleString("en-US", { month: "long", year: "numeric" }));
-    expect(await page.$$eval(".daterange-dow", (els) => els.map((e) => e.textContent))).toEqual(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
+    expect(await page.$$eval(".mds-daterange-dow", (els) => els.map((e) => e.textContent))).toEqual(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
     // only the weeks the month needs: 4–6 rows of 7
-    const cells = (await page.$$(".daterange-day")).length;
+    const cells = (await page.$$(".mds-daterange-day")).length;
     expect(cells % 7 === 0 && cells >= 28 && cells <= 42).toBe(true);
     await page.click(trigger);
-    expect(await gone(".daterange-cal")).toBe(true);
+    expect(await gone(".mds-daterange-cal")).toBe(true);
   });
   test("Day mode: one click picks and closes", async () => {
     await page.click(trigger);
-    await page.click(".daterange-nav.prev");
-    const first = await page.$eval(".daterange-day:not(.outside)", (e) => (e as HTMLElement).dataset.day!);
+    await page.click(".mds-daterange-nav.prev");
+    const first = await page.$eval(".mds-daterange-day:not(.outside)", (e) => (e as HTMLElement).dataset.day!);
     await page.click(day(first));
-    expect(await gone(".daterange-cal")).toBe(true);
+    expect(await gone(".mds-daterange-cal")).toBe(true);
     expect(await out("formats")).toContain(`{"from":"${first}","to":"${first}"}`);
   });
   test("Range mode: first click, hover preview, second click (either order)", async () => {
     await page.click(trigger);
-    await page.click(".daterange-foot .ui-seg button:nth-child(2)"); // Range
-    await page.click(".daterange-nav.next");
-    const days = await page.$$eval(".daterange-week .daterange-day:not(.outside)", (els) => els.map((e) => (e as HTMLElement).dataset.day!));
+    await page.click(".mds-daterange-foot .mds-seg button:nth-child(2)"); // Range
+    await page.click(".mds-daterange-nav.next");
+    const days = await page.$$eval(".mds-daterange-week .mds-daterange-day:not(.outside)", (els) => els.map((e) => (e as HTMLElement).dataset.day!));
     const [a, b] = [days[12]!, days[3]!]; // the second click is BEFORE the first: the range swaps
     await page.click(day(a));
     await page.hover(day(b));
     expect(await page.$eval(trigger, (e) => e.textContent)).toContain("–");
     await page.click(day(b));
-    expect(await gone(".daterange-cal")).toBe(true);
+    expect(await gone(".mds-daterange-cal")).toBe(true);
     const v = JSON.parse((await out("formats")).split(" | ").at(-1)!);
     expect(v.from <= v.to).toBe(true);
     expect(v).toEqual({ from: b, to: a });
   });
   test("shortcut: 7 days", async () => {
     await page.click(trigger);
-    await page.click('.daterange-shortcuts button[title="Last 7 days"]');
+    await page.click('.mds-daterange-shortcuts button[title="Last 7 days"]');
     const v = JSON.parse((await out("formats")).split(" | ").at(-1)!);
     const days = (Date.parse(v.to) - Date.parse(v.from)) / 864e5;
     expect(days).toBe(6);
   });
   test("keyboard: Tab into the grid, arrows move, Enter picks", async () => {
     await page.click(trigger);
-    await page.click(".daterange-foot .ui-seg button:nth-child(1)"); // Day
-    await page.focus(".daterange-day[tabindex='0']");
+    await page.click(".mds-daterange-foot .mds-seg button:nth-child(1)"); // Day
+    await page.focus(".mds-daterange-day[tabindex='0']");
     const start = await page.evaluate(() => (document.activeElement as HTMLElement).dataset.day!);
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowDown");
     const now = await page.evaluate(() => (document.activeElement as HTMLElement).dataset.day!);
     expect((Date.parse(now) - Date.parse(start)) / 864e5).toBe(8);
     await page.keyboard.press("Enter");
-    expect(await gone(".daterange-cal")).toBe(true);
+    expect(await gone(".mds-daterange-cal")).toBe(true);
     expect(await out("formats")).toContain(`"from":"${now}"`);
   });
   test("Escape and an outside click close it", async () => {
     await page.click(trigger);
     await page.keyboard.press("Escape");
-    expect(await gone(".daterange-cal")).toBe(true);
+    expect(await gone(".mds-daterange-cal")).toBe(true);
     await page.click(trigger);
     await clickOutside();
-    expect(await gone(".daterange-cal")).toBe(true);
+    expect(await gone(".mds-daterange-cal")).toBe(true);
   });
 });
 
@@ -303,7 +303,7 @@ describe("Tier 1: controls, DateInput, ConfirmDialog, toggles, chips, stats", ()
   const more = (k: string) => out("more-out").then((t) => JSON.parse(t)[k]);
   test("Button: loading shows a spinner and blocks clicks", async () => {
     await page.click('[data-testid="btn-save"]');
-    expect(await page.$eval('[data-testid="btn-save"]', (e) => [(e as HTMLButtonElement).disabled, !!e.querySelector(".ui-spin")])).toEqual([true, true]);
+    expect(await page.$eval('[data-testid="btn-save"]', (e) => [(e as HTMLButtonElement).disabled, !!e.querySelector(".mds-spin")])).toEqual([true, true]);
     await sleep(500);
     expect(await page.$eval('[data-testid="btn-save"]', (e) => (e as HTMLButtonElement).disabled)).toBe(false);
   });
@@ -313,44 +313,44 @@ describe("Tier 1: controls, DateInput, ConfirmDialog, toggles, chips, stats", ()
     expect(await page.$$eval('select[aria-label="Unit"] option', (o) => o.map((x) => x.textContent))).toEqual(["All units", "Kilogram", "Metric ton"]);
     await page.select('select[aria-label="Unit"]', "mt");
     await page.type('textarea[aria-label="Note"]', "hello");
-    await page.click('[data-testid="more"] .ui-check');
+    await page.click('[data-testid="more"] .mds-check');
     const v = JSON.parse(await out("controls-out"));
     expect([v.pick, v.note, v.agree]).toEqual(["mt", "hello", true]);
-    expect(await page.$eval('[data-testid="more"] .ui-check .count', (e) => e.textContent)).toBe("7");
+    expect(await page.$eval('[data-testid="more"] .mds-check .count', (e) => e.textContent)).toBe("7");
   });
   test("DateInput: picks a day, greys out days outside min/max, Today, Clear", async () => {
     const trigger = '[data-testid="dateinput"] button.daterange';
     await page.click(trigger);
     // view the month of min (Oct 2026): the 1st is before min → disabled and not pickable
-    while ((await page.$eval(".daterange-title", (e) => e.textContent)) !== "October 2026")
-      await page.click((await page.$eval(".daterange-title", (e) => e.textContent!)) > "October 2026" ? ".daterange-nav.prev" : ".daterange-nav.next");
-    expect(await page.$eval('.daterange-day[data-day="2026-10-01"]', (e) => e.getAttribute("aria-disabled"))).toBe("true");
-    await page.click('.daterange-day[data-day="2026-10-01"]').catch(() => {});
+    while ((await page.$eval(".mds-daterange-title", (e) => e.textContent)) !== "October 2026")
+      await page.click((await page.$eval(".mds-daterange-title", (e) => e.textContent!)) > "October 2026" ? ".mds-daterange-nav.prev" : ".mds-daterange-nav.next");
+    expect(await page.$eval('.mds-daterange-day[data-day="2026-10-01"]', (e) => e.getAttribute("aria-disabled"))).toBe("true");
+    await page.click('.mds-daterange-day[data-day="2026-10-01"]').catch(() => {});
     expect(await more("day1")).toBe("");
-    await page.click('.daterange-day[data-day="2026-10-12"]');
-    expect(await gone(".daterange-cal")).toBe(true);
+    await page.click('.mds-daterange-day[data-day="2026-10-12"]');
+    expect(await gone(".mds-daterange-cal")).toBe(true);
     expect(await more("day1")).toBe("2026-10-12");
     expect(await page.$eval(trigger, (e) => e.textContent)).toContain("Oct 12, 2026");
     await page.click(trigger);
-    await page.click(".dateinput-foot button:nth-child(2)"); // Clear
+    await page.click(".mds-dateinput-foot button:nth-child(2)"); // Clear
     expect(await more("day1")).toBe("");
   });
   test("useConfirm: opens from code, waits for DELETE, resolves; Cancel resolves null", async () => {
     await page.click('[data-testid="ask"]');
-    expect(await visible(".inv-frame.sm")).toBe(true);
-    const ok = ".inv-frame.sm .ui-btn.danger";
+    expect(await visible(".mds-inv-frame.sm")).toBe(true);
+    const ok = ".mds-inv-frame.sm .mds-btn.danger";
     expect(await page.$eval(ok, (e) => (e as HTMLButtonElement).disabled)).toBe(true);
     await page.keyboard.type("DELETE"); // the typed field has focus
     await page.click(ok);
-    expect(await gone(".inv-frame.sm")).toBe(true);
+    expect(await gone(".mds-inv-frame.sm")).toBe(true);
     expect(await more("asked")).toBe("");
     await page.click('[data-testid="ask"]');
-    await page.click(".inv-frame.sm .ui-btn:not(.danger)"); // Cancel
-    expect(await gone(".inv-frame.sm")).toBe(true);
+    await page.click(".mds-inv-frame.sm .mds-btn:not(.danger)"); // Cancel
+    expect(await gone(".mds-inv-frame.sm")).toBe(true);
     expect(await more("asked")).toBe("null");
   });
   test("ToggleGroup multiple keeps the options' order; clearable={false} keeps a pick", async () => {
-    const group = (name: string) => `[aria-label="${name}"].ui-toggle button`;
+    const group = (name: string) => `[aria-label="${name}"].mds-toggle button`;
     const btns = await page.$$(group("Products"));
     await btns[2]!.click(); // Sheet
     await btns[0]!.click(); // TMT
@@ -364,18 +364,18 @@ describe("Tier 1: controls, DateInput, ConfirmDialog, toggles, chips, stats", ()
     expect(await more("line")).toBe("mahan");
   });
   test("chips: clickable purple chip, dimmed chip, status tones and kept abbreviations", async () => {
-    await page.click('[data-testid="more"] button.ui-chip.clickable');
+    await page.click('[data-testid="more"] button.mds-chip.clickable');
     expect(await more("chipClicks")).toBe(1);
-    expect(await page.$eval('[data-testid="more"] .ui-chip.dim', (e) => getComputedStyle(e).opacity)).toBe("0.5");
-    const chips = await page.$$eval('[data-testid="more"] .ui-chip', (els) => els.map((e) => e.textContent));
+    expect(await page.$eval('[data-testid="more"] .mds-chip.mds-dim', (e) => getComputedStyle(e).opacity)).toBe("0.5");
+    const chips = await page.$$eval('[data-testid="more"] .mds-chip', (els) => els.map((e) => e.textContent));
     expect(chips).toContain("Order out");
     expect(chips).toContain("MO approved");
-    const okColor = await page.$$eval('[data-testid="more"] .ui-chip', (els) => getComputedStyle(els.find((e) => e.textContent === "Order out")!).color);
+    const okColor = await page.$$eval('[data-testid="more"] .mds-chip', (els) => getComputedStyle(els.find((e) => e.textContent === "Order out")!).color);
     expect(okColor).toBe("rgb(34, 197, 94)");
   });
   test("ToolbarStats: figures in the toolbar; a clickable one is a button", async () => {
-    expect(await page.$$eval(".toolbar .ui-tstat-l", (e) => e.map((x) => x.textContent))).toEqual(["present", "absent"]);
-    await page.click(".toolbar button.ui-tstat");
+    expect(await page.$$eval(".mds-toolbar .mds-tstat-l", (e) => e.map((x) => x.textContent))).toEqual(["present", "absent"]);
+    await page.click(".mds-toolbar button.mds-tstat");
     expect(await more("statClicks")).toBe(1);
   });
 });
@@ -383,27 +383,27 @@ describe("Tier 1: controls, DateInput, ConfirmDialog, toggles, chips, stats", ()
 describe("Tier 2: tabs, pagination, feedback", () => {
   const t = () => out("tabs-out").then((x) => JSON.parse(x));
   test("Tabs: click and arrow keys (skipping a disabled tab)", async () => {
-    await page.click('.ui-tabs [data-tab="logs"]');
+    await page.click('.mds-tabs [data-tab="logs"]');
     expect((await t()).tab).toBe("logs");
     await page.keyboard.press("ArrowRight"); // Files is disabled → wraps to Details
     expect((await t()).tab).toBe("details");
     expect(await page.evaluate(() => (document.activeElement as HTMLElement).dataset.tab)).toBe("details");
-    expect(await page.$eval('.ui-tabs [data-tab="logs"] .ui-tabs-count', (e) => e.textContent)).toBe("12");
+    expect(await page.$eval('.mds-tabs [data-tab="logs"] .mds-tabs-count', (e) => e.textContent)).toBe("12");
   });
   test("Pagination: next / previous and rows per page", async () => {
     const pg = '[data-testid="pagination"]';
-    expect(await page.$eval(`${pg} .ui-num`, (e) => e.textContent)).toBe("1-25 of 683 partners");
+    expect(await page.$eval(`${pg} .mds-num`, (e) => e.textContent)).toBe("1-25 of 683 partners");
     await page.click(`${pg} button[aria-label="Next page"]`);
-    expect(await page.$eval(`${pg} .ui-num`, (e) => e.textContent)).toBe("26-50 of 683 partners");
+    expect(await page.$eval(`${pg} .mds-num`, (e) => e.textContent)).toBe("26-50 of 683 partners");
     await page.select(`${pg} select`, "100");
     expect((await t()).page).toEqual({ pageIndex: 0, pageSize: 100 });
     expect(await page.$eval(`${pg} button[aria-label="Previous page"]`, (e) => (e as HTMLButtonElement).disabled)).toBe(true);
   });
   test("Spinner, Progress, Kbd, Avatar", async () => {
-    expect(await page.$eval('[data-testid="more"] .ui-spinner', (e) => e.getAttribute("role"))).toBe("status");
+    expect(await page.$eval('[data-testid="more"] .mds-spinner', (e) => e.getAttribute("role"))).toBe("status");
     expect(await page.$$eval('[data-testid="more"] [role=progressbar]', (e) => e.map((x) => x.getAttribute("aria-valuenow")))).toEqual(["42", null]);
-    expect(await page.$eval('[data-testid="more"] .ui-kbd', (e) => e.textContent)).toBe("/");
-    expect(await page.$$eval('[data-testid="more"] .ui-avatar', (e) => e.map((x) => x.textContent))).toEqual(["RS", "JI"]);
+    expect(await page.$eval('[data-testid="more"] .mds-kbd', (e) => e.textContent)).toBe("/");
+    expect(await page.$$eval('[data-testid="more"] .mds-avatar', (e) => e.map((x) => x.textContent))).toEqual(["RS", "JI"]);
   });
 });
 
@@ -418,14 +418,14 @@ describe("Toolbar, table, menus", () => {
     await page.keyboard.press("Escape");
   });
   test("ToggleGroup: picks, and a second click clears", async () => {
-    const debit = '.toolbar .ui-toggle button:first-child';
+    const debit = '.mds-toolbar .mds-toggle button:first-child';
     await page.click(debit);
     expect(await out("formats")).toContain("| D |");
     await page.click(debit);
     expect(await out("formats")).toContain("| all |");
   });
   test("sorting by a header", async () => {
-    await page.click('.toolbar-search input', { clickCount: 3 });
+    await page.click('.mds-toolbar-search input', { clickCount: 3 });
     await page.keyboard.press("Backspace");
     await sleep(100);
     const headers = await page.$$(`${TABLE} th`);
@@ -435,7 +435,7 @@ describe("Toolbar, table, menus", () => {
     expect(await page.$eval(`${TABLE} th:nth-child(3)`, (e) => e.getAttribute("aria-sort"))).toBe("descending");
   });
   test("Customize columns sits in the bottom bar and hides a column", async () => {
-    await page.click('[data-testid="table"] .ui-foot button.ui-link');
+    await page.click('[data-testid="table"] .mds-foot button.mds-link');
     const city = await page.$$("xpath/.//label[span[text()='City']]/input");
     await city[0]!.click();
     const heads = await page.$$eval(`${TABLE} th`, (els) => els.map((e) => e.textContent));
@@ -445,20 +445,20 @@ describe("Toolbar, table, menus", () => {
   test("row menu: right-click, pick an item; a confirm item asks first", async () => {
     const row = await page.$(`${TABLE} tbody tr`);
     await row!.click({ button: "right" });
-    await page.click(".ctxmenu button");
+    await page.click(".mds-ctxmenu button");
     expect(await out("menu-out")).toBe("view Partner 30");
   });
   test("file viewer: opens, arrow moves, Esc closes", async () => {
-    await page.click('[data-testid="misc"] .fv-tile');
-    expect(await visible(".fv")).toBe(true);
-    expect(await page.$eval(".fv-count", (e) => e.textContent)).toBe("1 / 2");
+    await page.click('[data-testid="misc"] .mds-fv-tile');
+    expect(await visible(".mds-fv")).toBe(true);
+    expect(await page.$eval(".mds-fv-count", (e) => e.textContent)).toBe("1 / 2");
     await page.keyboard.press("ArrowRight");
-    expect(await page.$eval(".fv-count", (e) => e.textContent)).toBe("2 / 2");
+    expect(await page.$eval(".mds-fv-count", (e) => e.textContent)).toBe("2 / 2");
     await page.keyboard.press("Escape");
-    expect(await gone(".fv")).toBe(true);
+    expect(await gone(".mds-fv")).toBe(true);
   });
   test("MiniTable draws with the page table, highlighting a row", async () => {
-    expect(await page.$$eval('[data-testid="mini"] .ui-table-host.bare tbody tr', (r) => r.length)).toBe(3);
+    expect(await page.$$eval('[data-testid="mini"] .mds-table-host.bare tbody tr', (r) => r.length)).toBe(3);
     expect(await page.$$eval('[data-testid="mini"] tr.warn', (r) => r.length)).toBe(1);
   });
   test("no errors after all of it", async () => {

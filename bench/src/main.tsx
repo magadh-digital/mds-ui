@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import type { ColumnDef, PaginationState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { Bell, Trash2 } from "lucide-react";
 import "@mds/ui/styles.css";
+import "@mds/ui/reset.css";
 import {
   Autocomplete,
   ConfirmPop,
@@ -141,7 +142,7 @@ function App() {
 
   return (
     <UIProvider storagePrefix="bench.ui" glossary={{ lookup: (k) => (k === "Amount" ? { d: "Bill value with tax", old: "Gross" } : undefined) }}>
-      <div className="main" style={{ minHeight: "100vh" }}>
+      <div className="mds-main" style={{ minHeight: "100vh" }}>
         <Toolbar
           title="Test bench"
           count={rows.length}
@@ -167,7 +168,7 @@ function App() {
               { label: "absent", value: 3, tone: "error", onClick: () => setStatClicks((n) => n + 1) },
             ]}
           />
-          <button type="button" className="ui-btn primary">Add</button>
+          <button type="button" className="mds-btn primary">Add</button>
           <MoreMenu items={[{ key: "export", label: "Export", onSelect: () => void toast.info("Export") }]} />
         </Toolbar>
 
@@ -206,17 +207,17 @@ function App() {
           </section>
           <section data-testid="pops">
             <h4>Popovers</h4>
-            <div className="hstack" style={{ gap: 8, flexWrap: "wrap" }}>
+            <div className="mds-hstack" style={{ gap: 8, flexWrap: "wrap" }}>
               <Tip label="A tooltip">
-                <button type="button" className="ui-btn" data-testid="tip-trigger">Hover me</button>
+                <button type="button" className="mds-btn" data-testid="tip-trigger">Hover me</button>
               </Tip>
-              <Pop trigger={<button type="button" className="ui-btn" data-testid="pop-trigger">Pop</button>}>
+              <Pop trigger={<button type="button" className="mds-btn" data-testid="pop-trigger">Pop</button>}>
                 <div data-testid="pop-body">
                   Pick inside a popover:
                   <Autocomplete options={PLAIN} value={inPop} onChange={(v) => setInPop(v)} label="City in pop" />
                 </div>
               </Pop>
-              <EditPop title="Edit rate" trigger={<button type="button" className="ui-btn" data-testid="editpop-trigger">Edit</button>}>
+              <EditPop title="Edit rate" trigger={<button type="button" className="mds-btn" data-testid="editpop-trigger">Edit</button>}>
                 {(close) => (
                   <form
                     data-testid="editpop-body"
@@ -226,8 +227,8 @@ function App() {
                       close();
                     }}
                   >
-                    <input name="rate" className="ui-input" defaultValue="62.5" aria-label="Rate" />
-                    <button type="submit" className="ui-btn primary">Save</button>
+                    <input name="rate" className="mds-input" defaultValue="62.5" aria-label="Rate" />
+                    <button type="submit" className="mds-btn primary">Save</button>
                   </form>
                 )}
               </EditPop>
@@ -235,7 +236,7 @@ function App() {
                 <div data-testid="hoverpop-body">3 vehicles · 5 orders</div>
               </HoverPop>
               <ConfirmPop
-                trigger={<button type="button" className="ui-btn danger" data-testid="confirm-trigger"><Trash2 size={14} /> Delete</button>}
+                trigger={<button type="button" className="mds-btn danger" data-testid="confirm-trigger"><Trash2 size={14} /> Delete</button>}
                 title="Delete partner"
                 danger
                 typed="DELETE"
@@ -247,7 +248,7 @@ function App() {
           </section>
           <section data-testid="misc">
             <h4>Chips, formats, Seg, file</h4>
-            <div className="hstack" style={{ gap: 6, flexWrap: "wrap" }}>
+            <div className="mds-hstack" style={{ gap: 6, flexWrap: "wrap" }}>
               <ToneChip tone="ok">Paid</ToneChip>
               <StatusChip status="NOT_ASSIGNED" />
               <Seg value={seg} onChange={setSeg} options={[{ value: "list", label: "List" }, { value: "board", label: "Board" }]} />
@@ -263,9 +264,9 @@ function App() {
         </div>
 
         <section data-testid="more" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16, padding: 16 }}>
-          <div className="vstack" style={{ gap: 8 }}>
+          <div className="mds-vstack" style={{ gap: 8 }}>
             <h4>Controls</h4>
-            <div className="hstack" style={{ gap: 8 }}>
+            <div className="mds-hstack" style={{ gap: 8 }}>
               <Button variant="primary" loading={busy} onClick={() => { setBusy(true); setTimeout(() => setBusy(false), 400); }} data-testid="btn-save">Save</Button>
               <Button size="sm" variant="danger">Delete</Button>
               <IconButton label="Edit row"><Pencil /></IconButton>
@@ -276,7 +277,7 @@ function App() {
             <Checkbox label="Agree" count={7} checked={agree} onChange={setAgree} />
             <Out id="controls-out" v={{ text, pick, note, agree, busy }} />
           </div>
-          <div className="vstack" style={{ gap: 8 }}>
+          <div className="mds-vstack" style={{ gap: 8 }}>
             <h4>Date, confirm, toggles</h4>
             <div data-testid="dateinput" style={{ width: 220 }}>
               <DateInput value={day1} onChange={setDay1} min="2026-10-05" max="2026-10-25" label="Bill date" />
@@ -284,7 +285,7 @@ function App() {
             <Button data-testid="ask" onClick={async () => setAsked(String(await ask.confirm({ title: "Delete vehicle", danger: true, typed: "DELETE", confirmLabel: "Delete" })))}>Delete from code</Button>
             <ToggleGroup multiple label="Products" value={products} onChange={setProducts} options={[{ value: "tmt", label: "TMT" }, { value: "coil", label: "Coil" }, { value: "sheet", label: "Sheet" }, { value: "pipe", label: "Pipe" }]} />
             <ToggleGroup label="Line" value={line} onChange={(v) => v && setLine(v)} clearable={false} options={[{ value: "magadh", label: "Magadh" }, { value: "mahan", label: "Mahan" }]} />
-            <div className="hstack" style={{ gap: 6 }}>
+            <div className="mds-hstack" style={{ gap: 6 }}>
               <ToneChip tone="purple" onClick={() => setChipClicks((n) => n + 1)}>Admin</ToneChip>
               <ToneChip tone="muted" dim>Unused</ToneChip>
               <StatusChip status="ORDER_OUT" tones={{ order_out: "ok" }} />
@@ -292,13 +293,13 @@ function App() {
             </div>
             <Out id="more-out" v={{ day1, asked, products: products.join(","), line, chipClicks, statClicks }} />
           </div>
-          <div className="vstack" style={{ gap: 8 }}>
+          <div className="mds-vstack" style={{ gap: 8 }}>
             <h4>Tabs, pages, feedback</h4>
             <Tabs label="Record" value={tab} onChange={setTab} tabs={[{ value: "details", label: "Details" }, { value: "logs", label: "Logs", count: 12 }, { value: "files", label: "Files", disabled: true }]} />
             <div data-testid="pagination">
               <Pagination {...page} total={683} label="partners" onChange={setPage} />
             </div>
-            <div className="hstack" style={{ gap: 12 }}>
+            <div className="mds-hstack" style={{ gap: 12 }}>
               <Spinner />
               <Avatar name="Rajesh Kumar Singh" />
               <Avatar name="M/S Jai Durga Iron" src="data:image/png;base64,AAAA" />
@@ -324,7 +325,7 @@ function App() {
         </div>
 
         <div data-testid="table" style={{ height: 520, display: "flex", flexDirection: "column", padding: 16 }}>
-          <div className="ui-muted" style={{ marginBottom: 4 }}>
+          <div className="mds-muted" style={{ marginBottom: 4 }}>
             <Term label="Amount" /> column has a glossary hover · <Out id="menu-out" v={menuPick || "no menu pick"} />
           </div>
           <DenseTable<Row>

@@ -1,5 +1,5 @@
 /* FileViewer (fileviewer.tsx): the kit's one image / file viewer. Always dark: a photo reads best on black. */
-.fv {
+.mds-fv {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -11,7 +11,7 @@
 }
 
 /* the viewer itself takes the focus on open (its keys start there); its buttons keep their own focus ring */
-.fv:focus {
+.mds-fv:focus {
   outline: none;
 }
 
@@ -21,7 +21,7 @@
   }
 }
 
-.fv-head {
+.mds-fv-head {
   flex: none;
   display: flex;
   align-items: center;
@@ -29,7 +29,7 @@
   padding: 10px 14px;
 }
 
-.fv-title {
+.mds-fv-title {
   display: flex;
   align-items: baseline;
   gap: 10px;
@@ -37,7 +37,7 @@
   flex: 1;
 }
 
-.fv-name {
+.mds-fv-name {
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -45,13 +45,13 @@
   max-width: 50vw;
 }
 
-.fv-count {
+.mds-fv-count {
   color: #9aa0a6;
   font-size: 13px;
   white-space: nowrap;
 }
 
-.fv-caption {
+.mds-fv-caption {
   color: #9aa0a6;
   font-size: 12px;
   white-space: nowrap;
@@ -59,13 +59,13 @@
   text-overflow: ellipsis;
 }
 
-.fv-tools {
+.mds-fv-tools {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.fv-btn {
+.mds-fv-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -82,20 +82,20 @@
   font-size: 12px;
 }
 
-.fv-btn:hover {
+.mds-fv-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.fv-btn svg {
+.mds-fv-btn svg {
   width: 18px;
   height: 18px;
 }
 
-.fv-zoom {
+.mds-fv-zoom {
   min-width: 52px;
 }
 
-.fv-stage {
+.mds-fv-stage {
   position: relative;
   flex: 1;
   min-height: 0;
@@ -106,7 +106,7 @@
   padding: 8px 64px;
 }
 
-.fv-img {
+.mds-fv-img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
@@ -116,7 +116,7 @@
   border-radius: 4px;
 }
 
-.fv-frame {
+.mds-fv-frame {
   width: min(1100px, 100%);
   height: 100%;
   border: 0;
@@ -124,7 +124,7 @@
   background: #fff;
 }
 
-.fv-card {
+.mds-fv-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -134,13 +134,13 @@
   background: #1b1e24;
 }
 
-.fv-card > svg {
+.mds-fv-card > svg {
   width: 40px;
   height: 40px;
   color: #9aa0a6;
 }
 
-.fv-nav {
+.mds-fv-nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -156,24 +156,24 @@
   cursor: pointer;
 }
 
-.fv-nav:hover {
+.mds-fv-nav:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.fv-nav svg {
+.mds-fv-nav svg {
   width: 24px;
   height: 24px;
 }
 
-.fv-nav.prev {
+.mds-fv-nav.prev {
   left: 12px;
 }
 
-.fv-nav.next {
+.mds-fv-nav.next {
   right: 12px;
 }
 
-.fv-strip {
+.mds-fv-strip {
   flex: none;
   display: flex;
   gap: 8px;
@@ -182,7 +182,7 @@
   overflow-x: auto;
 }
 
-.fv-thumb {
+.mds-fv-thumb {
   flex: none;
   width: 64px;
   height: 48px;
@@ -195,22 +195,22 @@
   opacity: 0.6;
 }
 
-.fv-thumb.on {
+.mds-fv-thumb.on {
   border-color: #3b8cff;
   opacity: 1;
 }
 
-.fv-thumb:hover {
+.mds-fv-thumb:hover {
   opacity: 1;
 }
 
-.fv-thumb img {
+.mds-fv-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.fv-thumb-icon {
+.mds-fv-thumb-icon {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -219,50 +219,50 @@
   width: 100%;
   height: 100%;
   font-size: 10px;
-  color: var(--c-muted, #9aa0a6);
+  color: var(--mds-c-muted, #9aa0a6);
 }
 
-.fv-thumb-icon svg {
+.mds-fv-thumb-icon svg {
   width: 18px;
   height: 18px;
 }
 
 /* FileThumb: the thumbnail that opens the viewer, in pages and panels (follows the page theme) */
-.fv-tile {
+.mds-fv-tile {
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-md);
-  background: var(--c-canvas);
+  border: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-md);
+  background: var(--mds-c-canvas);
   cursor: zoom-in;
-  font-size: var(--fs-xs);
+  font-size: var(--mds-fs-xs);
 }
 
-.fv-tile.empty {
+.mds-fv-tile.empty {
   cursor: default;
 }
 
-.fv-tile img {
+.mds-fv-tile img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.fv-tile.sm {
+.mds-fv-tile.sm {
   width: 36px;
   height: 36px;
 }
 
-.fv-tile.md {
+.mds-fv-tile.md {
   width: 104px;
   height: 78px;
 }
 
-.fv-tile.lg {
+.mds-fv-tile.lg {
   width: 160px;
   height: 120px;
 }

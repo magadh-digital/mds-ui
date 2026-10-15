@@ -88,10 +88,10 @@ export function FileInput({
       ? "Drop or click to replace"
       : "Drop a file here or click to choose";
   return (
-    <div className="ui-fileinput">
+    <div className="mds-fileinput">
       <button
         type="button"
-        className={`ui-fileinput-zone${over ? " over" : ""}`}
+        className={`mds-fileinput-zone${over ? " over" : ""}`}
         disabled={disabled}
         id={zoneId}
         aria-label={label}
@@ -112,7 +112,7 @@ export function FileInput({
         <Upload aria-hidden />
         <span id={promptId}>{prompt}</span>
         {(hint || accept || maxSizeMb) && (
-          <span className="ui-muted ui-fileinput-hint" id={hintId}>
+          <span className="mds-muted mds-fileinput-hint" id={hintId}>
             {hint ??
               [accept && describeAccept(accept), maxSizeMb && `up to ${maxSizeMb} MB`, maxFiles && multiple && `max ${maxFiles}`]
                 .filter(Boolean)
@@ -132,19 +132,19 @@ export function FileInput({
         }}
       />
       {all.length > 0 && (
-        <div className="ui-fileinput-list">
+        <div className="mds-fileinput-list">
           {all.map((f, i) => {
             const own = "file" in f ? (f as { file: File }).file : null;
             return (
-              <div key={`${f.src}-${i}`} className="ui-fileinput-item">
+              <div key={`${f.src}-${i}`} className="mds-fileinput-item">
                 <FileThumb file={f} size="sm" onOpen={() => viewer.open(all, i)} />
-                <span className="ui-fileinput-name" title={f.name}>
+                <span className="mds-fileinput-name" title={f.name}>
                   {f.name}
                 </span>
                 {own && (
                   <button
                     type="button"
-                    className="ui-iconbtn"
+                    className="mds-iconbtn"
                     aria-label={`Remove ${f.name}`}
                     onClick={() => onChange(files.filter((x) => x !== own))}
                   >
@@ -157,7 +157,7 @@ export function FileInput({
         </div>
       )}
       {errors.map((e) => (
-        <div key={e} className="ui-error" role="alert">
+        <div key={e} className="mds-error" role="alert">
           {e}
         </div>
       ))}

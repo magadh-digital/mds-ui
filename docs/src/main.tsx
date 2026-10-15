@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { useEffect } from "react";
 import { Github } from "lucide-react";
 import "@mds/ui/styles.css";
+import "@mds/ui/reset.css";
 import "./docs.css";
 import { AppShell, CommandPalette, PaletteButton, Sidebar, SidebarLink, UIProvider, useKitRouter } from "@mds/ui";
 import { PAGES, SECTIONS, pageAt, sectionOf } from "./registry";

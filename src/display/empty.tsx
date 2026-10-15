@@ -25,17 +25,17 @@ export function Empty({
 }) {
   if (compact)
     return (
-      <div className="ui-empty-line ui-muted">
+      <div className="mds-empty-line mds-muted">
         {title}
-        {action && <span className="ui-empty-action">{action}</span>}
+        {action && <span className="mds-empty-action">{action}</span>}
       </div>
     );
   return (
-    <div className="ui-empty-state">
-      {Icon && <Icon className="ui-empty-icon" aria-hidden />}
-      <div className="ui-empty-title">{title}</div>
-      {children && <div className="ui-empty-text ui-muted">{children}</div>}
-      {action && <div className="ui-empty-actions">{action}</div>}
+    <div className="mds-empty-state">
+      {Icon && <Icon className="mds-empty-icon" aria-hidden />}
+      <div className="mds-empty-title">{title}</div>
+      {children && <div className="mds-empty-text mds-muted">{children}</div>}
+      {action && <div className="mds-empty-actions">{action}</div>}
     </div>
   );
 }

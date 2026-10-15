@@ -52,9 +52,6 @@ export function TermsProvider({
       /* private mode */
     }
   }, []);
-  useEffect(() => {
-    document.documentElement.classList.toggle("old-names", oldNames);
-  }, [oldNames]);
   const value = useMemo(
     () => ({ oldNames, setOldNames }),
     [oldNames, setOldNames],
@@ -77,9 +74,9 @@ export function TermBody({
 }) {
   return (
     <div className="term-tip">
-      <div className="term-tip-title">{label}</div>
+      <div className="mds-term-tip-title">{label}</div>
       <div>{entry.d}</div>
-      {entry.old && <div className="term-tip-old">Old name: {entry.old}</div>}
+      {entry.old && <div className="mds-term-tip-old">Old name: {entry.old}</div>}
     </div>
   );
 }
@@ -104,10 +101,10 @@ export function Term({
   if (!entry) return <>{children ?? label}</>;
   return (
     <Tip label={<TermBody label={label} entry={entry} />} placement={placement}>
-      <span className="term" tabIndex={0}>
+      <span className="mds-term" tabIndex={0}>
         {children ?? label}
         {oldNames && entry.old && (
-          <span className="term-old"> · {entry.old}</span>
+          <span className="mds-term-old"> · {entry.old}</span>
         )}
       </span>
     </Tip>

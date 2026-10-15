@@ -37,7 +37,7 @@ export function Tip({
         <FloatingPortal>
           <div
             ref={refs.setFloating}
-            className="ui-tip"
+            className="mds-tip"
             data-status={motion.status}
             style={{ ...floatingStyles, ...motion.styles, zIndex: TIP_Z }}
             {...getFloatingProps()}

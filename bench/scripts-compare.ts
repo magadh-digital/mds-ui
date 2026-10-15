@@ -10,7 +10,7 @@ for (const which of ["old", "new"]) {
   await p.goto(`http://localhost:5190/compare.html#${which}`, { waitUntil: "networkidle0" });
   await p.click("button.daterange");
   await new Promise((r) => setTimeout(r, 300));
-  const d = await p.$(".daterange-day[data-day='2026-10-15'], .react-datepicker__day--015:not(.react-datepicker__day--outside-month)");
+  const d = await p.$(".mds-daterange-day[data-day='2026-10-15'], .react-datepicker__day--015:not(.react-datepicker__day--outside-month)");
   if (d) await d.hover();
   await new Promise((r) => setTimeout(r, 200));
   await p.screenshot({ path: `shots/cal-${which}.png` });

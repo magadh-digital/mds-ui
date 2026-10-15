@@ -1,40 +1,40 @@
 /* ---- date range: the kit's own calendar (it replaced react-datepicker; same sizes and look) ---- */
-.daterange-root,
-.daterange-wrap {
+.mds-daterange-root,
+.mds-daterange-wrap {
   display: block;
   width: 100%;
 }
 
-.daterange-cal {
+.mds-daterange-cal {
   display: flex;
   flex-direction: column;
   font-family: inherit;
-  font-size: var(--fs-sm);
+  font-size: var(--mds-fs-sm);
   line-height: initial;
-  background: var(--c-surface);
-  color: var(--c-text);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-pop, 0 8px 24px rgba(0, 0, 0, 0.18));
+  background: var(--mds-c-surface);
+  color: var(--mds-c-text);
+  border: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-md);
+  box-shadow: var(--mds-shadow-pop, 0 8px 24px rgba(0, 0, 0, 0.18));
 }
 
-.daterange-head {
+.mds-daterange-head {
   position: relative;
   text-align: center;
   padding: 8px 0;
-  background: var(--c-hover);
-  border-bottom: 1px solid var(--c-border);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--mds-c-hover);
+  border-bottom: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-md) var(--mds-radius-md) 0 0;
 }
 
-.daterange-title {
+.mds-daterange-title {
   font-weight: 700;
   font-size: 0.944rem;
-  color: var(--c-text);
+  color: var(--mds-c-text);
 }
 
 /* the ‹ › arrows: a bordered corner turned left or right, as react-datepicker drew them */
-.daterange-nav {
+.mds-daterange-nav {
   position: absolute;
   top: 2px;
   width: 32px;
@@ -47,40 +47,40 @@
   align-items: center;
   justify-content: center;
 }
-.daterange-nav.prev {
+.mds-daterange-nav.prev {
   left: 2px;
 }
-.daterange-nav.next {
+.mds-daterange-nav.next {
   right: 2px;
 }
-.daterange-nav::before {
+.mds-daterange-nav::before {
   content: "";
   display: block;
   width: 9px;
   height: 9px;
   border-style: solid;
   border-width: 3px 3px 0 0;
-  border-color: var(--c-muted);
+  border-color: var(--mds-c-muted);
 }
-.daterange-nav.prev::before {
+.mds-daterange-nav.prev::before {
   transform: translateX(2px) rotate(225deg);
 }
-.daterange-nav.next::before {
+.mds-daterange-nav.next::before {
   transform: translateX(-2px) rotate(45deg);
 }
-.daterange-nav:hover::before {
-  border-color: var(--c-text);
+.mds-daterange-nav:hover::before {
+  border-color: var(--mds-c-text);
 }
 
 /* the weekday names sit under the grey header, in the white, as react-datepicker drew them */
-.daterange-dows {
+.mds-daterange-dows {
   white-space: nowrap;
   text-align: center;
   margin: 0.5em 0.5em -0.3em;
 }
 
-.daterange-dow,
-.daterange-day {
+.mds-daterange-dow,
+.mds-daterange-day {
   display: inline-block;
   width: 2.125em;
   line-height: 2.125em;
@@ -88,65 +88,65 @@
   text-align: center;
 }
 
-.daterange-dow {
-  color: var(--c-muted);
+.mds-daterange-dow {
+  color: var(--mds-c-muted);
 }
 
-.daterange-grid {
+.mds-daterange-grid {
   margin: 0 0.5em 0.5em;
   text-align: center;
 }
 
-.daterange-week {
+.mds-daterange-week {
   white-space: nowrap;
 }
 
 /* a square cell (2.125em × 2.125em): the font is set by its parts, since the `font` shorthand would reset line-height */
-.daterange-day {
+.mds-daterange-day {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--c-text);
+  color: var(--mds-c-text);
   font-family: inherit;
   font-size: inherit;
   height: 2.125em;
   line-height: 2.125em;
   vertical-align: middle;
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--mds-radius-sm, 4px);
   cursor: pointer;
   transition: background-color 80ms ease, color 80ms ease;
 }
-.daterange-day:hover {
-  background: var(--c-hover);
+.mds-daterange-day:hover {
+  background: var(--mds-c-hover);
 }
-.daterange-day.outside {
+.mds-daterange-day.outside {
   opacity: 0.35;
 }
-.daterange-day.today {
+.mds-daterange-day.today {
   font-weight: 700;
 }
-.daterange-day.kb:focus-visible {
-  outline: 2px solid var(--c-accent);
+.mds-daterange-day.kb:focus-visible {
+  outline: 2px solid var(--mds-c-accent);
   outline-offset: 1px;
 }
-.daterange-day.in-range {
-  background: var(--c-accent-soft);
-  color: var(--c-text);
+.mds-daterange-day.in-range {
+  background: var(--mds-c-accent-soft);
+  color: var(--mds-c-text);
 }
-.daterange-day.edge {
-  background: var(--c-accent);
+.mds-daterange-day.edge {
+  background: var(--mds-c-accent);
   color: #fff;
 }
 
-.daterange-foot {
+.mds-daterange-foot {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
-  padding: var(--sp-1) var(--sp-2) var(--sp-2);
-  border-top: 1px solid var(--c-border);
+  gap: var(--mds-sp-1);
+  padding: var(--mds-sp-1) var(--mds-sp-2) var(--mds-sp-2);
+  border-top: 1px solid var(--mds-c-border);
 }
 
-.daterange-shortcuts {
+.mds-daterange-shortcuts {
   display: grid;
   gap: 3px;
   /* never wider than the calendar above it */
@@ -154,15 +154,15 @@
   min-width: 100%;
 }
 
-.daterange-shortcuts button {
+.mds-daterange-shortcuts button {
   min-width: 0;
-  height: calc(var(--ctl-h) - 4px);
+  height: calc(var(--mds-ctl-h) - 4px);
   padding: 0 2px;
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-sm);
   background: transparent;
-  color: var(--c-muted);
-  font-size: var(--fs-xs);
+  color: var(--mds-c-muted);
+  font-size: var(--mds-fs-xs);
   font-weight: 500;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -171,22 +171,22 @@
   cursor: pointer;
 }
 
-.daterange-shortcuts button:hover {
-  color: var(--c-text);
-  background: var(--c-hover);
+.mds-daterange-shortcuts button:hover {
+  color: var(--mds-c-text);
+  background: var(--mds-c-hover);
 }
 
-.daterange-shortcuts button.active {
-  color: var(--c-accent);
-  border-color: var(--c-accent);
-  background: var(--c-accent-soft);
+.mds-daterange-shortcuts button.active {
+  color: var(--mds-c-accent);
+  border-color: var(--mds-c-accent);
+  background: var(--mds-c-accent-soft);
 }
 
 /* the field's clear ×: a button beside the field (not inside it), over its right end */
-.daterange-wrap {
+.mds-daterange-wrap {
   position: relative;
 }
-.daterange-clear {
+.mds-daterange-clear {
   position: absolute;
   top: 50%;
   right: 6px;
@@ -199,23 +199,23 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--c-muted);
+  color: var(--mds-c-muted);
   cursor: pointer;
 }
-.daterange-clear:hover {
-  color: var(--c-text);
-  background: var(--c-hover);
+.mds-daterange-clear:hover {
+  color: var(--mds-c-text);
+  background: var(--mds-c-hover);
 }
-.daterange-clear:focus-visible {
-  outline: 2px solid var(--c-accent);
+.mds-daterange-clear:focus-visible {
+  outline: 2px solid var(--mds-c-accent);
   outline-offset: 1px;
 }
-.daterange-clear svg {
+.mds-daterange-clear svg {
   width: 12px;
   height: 12px;
 }
 
 /* the Day / Range switch spans the footer */
-.daterange-foot .ui-seg {
+.mds-daterange-foot .mds-seg {
   align-self: stretch;
 }

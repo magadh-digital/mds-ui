@@ -1,68 +1,68 @@
 /* ---------- panel tabs with labels; the flow strip ---------- */
-.flow {
+.mds-flow {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   gap: 3px;
 }
 
-.flow .st {
+.mds-flow .st {
   display: flex;
   flex-direction: column;
   gap: 3px;
   min-width: 0;
 }
 
-.flow .st .bar {
+.mds-flow .st .bar {
   height: 6px;
   border-radius: 2px;
-  background: var(--c-neutral);
+  background: var(--mds-c-neutral);
 }
 
-.flow .st.done .bar {
-  background: var(--c-ok);
+.mds-flow .st.done .bar {
+  background: var(--mds-c-ok);
 }
 
-.flow .st.now .bar {
-  background: var(--c-accent);
+.mds-flow .st.now .bar {
+  background: var(--mds-c-accent);
 }
 
-.flow .st.bad .bar {
-  background: var(--c-error);
+.mds-flow .st.bad .bar {
+  background: var(--mds-c-error);
 }
 
-.flow .st.hold .bar {
-  background: var(--c-warn);
+.mds-flow .st.hold .bar {
+  background: var(--mds-c-warn);
 }
 
-.flow .st .lbl {
+.mds-flow .st .lbl {
   font-size: 10px;
-  color: var(--c-muted);
+  color: var(--mds-c-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.flow .st.now .lbl {
-  color: var(--c-accent);
+.mds-flow .st.now .lbl {
+  color: var(--mds-c-accent);
   font-weight: 600;
 }
 
-.flow .st .when {
+.mds-flow .st .when {
   font-size: 10px;
-  color: var(--c-muted);
+  color: var(--mds-c-muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.psec-title .pencil {
+.mds-psec-title .pencil {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: var(--fs-xs);
-  color: var(--c-accent);
+  font-size: var(--mds-fs-xs);
+  color: var(--mds-c-accent);
   background: none;
   border: 0;
   cursor: pointer;
@@ -71,16 +71,16 @@
   font-weight: 500;
 }
 
-.psec-title .pencil svg {
+.mds-psec-title .pencil svg {
   width: 12px;
   height: 12px;
 }
 
-.psec.collapsed .psec-title {
+.mds-psec.collapsed .mds-psec-title {
   margin-bottom: 0;
 }
 
-.psec-title .toggle {
+.mds-psec-title .toggle {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -94,12 +94,12 @@
   padding: 0;
 }
 
-.psec-title .toggle svg {
+.mds-psec-title .toggle svg {
   display: none;
 }
 
 /* no chevrons: the heading itself folds the section */
-.psec-title .toggle:hover span {
+.mds-psec-title .toggle:hover span {
   text-decoration: underline dotted;
   text-underline-offset: 3px;
 }

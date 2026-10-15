@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: /^@mds\/ui\/styles\.css$/, replacement: resolve(__dirname, "../dist/styles.css") },
+      { find: /^@mds\/ui\/reset\.css$/, replacement: resolve(__dirname, "../dist/reset.css") },
       { find: /^@mds\/ui$/, replacement: resolve(__dirname, "../dist/index.js") },
     ],
     dedupe: ["react", "react-dom"],

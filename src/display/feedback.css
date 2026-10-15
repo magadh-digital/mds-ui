@@ -1,39 +1,39 @@
 /* Spinner, Progress, Avatar */
-.ui-spinner {
+.mds-spinner {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
-  color: var(--c-muted);
+  gap: var(--mds-sp-1);
+  color: var(--mds-c-muted);
 }
-.ui-progress {
+.mds-progress {
   display: grid;
   gap: 4px;
   min-width: 120px;
 }
-.ui-progress-head {
+.mds-progress-head {
   display: flex;
   justify-content: space-between;
-  font-size: var(--fs-sm);
-  color: var(--c-muted);
+  font-size: var(--mds-fs-sm);
+  color: var(--mds-c-muted);
 }
-.ui-progress-track {
+.mds-progress-track {
   position: relative;
   height: 6px;
   border-radius: 999px;
-  background: var(--c-hover);
+  background: var(--mds-c-hover);
   overflow: hidden;
 }
-.ui-progress-bar {
+.mds-progress-bar {
   height: 100%;
   border-radius: inherit;
-  background: var(--c-accent);
+  background: var(--mds-c-accent);
   transition: width 200ms ease;
 }
-.ui-progress.ok .ui-progress-bar { background: var(--c-ok); }
-.ui-progress.warn .ui-progress-bar { background: var(--c-warn); }
-.ui-progress.error .ui-progress-bar { background: var(--c-error); }
-.ui-progress.neutral .ui-progress-bar { background: var(--c-muted); }
-.ui-progress-track.indeterminate .ui-progress-bar {
+.mds-progress.ok .mds-progress-bar { background: var(--mds-c-ok); }
+.mds-progress.warn .mds-progress-bar { background: var(--mds-c-warn); }
+.mds-progress.error .mds-progress-bar { background: var(--mds-c-error); }
+.mds-progress.neutral .mds-progress-bar { background: var(--mds-c-muted); }
+.mds-progress-track.indeterminate .mds-progress-bar {
   position: absolute;
   width: 35%;
   animation: ui-progress-slide 1.1s ease-in-out infinite;
@@ -43,9 +43,9 @@
   to { left: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ui-progress-track.indeterminate .ui-progress-bar { animation: none; left: 0; width: 100%; opacity: 0.5; }
+  .mds-progress-track.indeterminate .mds-progress-bar { animation: none; left: 0; width: 100%; opacity: 0.5; }
 }
-.ui-avatar {
+.mds-avatar {
   display: inline-grid;
   place-items: center;
   flex: none;
@@ -55,7 +55,7 @@
   line-height: 1;
   user-select: none;
 }
-.ui-avatar img {
+.mds-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;

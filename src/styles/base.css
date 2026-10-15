@@ -1,0 +1,20 @@
+/*
+ * The kit's components bring their own basics whatever the page's CSS does: border-box sizing, and form controls
+ * that inherit the surrounding font. Zero specificity (:where), so any rule of the app still wins. The kit sets no
+ * font of its own: its elements, popovers included, read the page's. The opt-in reset.css gives the page the kit's
+ * font, background and scrollbars.
+ */
+:where([class^="mds-"], [class*=" mds-"]),
+:where([class^="mds-"], [class*=" mds-"]) * {
+  box-sizing: border-box;
+}
+:where([class^="mds-"], [class*=" mds-"]) :where(button, input, select, textarea),
+:where(button, input, select, textarea):where([class^="mds-"], [class*=" mds-"]) {
+  font: inherit;
+  color: inherit;
+  accent-color: var(--mds-c-accent);
+}
+:where([class^="mds-"], [class*=" mds-"]) a {
+  color: var(--mds-c-accent);
+  text-decoration: none;
+}

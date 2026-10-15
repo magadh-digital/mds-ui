@@ -34,7 +34,7 @@ export function Seg<T extends string>({
     (e.currentTarget.children[to] as HTMLElement | undefined)?.focus();
   };
   return (
-    <div className={`ui-seg${className ? ` ${className}` : ""}`} role="radiogroup" aria-label={label} onKeyDown={onKeyDown}>
+    <div className={`mds-seg${className ? ` ${className}` : ""}`} role="radiogroup" aria-label={label} onKeyDown={onKeyDown}>
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -69,7 +69,7 @@ export function Pills<T extends string>({
   label?: string;
 }) {
   return (
-    <div className="ui-pills" role="group" aria-label={label}>
+    <div className="mds-pills" role="group" aria-label={label}>
       {options.map((o) => {
         const on = o.value === value;
         return (

@@ -73,7 +73,7 @@ export function ColumnsPop<T>({
     <Pop
       placement="top-start"
       trigger={
-        <button type="button" className="ui-link">
+        <button type="button" className="mds-link">
           Customize columns
         </button>
       }
@@ -88,7 +88,7 @@ export function ColumnsPop<T>({
         return (
           <div
             key={id}
-            className={`colrow${onOrder ? " pagerow" : ""}${dragCls}`}
+            className={`mds-colrow${onOrder ? " mds-pagerow" : ""}${dragCls}`}
             {...dnd}
           >
             {onOrder && (
@@ -97,7 +97,7 @@ export function ColumnsPop<T>({
               </span>
             )}
             <label
-              className={`ui-check${fixed ? " disabled" : ""}`}
+              className={`mds-check${fixed ? " disabled" : ""}`}
               title={fixed ? "always shown" : undefined}
             >
               <input
@@ -111,10 +111,10 @@ export function ColumnsPop<T>({
               <span>{columnLabel(c.columnDef)}</span>
             </label>
             {onOrder && (
-              <span className="colmove">
+              <span className="mds-colmove">
                 <button
                   type="button"
-                  className="ui-iconbtn"
+                  className="mds-iconbtn"
                   aria-label="Move up"
                   title="Move up"
                   disabled={i === 0}
@@ -124,7 +124,7 @@ export function ColumnsPop<T>({
                 </button>
                 <button
                   type="button"
-                  className="ui-iconbtn"
+                  className="mds-iconbtn"
                   aria-label="Move down"
                   title="Move down"
                   disabled={i === ids.length - 1}
@@ -140,8 +140,8 @@ export function ColumnsPop<T>({
       {onOrder && order?.length ? (
         <button
           type="button"
-          className="ui-link"
-          style={{ marginTop: "var(--sp-1)" }}
+          className="mds-link"
+          style={{ marginTop: "var(--mds-sp-1)" }}
           onClick={() => onOrder([])}
         >
           Reset order

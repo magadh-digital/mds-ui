@@ -1,13 +1,13 @@
 /* ---------- selection + row menu ---------- */
-.ui-table th.sel,
-.ui-table td.sel {
+.mds-table th.sel,
+.mds-table td.sel {
   width: 30px;
   max-width: 30px;
-  padding: 0 0 0 var(--sp-2);
+  padding: 0 0 0 var(--mds-sp-2);
 }
 
-.ui-table th.sel input,
-.ui-table td.sel input {
+.mds-table th.sel input,
+.mds-table td.sel input {
   width: 14px;
   height: 14px;
   margin: 0;
@@ -16,71 +16,71 @@
   cursor: pointer;
 }
 
-.ui-table th.sel input:checked,
-.ui-table th.sel input:indeterminate,
-.ui-table th:hover.sel input,
-.ui-table tbody tr:hover td.sel input,
-.ui-table tbody tr.checked td.sel input,
-.ui-table tbody tr:focus-within td.sel input {
+.mds-table th.sel input:checked,
+.mds-table th.sel input:indeterminate,
+.mds-table th:hover.sel input,
+.mds-table tbody tr:hover td.sel input,
+.mds-table tbody tr.checked td.sel input,
+.mds-table tbody tr:focus-within td.sel input {
   opacity: 1;
 }
 
-.ui-table tbody tr.checked td {
-  background: var(--c-accent-soft);
+.mds-table tbody tr.checked td {
+  background: var(--mds-c-accent-soft);
 }
 
-.ui-table tbody tr.dropping td {
-  background: var(--c-accent-soft);
+.mds-table tbody tr.dropping td {
+  background: var(--mds-c-accent-soft);
   box-shadow:
-    inset 0 1px 0 var(--c-accent),
-    inset 0 -1px 0 var(--c-accent);
+    inset 0 1px 0 var(--mds-c-accent),
+    inset 0 -1px 0 var(--mds-c-accent);
 }
 
-.ui-table tbody tr.checked:hover td {
-  background: color-mix(in srgb, var(--c-accent-soft), var(--c-hover));
+.mds-table tbody tr.checked:hover td {
+  background: color-mix(in srgb, var(--mds-c-accent-soft), var(--mds-c-hover));
 }
 
-.ui-table tbody tr:focus {
+.mds-table tbody tr:focus {
   outline: none;
 }
 
-.ui-table tbody tr:focus-visible td:first-child {
-  box-shadow: inset 2px 0 0 var(--c-accent);
+.mds-table tbody tr:focus-visible td:first-child {
+  box-shadow: inset 2px 0 0 var(--mds-c-accent);
 }
 
-.ui-table th.rowmenu,
-.ui-table td.rowmenu {
+.mds-table th.rowmenu,
+.mds-table td.rowmenu {
   width: 30px;
   max-width: 30px;
   padding: 0;
   text-align: center;
 }
 
-.ui-table td.rowmenu .ui-iconbtn {
+.mds-table td.rowmenu .mds-iconbtn {
   width: 22px;
   height: 22px;
   opacity: 0;
   margin: 0 auto;
 }
 
-.ui-table tbody tr:hover td.rowmenu .ui-iconbtn,
-.ui-table tbody tr:focus-within td.rowmenu .ui-iconbtn,
-.ui-table td.rowmenu .ui-iconbtn:focus-visible {
+.mds-table tbody tr:hover td.rowmenu .mds-iconbtn,
+.mds-table tbody tr:focus-within td.rowmenu .mds-iconbtn,
+.mds-table td.rowmenu .mds-iconbtn:focus-visible {
   opacity: 1;
 }
 
 @media (pointer: coarse) {
 
-  .ui-table td.rowmenu .ui-iconbtn,
-  .ui-table td.sel input {
+  .mds-table td.rowmenu .mds-iconbtn,
+  .mds-table td.sel input {
     opacity: 1;
   }
 }
 
-.bulkbar .ui-btn {
-  height: calc(var(--ctl-h) - 4px);
+.mds-bulkbar .mds-btn {
+  height: calc(var(--mds-ctl-h) - 4px);
 }
 
-.bulkbar .ui-kbd {
-  margin-left: var(--sp-1);
+.mds-bulkbar .mds-kbd {
+  margin-left: var(--mds-sp-1);
 }

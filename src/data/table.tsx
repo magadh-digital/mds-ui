@@ -482,10 +482,10 @@ export function DenseTable<T>({
 
   return (
     <>
-      <div className={`ui-table-host${bare ? " bare" : ""}`}>
-      <div ref={wrapRef} className={`ui-table-wrap${wrapperClassName ? ` ${wrapperClassName}` : ""}`}>
+      <div className={`mds-table-host${bare ? " bare" : ""}`}>
+      <div ref={wrapRef} className={`mds-table-wrap${wrapperClassName ? ` ${wrapperClassName}` : ""}`}>
         <table
-          className={`ui-table${lines === 2 ? " two-line" : lines === 3 ? " three-line" : ""}${className ? ` ${className}` : ""}`}
+          className={`mds-table${lines === 2 ? " two-line" : lines === 3 ? " three-line" : ""}${className ? ` ${className}` : ""}`}
           aria-label={label}
         >
           <thead>
@@ -562,20 +562,20 @@ export function DenseTable<T>({
           </thead>
           <tbody>
             {waiting && rows.length === 0 && (
-              <tr className="ui-table-pending" style={{ cursor: "default" }}>
+              <tr className="mds-table-pending" style={{ cursor: "default" }}>
                 <td colSpan={colCount} />
               </tr>
             )}
             {!(waiting && rows.length === 0) && error && (
               <tr>
-                <td colSpan={colCount} className="ui-error">
+                <td colSpan={colCount} className="mds-error">
                   {error}
                 </td>
               </tr>
             )}
             {!waiting && !error && rows.length === 0 && (
               <tr style={{ cursor: "default" }}>
-                <td colSpan={colCount} className="ui-empty">
+                <td colSpan={colCount} className="mds-empty">
                   {emptyText}
                 </td>
               </tr>
@@ -722,10 +722,10 @@ export function DenseTable<T>({
         </table>
       </div>
       {loading && !bare && (
-        <div className="ui-table-loading" role="status" aria-live="polite">
-          <span className="ui-table-loading-spin">
-            <Loader2 className="ui-spin" aria-hidden />
-            <span className="sr-only">Loading</span>
+        <div className="mds-table-loading" role="status" aria-live="polite">
+          <span className="mds-table-loading-spin">
+            <Loader2 className="mds-spin" aria-hidden />
+            <span className="mds-sr-only">Loading</span>
           </span>
         </div>
       )}

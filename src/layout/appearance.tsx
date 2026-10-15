@@ -77,12 +77,13 @@ export function applyAppearance(
   detailView: DetailView = "panel",
 ) {
   const root = document.documentElement;
-  root.setAttribute("data-density", density);
-  root.setAttribute("data-panel", panelWidth);
-  root.setAttribute("data-detail", detailView);
-  root.classList.toggle(
-    "dark",
-    theme === "dark" || (theme === "system" && systemDark()),
+  // the kit's own attributes on <html> (never a bare class like .dark, which other CSS frameworks also read)
+  root.setAttribute("data-mds-density", density);
+  root.setAttribute("data-mds-panel", panelWidth);
+  root.setAttribute("data-mds-detail", detailView);
+  root.setAttribute(
+    "data-mds-theme",
+    theme === "dark" || (theme === "system" && systemDark()) ? "dark" : "light",
   );
 }
 

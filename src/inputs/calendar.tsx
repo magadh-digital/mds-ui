@@ -132,31 +132,31 @@ export function CalendarMonth({
 
   const title = t.title(view);
   return (
-    <div className="daterange-month">
-      <div className="daterange-head">
-        <button type="button" className="daterange-nav prev" aria-label="Previous month" onClick={() => setView(view.subtract(1, "month"))} />
-        <div className="daterange-title" aria-live="polite">
+    <div className="mds-daterange-month">
+      <div className="mds-daterange-head">
+        <button type="button" className="mds-daterange-nav prev" aria-label="Previous month" onClick={() => setView(view.subtract(1, "month"))} />
+        <div className="mds-daterange-title" aria-live="polite">
           {title}
         </div>
-        <button type="button" className="daterange-nav next" aria-label="Next month" onClick={() => setView(view.add(1, "month"))} />
+        <button type="button" className="mds-daterange-nav next" aria-label="Next month" onClick={() => setView(view.add(1, "month"))} />
       </div>
-      <div className="daterange-dows" aria-hidden>
+      <div className="mds-daterange-dows" aria-hidden>
         {Array.from({ length: 7 }, (_, i) => (
-          <span key={i} className="daterange-dow">
+          <span key={i} className="mds-daterange-dow">
             {t.dows[(weekStartsOn + i) % 7]}
           </span>
         ))}
       </div>
-      <div className="daterange-grid" role="grid" aria-label={title} ref={grid} onKeyDown={onKey}>
+      <div className="mds-daterange-grid" role="grid" aria-label={title} ref={grid} onKeyDown={onKey}>
         {Array.from({ length: weeks }, (_, w) => (
-          <div key={w} role="row" className="daterange-week">
+          <div key={w} role="row" className="mds-daterange-week">
             {days.slice(w * 7, w * 7 + 7).map((d) => {
               const k = iso(d);
               const inRange = lo != null && hi != null && k >= lo && k <= hi;
               const edge = k === lo || k === hi;
               const off = out(k);
               const cls = [
-                "daterange-day",
+                "mds-daterange-day",
                 !d.isSame(view, "month") && "outside",
                 k === today && "today",
                 inRange && "in-range",
@@ -240,7 +240,7 @@ export function DateTrigger({
           setRef(ref, el);
         }}
         type="button"
-        className="ui-btn daterange"
+        className="mds-btn daterange"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={name ? `${name}, ${label}` : undefined}
@@ -249,14 +249,14 @@ export function DateTrigger({
         style={{
           width: "100%",
           justifyContent: "flex-start",
-          borderColor: "var(--c-border)",
-          color: empty ? "var(--c-muted)" : "var(--c-text)",
+          borderColor: "var(--mds-c-border)",
+          color: empty ? "var(--mds-c-muted)" : "var(--mds-c-text)",
           fontWeight: empty || pending ? 400 : 600,
           fontStyle: pending ? "italic" : "normal",
           paddingRight: clearable ? 28 : undefined,
         }}
       >
-        <Calendar aria-hidden style={{ width: 14, height: 14, color: "var(--c-muted)", flexShrink: 0 }} />
+        <Calendar aria-hidden style={{ width: 14, height: 14, color: "var(--mds-c-muted)", flexShrink: 0 }} />
         <span id={textId} style={{ flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {label}
         </span>
@@ -264,7 +264,7 @@ export function DateTrigger({
       {clearable && (
         <button
           type="button"
-          className="daterange-clear"
+          className="mds-daterange-clear"
           aria-label={name ? `Clear ${name}` : "Clear date"}
           title="Clear"
           onClick={(e) => {

@@ -1,80 +1,80 @@
 /* ---------- context menu ---------- */
-.ctxmenu {
+.mds-ctxmenu {
   position: fixed;
   z-index: 1300; /* floating.tsx MENU_Z (set inline; this is the same value) */
-  min-width: calc(200px * var(--layout-scale));
-  background: var(--c-surface);
-  color: var(--c-text);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-pop);
-  padding: var(--sp-1);
-  font-size: var(--fs-md);
+  min-width: calc(200px * var(--mds-layout-scale));
+  background: var(--mds-c-surface);
+  color: var(--mds-c-text);
+  border: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-md);
+  box-shadow: var(--mds-shadow-pop);
+  padding: var(--mds-sp-1);
+  font-size: var(--mds-fs-md);
   outline: 0;
 }
 
-.ctxmenu .title {
-  font-size: var(--fs-xs);
+.mds-ctxmenu .title {
+  font-size: var(--mds-fs-xs);
   font-weight: 700;
-  color: var(--c-muted);
-  padding: var(--sp-1) var(--sp-2) 2px;
+  color: var(--mds-c-muted);
+  padding: var(--mds-sp-1) var(--mds-sp-2) 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(320px * var(--layout-scale));
+  max-width: calc(320px * var(--mds-layout-scale));
 }
 
-.ctxmenu .sep {
-  border-top: 1px solid var(--c-border);
-  margin: var(--sp-1) 0;
+.mds-ctxmenu .sep {
+  border-top: 1px solid var(--mds-c-border);
+  margin: var(--mds-sp-1) 0;
 }
 
-.ctxmenu .mi {
+.mds-ctxmenu .mi {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--mds-sp-2);
   width: 100%;
-  height: calc(var(--row-h) - 2px);
-  padding: 0 var(--sp-2);
+  height: calc(var(--mds-row-h) - 2px);
+  padding: 0 var(--mds-sp-2);
   border: 0;
   background: transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--mds-radius-sm);
   cursor: pointer;
   text-align: left;
-  font-size: var(--fs-md);
+  font-size: var(--mds-fs-md);
   color: inherit;
 }
 
-.ctxmenu .mi:hover,
-.ctxmenu .mi.active {
-  background: var(--c-hover);
+.mds-ctxmenu .mi:hover,
+.mds-ctxmenu .mi.active {
+  background: var(--mds-c-hover);
 }
 
-.ctxmenu .mi:disabled {
-  color: var(--c-neutral);
+.mds-ctxmenu .mi:disabled {
+  color: var(--mds-c-neutral);
   cursor: default;
   background: transparent;
 }
 
-.ctxmenu .mi.danger {
-  color: var(--c-error);
+.mds-ctxmenu .mi.danger {
+  color: var(--mds-c-error);
 }
 
-.ctxmenu .mi svg {
-  width: var(--icon-sm);
-  height: var(--icon-sm);
-  color: var(--c-muted);
+.mds-ctxmenu .mi svg {
+  width: var(--mds-icon-sm);
+  height: var(--mds-icon-sm);
+  color: var(--mds-c-muted);
   flex: none;
 }
 
-.ctxmenu .mi.danger svg {
-  color: var(--c-error);
+.mds-ctxmenu .mi.danger svg {
+  color: var(--mds-c-error);
 }
 
-.ctxmenu .mi .ui-kbd {
-  margin-left: var(--sp-3);
+.mds-ctxmenu .mi .mds-kbd {
+  margin-left: var(--mds-sp-3);
 }
 
-.ctxmenu .confirm {
-  min-width: calc(260px * var(--layout-scale));
+.mds-ctxmenu .mds-confirm {
+  min-width: calc(260px * var(--mds-layout-scale));
 }

@@ -7,7 +7,7 @@ export function CopyButton({ text, label = "Copy" }: { text: string; label?: str
   return (
     <button
       type="button"
-      className="ui-iconbtn copy"
+      className="mds-iconbtn copy"
       style={{ width: 20, height: 20 }}
       title={label}
       aria-label={done ? "Copied" : label}
@@ -50,7 +50,7 @@ export function IconAction({
     <button
       ref={ref}
       type="button"
-      className={`ui-iconbtn sm ${danger ? "danger" : ""} ${className ?? ""}`}
+      className={`mds-iconbtn sm ${danger ? "danger" : ""} ${className ?? ""}`}
       title={label}
       aria-label={label}
       {...rest}
@@ -73,7 +73,7 @@ export function AddLink({
     <button
       ref={ref}
       type="button"
-      className={`ui-link nowrap ${className ?? ""}`}
+      className={`mds-link nowrap ${className ?? ""}`}
       {...rest}
     >
       <Plus aria-hidden /> {label}

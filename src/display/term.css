@@ -1,42 +1,42 @@
 /* words with a meaning on hover (display/term.tsx) */
-.term {
+.mds-term {
   cursor: help;
   text-decoration: underline dotted transparent;
   text-underline-offset: 3px;
   transition: text-decoration-color 0.12s;
 }
 
-.term:hover {
-  text-decoration-color: var(--c-muted);
+.mds-term:hover {
+  text-decoration-color: var(--mds-c-muted);
 }
 
-.term-old {
-  color: var(--c-muted);
+.mds-term-old {
+  color: var(--mds-c-muted);
   font-weight: 400;
-  font-size: var(--fs-xs);
+  font-size: var(--mds-fs-xs);
   white-space: nowrap;
 }
 
-.ui-tip .term-tip {
+.mds-tip .term-tip {
   max-width: 320px;
   white-space: normal;
   line-height: 1.35;
   padding: 2px 0;
 }
 
-.term-tip-title {
+.mds-term-tip-title {
   font-weight: 600;
   margin-bottom: 2px;
 }
 
-.term-tip-old {
+.mds-term-tip-old {
   opacity: 0.72;
   margin-top: 3px;
 }
 
 /* a word with a meaning takes the keyboard focus, so its hover shows for keyboard users too */
-.term:focus-visible {
-  outline: 2px solid var(--c-accent);
+.mds-term:focus-visible {
+  outline: 2px solid var(--mds-c-accent);
   outline-offset: 2px;
   border-radius: 2px;
 }

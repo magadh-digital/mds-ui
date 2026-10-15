@@ -1,27 +1,27 @@
 /* the docs site's own layout; everything else is the kit */
 .doc-layout { display: flex; min-height: 0; height: 100%; }
-.doc-nav { display: grid; gap: 2px; padding: var(--sp-2); }
-.doc-nav-title { font-size: var(--fs-xs); font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: var(--sp-1) var(--sp-1) var(--sp-2); }
+.doc-nav { display: grid; gap: 2px; padding: var(--mds-sp-2); }
+.doc-nav-title { font-size: var(--mds-fs-xs); font-weight: 700; color: var(--mds-c-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: var(--mds-sp-1) var(--mds-sp-1) var(--mds-sp-2); }
 .doc-main { flex: 1; min-width: 0; overflow: auto; padding: 28px 40px 80px; }
 .doc-page { max-width: 920px; margin: 0 auto; display: grid; gap: 28px; }
 .doc-page h1 { margin: 0; font-size: 28px; letter-spacing: -0.01em; }
-.doc-lead { margin: -14px 0 0; color: var(--c-muted); font-size: var(--fs-lg); line-height: 1.55; max-width: 68ch; }
+.doc-lead { margin: -14px 0 0; color: var(--mds-c-muted); font-size: var(--mds-fs-lg); line-height: 1.55; max-width: 68ch; }
 .doc-section { display: grid; gap: 12px; }
-.doc-section h2 { margin: 0; font-size: 18px; padding-bottom: 6px; border-bottom: 1px solid var(--c-border); }
+.doc-section h2 { margin: 0; font-size: 18px; padding-bottom: 6px; border-bottom: 1px solid var(--mds-c-border); }
 .doc-section p { margin: 0; line-height: 1.6; max-width: 72ch; }
-.doc-page code { font-family: var(--font-mono); font-size: 0.92em; background: var(--c-hover); padding: 1px 5px; border-radius: 4px; }
+.doc-page code { font-family: var(--mds-font-mono); font-size: 0.92em; background: var(--mds-c-hover); padding: 1px 5px; border-radius: 4px; }
 .doc-code { position: relative; }
-.doc-code pre { margin: 0; padding: 14px 16px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-md); overflow: auto; font-size: 12.5px; line-height: 1.6; }
+.doc-code pre { margin: 0; padding: 14px 16px; background: var(--mds-c-surface); border: 1px solid var(--mds-c-border); border-radius: var(--mds-radius-md); overflow: auto; font-size: 12.5px; line-height: 1.6; }
 .doc-code pre code { background: none; padding: 0; }
-.doc-copy { position: absolute; top: 8px; right: 8px; font: inherit; font-size: var(--fs-xs); color: var(--c-muted); background: var(--c-canvas); border: 1px solid var(--c-border); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
-.doc-copy:hover { color: var(--c-text); }
-.doc-demo { margin: 0; border: 1px solid var(--c-border); border-radius: var(--radius-md); overflow: hidden; background: var(--c-surface); }
-.doc-demo-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--c-border); background: var(--c-canvas); }
-.doc-demo-head figcaption { font-weight: 600; font-size: var(--fs-sm); }
+.doc-copy { position: absolute; top: 8px; right: 8px; font: inherit; font-size: var(--mds-fs-xs); color: var(--mds-c-muted); background: var(--mds-c-canvas); border: 1px solid var(--mds-c-border); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
+.doc-copy:hover { color: var(--mds-c-text); }
+.doc-demo { margin: 0; border: 1px solid var(--mds-c-border); border-radius: var(--mds-radius-md); overflow: hidden; background: var(--mds-c-surface); }
+.doc-demo-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--mds-c-border); background: var(--mds-c-canvas); }
+.doc-demo-head figcaption { font-weight: 600; font-size: var(--mds-fs-sm); }
 .doc-demo-body { padding: 20px; display: grid; gap: 12px; }
 .doc-demo .doc-code pre { border: 0; border-radius: 0; }
 .doc-props { display: grid; gap: 6px; }
 .doc-prop { font-weight: 600; }
 .doc-type { white-space: normal; word-break: break-word; }
-.doc-source { margin: 0; font-size: var(--fs-xs); color: var(--c-muted); }
+.doc-source { margin: 0; font-size: var(--mds-fs-xs); color: var(--mds-c-muted); }
 @media (max-width: 760px) { .doc-main { padding: 20px 16px 60px; } }

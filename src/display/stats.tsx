@@ -19,23 +19,23 @@ export type ToolbarStat = {
 export function ToolbarStats({ items }: { items: Array<ToolbarStat> }) {
   if (!items.length) return null;
   return (
-    <div className="ui-tstats">
+    <div className="mds-tstats">
       {items.map((t) => {
         const body = (
           <>
-            <span className={`ui-tstat-v ui-num ${t.tone ?? ""}`}>
+            <span className={`mds-tstat-v mds-num ${t.tone ?? ""}`}>
               {t.value}
-              {t.sub != null && <span className="ui-tstat-s">{t.sub}</span>}
+              {t.sub != null && <span className="mds-tstat-s">{t.sub}</span>}
             </span>
-            <span className="ui-tstat-l">{t.label}</span>
+            <span className="mds-tstat-l">{t.label}</span>
           </>
         );
         return t.onClick ? (
-          <button key={t.key ?? t.label} type="button" className="ui-tstat" title={t.title} onClick={t.onClick}>
+          <button key={t.key ?? t.label} type="button" className="mds-tstat" title={t.title} onClick={t.onClick}>
             {body}
           </button>
         ) : (
-          <span key={t.key ?? t.label} className="ui-tstat" title={t.title}>
+          <span key={t.key ?? t.label} className="mds-tstat" title={t.title}>
             {body}
           </span>
         );

@@ -81,8 +81,8 @@ export function DateInput({
   ]);
   const today = iso(date());
   return (
-    <div className={`daterange-root dateinput${bad ? " invalid" : ""}`}>
-      <div className="daterange-wrap">
+    <div className={`mds-daterange-root mds-dateinput${bad ? " invalid" : ""}`}>
+      <div className="mds-daterange-wrap">
         <DateTrigger
           ref={refs.setReference}
           id={fieldId}
@@ -104,12 +104,12 @@ export function DateInput({
           <FloatingFocusManager context={context} modal={false} initialFocus={-1} returnFocus>
             <div
               ref={refs.setFloating}
-              className="daterange-pop"
+              className="mds-daterange-pop"
               data-status={motion.status}
               style={{ ...floatingStyles, ...motion.styles, zIndex: LAYER_Z }}
               {...getFloatingProps()}
             >
-              <div className="daterange-cal" role="dialog" aria-label={label ? `Pick ${label}` : "Pick a date"}>
+              <div className="mds-daterange-cal" role="dialog" aria-label={label ? `Pick ${label}` : "Pick a date"}>
                 <CalendarMonth
                   view={view}
                   setView={setView}
@@ -123,12 +123,12 @@ export function DateInput({
                   min={min}
                   max={max}
                 />
-                <div className="daterange-foot dateinput-foot">
-                  <button type="button" className="ui-link" disabled={out(today)} onClick={() => pick(date())}>
+                <div className="mds-daterange-foot mds-dateinput-foot">
+                  <button type="button" className="mds-link" disabled={out(today)} onClick={() => pick(date())}>
                     Today
                   </button>
                   {clearable && picked && (
-                    <button type="button" className="ui-link" onClick={() => { onChange(""); setOpenState(false); }}>
+                    <button type="button" className="mds-link" onClick={() => { onChange(""); setOpenState(false); }}>
                       Clear
                     </button>
                   )}

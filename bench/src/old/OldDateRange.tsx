@@ -103,14 +103,14 @@ const Trigger = forwardRef<
     <button
       ref={ref}
       type="button"
-      className={`ui-btn daterange ${className ?? ""}`}
+      className={`mds-btn daterange ${className ?? ""}`}
       onClick={onClick}
       title="Pick a day, or click a start and an end for a range"
       style={{
         width: "100%",
         justifyContent: "flex-start",
-        borderColor: "var(--c-border)",
-        color: empty ? "var(--c-muted)" : "var(--c-text)",
+        borderColor: "var(--mds-c-border)",
+        color: empty ? "var(--mds-c-muted)" : "var(--mds-c-text)",
         fontWeight: empty || pending ? 400 : 600,
         fontStyle: pending ? "italic" : "normal",
       }}
@@ -119,7 +119,7 @@ const Trigger = forwardRef<
         style={{
           width: 14,
           height: 14,
-          color: "var(--c-muted)",
+          color: "var(--mds-c-muted)",
           flexShrink: 0,
         }}
       />
@@ -147,7 +147,7 @@ const Trigger = forwardRef<
           style={{
             display: "inline-grid",
             placeItems: "center",
-            color: "var(--c-muted)",
+            color: "var(--mds-c-muted)",
             borderRadius: 999,
           }}
         >
@@ -211,8 +211,8 @@ export function DateRange({
       : emptyLabel;
 
   const footer = (
-    <div className="daterange-foot">
-      <div className="ui-seg" role="tablist" style={{ alignSelf: "stretch" }}>
+    <div className="mds-daterange-foot">
+      <div className="mds-seg" role="tablist" style={{ alignSelf: "stretch" }}>
         <button
           type="button"
           role="tab"
@@ -236,7 +236,7 @@ export function DateRange({
         </button>
       </div>
       <div
-        className="daterange-shortcuts"
+        className="mds-daterange-shortcuts"
         // two even rows whatever the number of shortcuts; one row when there are only a few
         style={{
           gridTemplateColumns: `repeat(${shown.length > 3 ? Math.ceil(shown.length / 2) : shown.length}, minmax(0, 1fr))`,
@@ -290,14 +290,14 @@ export function DateRange({
         onClear={allowAll ? () => commit({}) : undefined}
       />
     ),
-    wrapperClassName: "daterange-wrap",
-    calendarClassName: "daterange-cal",
+    wrapperClassName: "mds-daterange-wrap",
+    calendarClassName: "mds-daterange-cal",
     portalId: "daterange-portal",
     showPopperArrow: false,
     dateFormat: "dd/MM/yyyy",
   };
   return (
-    <div className="daterange-root" ref={rootRef}>
+    <div className="mds-daterange-root" ref={rootRef}>
       {mode === "day" ? (
         <DatePicker
           {...shared}

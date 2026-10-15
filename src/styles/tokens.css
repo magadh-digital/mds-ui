@@ -1,162 +1,119 @@
-/* ---------- Tokens: colours, sizes, density. Every size derives from --ui-scale. ---------- */
+/* ---------- Tokens: colours, sizes, density. Every size derives from --mds-ui-scale. ---------- */
 :root {
-  --ui-scale: 1;
-  --font-ui:
+  --mds-ui-scale: 1;
+  --mds-font-ui:
     -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --mds-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-:root[data-density="comfortable"] {
-  --ui-scale: 1.15;
+:root[data-mds-density="comfortable"] {
+  --mds-ui-scale: 1.15;
   /* MUI Data Grid "standard" */
-  --table-row-h: 52px;
-  --table-row-2: 64px;
-  --table-row-3: 80px;
-  --table-head-h: 56px;
+  --mds-table-row-h: 52px;
+  --mds-table-row-2: 64px;
+  --mds-table-row-3: 80px;
+  --mds-table-head-h: 56px;
 }
 
-:root[data-density="large"] {
-  --ui-scale: 1.3;
+:root[data-mds-density="large"] {
+  --mds-ui-scale: 1.3;
   /* MUI Data Grid "comfortable" */
-  --table-row-h: 67px;
-  --table-row-2: 80px;
-  --table-row-3: 96px;
-  --table-head-h: 67px;
+  --mds-table-row-h: 67px;
+  --mds-table-row-2: 80px;
+  --mds-table-row-3: 96px;
+  --mds-table-head-h: 67px;
 }
 
-:root[data-panel="narrow"] {
-  --panel-w: calc(560px * var(--layout-scale));
+:root[data-mds-panel="narrow"] {
+  --mds-panel-w: calc(560px * var(--mds-layout-scale));
 }
 
-:root[data-panel="wide"] {
-  --panel-w: calc(800px * var(--layout-scale));
+:root[data-mds-panel="wide"] {
+  --mds-panel-w: calc(800px * var(--mds-layout-scale));
 }
 
-:root[data-panel="wider"] {
-  --panel-w: calc(960px * var(--layout-scale));
+:root[data-mds-panel="wider"] {
+  --mds-panel-w: calc(960px * var(--mds-layout-scale));
 }
 
 :root {
-  --layout-scale: min(var(--ui-scale), 1.15);
-  --fs-xs: calc(11px * var(--ui-scale));
-  --fs-sm: calc(12px * var(--ui-scale));
-  --fs-md: calc(13px * var(--ui-scale));
-  --fs-lg: calc(14px * var(--ui-scale));
-  --fs-xl: calc(18px * var(--ui-scale));
-  --sp-1: calc(4px * var(--ui-scale));
-  --sp-2: calc(8px * var(--ui-scale));
-  --sp-3: calc(12px * var(--ui-scale));
-  --sp-4: calc(16px * var(--ui-scale));
-  --row-h: calc(30px * var(--ui-scale));
+  --mds-layout-scale: min(var(--mds-ui-scale), 1.15);
+  --mds-fs-xs: calc(11px * var(--mds-ui-scale));
+  --mds-fs-sm: calc(12px * var(--mds-ui-scale));
+  --mds-fs-md: calc(13px * var(--mds-ui-scale));
+  --mds-fs-lg: calc(14px * var(--mds-ui-scale));
+  --mds-fs-xl: calc(18px * var(--mds-ui-scale));
+  --mds-sp-1: calc(4px * var(--mds-ui-scale));
+  --mds-sp-2: calc(8px * var(--mds-ui-scale));
+  --mds-sp-3: calc(12px * var(--mds-ui-scale));
+  --mds-sp-4: calc(16px * var(--mds-ui-scale));
+  --mds-row-h: calc(30px * var(--mds-ui-scale));
   /* table rows (every DenseTable / .ui-table), after the MUI Data Grid densities: the default sits a little above
      MUI compact with a little more room (40 px rows, 44 px header, 10 px cell padding); the other
      densities are MUI standard (52 / 56) and comfortable (67 / 67).
-     Kept apart from --row-h, which also sizes sidebar rows and controls. Two-line rows (value + muted
-     detail) use --table-row-2. */
-  --table-row-h: 40px;
-  --table-row-2: 52px;
-  --table-row-3: 68px;
-  --table-head-h: 44px;
-  --table-cell-px: 10px;
-  --ctl-h: calc(28px * var(--ui-scale));
-  --icon-sm: calc(16px * var(--ui-scale));
-  --icon-md: calc(20px * var(--ui-scale));
-  --rail-w: calc(48px * var(--layout-scale));
-  --topbar-h: calc(48px * var(--layout-scale));
-  --sidebar-w: calc(264px * var(--layout-scale));
-  --panel-w: calc(680px * var(--layout-scale));
+     Kept apart from --mds-row-h, which also sizes sidebar rows and controls. Two-line rows (value + muted
+     detail) use --mds-table-row-2. */
+  --mds-table-row-h: 40px;
+  --mds-table-row-2: 52px;
+  --mds-table-row-3: 68px;
+  --mds-table-head-h: 44px;
+  --mds-table-cell-px: 10px;
+  --mds-ctl-h: calc(28px * var(--mds-ui-scale));
+  --mds-icon-sm: calc(16px * var(--mds-ui-scale));
+  --mds-icon-md: calc(20px * var(--mds-ui-scale));
+  --mds-rail-w: calc(48px * var(--mds-layout-scale));
+  --mds-topbar-h: calc(48px * var(--mds-layout-scale));
+  --mds-sidebar-w: calc(264px * var(--mds-layout-scale));
+  --mds-panel-w: calc(680px * var(--mds-layout-scale));
   /* the detail panel: 680 px by default; a user preference (Appearance › Detail panel), see :root[data-panel] below */
-  --panel-pad: var(--sp-4);
+  --mds-panel-pad: var(--mds-sp-4);
   /* the panel's side padding: sections, head, foot */
-  --kv-k: calc(130px * var(--ui-scale));
+  --mds-kv-k: calc(130px * var(--mds-ui-scale));
   /* the key-value label column */
-  --radius-sm: 4px;
-  --radius-md: 6px;
+  --mds-radius-sm: 4px;
+  --mds-radius-md: 6px;
 
-  --c-canvas: #f6f7f9;
-  --c-surface: #ffffff;
-  --c-border: #e5e7eb;
-  --c-text: #1f2328;
-  --c-muted: #6b7280;
-  --c-accent: #006fff;
-  --c-accent-soft: rgba(0, 111, 255, 0.08);
-  --c-hover: #f3f4f6;
-  --c-ok: #22c55e;
-  --c-warn: #f59e0b;
-  --c-error: #ef4444;
-  --c-purple: #7c3aed;
+  --mds-c-canvas: #f6f7f9;
+  --mds-c-surface: #ffffff;
+  --mds-c-border: #e5e7eb;
+  --mds-c-text: #1f2328;
+  --mds-c-muted: #6b7280;
+  --mds-c-accent: #006fff;
+  --mds-c-accent-soft: rgba(0, 111, 255, 0.08);
+  --mds-c-hover: #f3f4f6;
+  --mds-c-ok: #22c55e;
+  --mds-c-warn: #f59e0b;
+  --mds-c-error: #ef4444;
+  --mds-c-purple: #7c3aed;
   /* text on a filled accent / tone background */
-  --c-on-accent: #ffffff;
-  --c-neutral: #d1d5db;
-  --shadow-pop:
+  --mds-c-on-accent: #ffffff;
+  --mds-c-neutral: #d1d5db;
+  --mds-shadow-pop:
     0 8px 24px rgba(16, 24, 40, 0.12), 0 1px 2px rgba(16, 24, 40, 0.08);
   color-scheme: light;
 }
 
-:root.dark {
-  --c-canvas: #111317;
-  --c-surface: #1b1e24;
-  --c-border: #2a2e35;
-  --c-text: #e6e8eb;
-  --c-muted: #9aa0a6;
-  --c-accent: #3b8cff;
-  --c-accent-soft: rgba(59, 140, 255, 0.14);
-  --c-hover: #22262e;
-  --c-neutral: #3a3f47;
-  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+:root[data-mds-theme="dark"] {
+  --mds-c-canvas: #111317;
+  --mds-c-surface: #1b1e24;
+  --mds-c-border: #2a2e35;
+  --mds-c-text: #e6e8eb;
+  --mds-c-muted: #9aa0a6;
+  --mds-c-accent: #3b8cff;
+  --mds-c-accent-soft: rgba(59, 140, 255, 0.14);
+  --mds-c-hover: #22262e;
+  --mds-c-neutral: #3a3f47;
+  --mds-shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
   color-scheme: dark;
-  --c-purple: #a78bfa;
-  --c-on-accent: #ffffff;
+  --mds-c-purple: #a78bfa;
+  --mds-c-on-accent: #ffffff;
 }
 
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-}
 
-body {
-  background: var(--c-canvas);
-  color: var(--c-text);
-  font-family: var(--font-ui);
-  font-size: var(--fs-md);
-  line-height: 1.35;
-  -webkit-font-smoothing: antialiased;
-}
 
-* {
-  box-sizing: border-box;
-  scrollbar-width: thin;
-  scrollbar-color: var(--c-neutral) transparent;
-}
 
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
 
-*::-webkit-scrollbar-thumb {
-  background: var(--c-neutral);
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
 
-a {
-  color: var(--c-accent);
-  text-decoration: none;
-}
 
-button {
-  font: inherit;
-  color: inherit;
-}
 
-input,
-select {
-  font: inherit;
-  color: inherit;
-  accent-color: var(--c-accent);
-}

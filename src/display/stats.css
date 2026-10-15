@@ -1,53 +1,53 @@
 /* ToolbarStats: headline figures inline in a toolbar */
-.ui-tstats {
+.mds-tstats {
   display: flex;
   align-items: center;
-  gap: var(--sp-1);
-  margin-right: var(--sp-2);
+  gap: var(--mds-sp-1);
+  margin-right: var(--mds-sp-2);
   min-width: 0;
   overflow: hidden;
 }
-.ui-tstat {
+.mds-tstat {
   display: inline-flex;
   align-items: baseline;
   gap: 5px;
   padding: 3px 8px;
   border: 0;
-  border-left: 1px solid var(--c-border);
+  border-left: 1px solid var(--mds-c-border);
   background: transparent;
   color: inherit;
   font: inherit;
   white-space: nowrap;
 }
-.ui-tstat:first-child {
+.mds-tstat:first-child {
   border-left: 0;
 }
-button.ui-tstat {
+button.mds-tstat {
   cursor: pointer;
-  border-radius: var(--radius-sm);
+  border-radius: var(--mds-radius-sm);
 }
-button.ui-tstat:hover {
-  background: var(--c-hover);
+button.mds-tstat:hover {
+  background: var(--mds-c-hover);
 }
-.ui-tstat-v {
+.mds-tstat-v {
   font-weight: 600;
-  font-size: var(--fs-lg);
+  font-size: var(--mds-fs-lg);
 }
-.ui-tstat-v.ok {
-  color: var(--c-ok);
+.mds-tstat-v.ok {
+  color: var(--mds-c-ok);
 }
-.ui-tstat-v.error {
-  color: var(--c-error);
+.mds-tstat-v.error {
+  color: var(--mds-c-error);
 }
-.ui-tstat-v.warn {
-  color: var(--c-warn);
+.mds-tstat-v.warn {
+  color: var(--mds-c-warn);
 }
-.ui-tstat-s {
+.mds-tstat-s {
   font-weight: 400;
-  font-size: var(--fs-sm);
-  color: var(--c-muted);
+  font-size: var(--mds-fs-sm);
+  color: var(--mds-c-muted);
 }
-.ui-tstat-l {
-  font-size: var(--fs-sm);
-  color: var(--c-muted);
+.mds-tstat-l {
+  font-size: var(--mds-fs-sm);
+  color: var(--mds-c-muted);
 }

@@ -10,11 +10,11 @@ export function Placeholder({
   message?: ReactNode;
 }) {
   return (
-    <div className="main">
-      <div className="toolbar">
+    <div className="mds-main">
+      <div className="mds-toolbar">
         <span style={{ fontWeight: 600 }}>{title}</span>
       </div>
-      <div className="placeholder">{message ?? "This section is not available yet."}</div>
+      <div className="mds-placeholder">{message ?? "This section is not available yet."}</div>
     </div>
   );
 }

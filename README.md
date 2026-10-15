@@ -68,16 +68,21 @@ folder path (`@mds/ui/inputs/daterange`, `@mds/ui/core/date`).
 
 ## Theming
 
-All colours and sizes are CSS variables in `styles.css` (`--c-accent`, `--c-surface`, `--c-text`, `--c-ok`, …,
-`--ui-scale`, `--table-row-h`). Override them on `:root` (light) and `:root.dark` (dark):
+All colours and sizes are CSS variables in `styles.css` (`--mds-c-accent`, `--mds-c-surface`, `--mds-c-text`,
+`--mds-c-ok`, …, `--mds-ui-scale`, `--mds-table-row-h`). Override them on `:root` (light) and
+`:root[data-mds-theme="dark"]` (dark):
 
 ```css
-:root { --c-accent: #0f766e; }
-:root.dark { --c-accent: #2dd4bf; }
+:root { --mds-c-accent: #0f766e; }
+:root[data-mds-theme="dark"] { --mds-c-accent: #2dd4bf; }
 ```
 
 `AppearanceProvider` (and the appearance popover in `AppShell`) switch theme and density for the reader and remember
-the choice.
+the choice; they set `data-mds-theme`, `data-mds-density`, `data-mds-panel` and `data-mds-detail` on `<html>`.
+
+**Your CSS always wins.** Every class and variable of the kit starts with `mds-`, and the stylesheet sits in the CSS
+layer `mds`, so the app's own rules beat it without extra specificity. `@mds/ui/styles.css` styles only the kit's own
+elements; `@mds/ui/reset.css` is an optional page reset (body font and background, box sizing, scrollbars).
 
 ## The app frame with your router
 

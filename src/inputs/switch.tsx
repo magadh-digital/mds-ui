@@ -19,13 +19,13 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       disabled={disabled}
-      className={`ui-switch ${checked ? "on" : ""}`}
+      className={`mds-switch ${checked ? "on" : ""}`}
       onClick={() => onChange(!checked)}
     />
   );
   if (hideLabel) return control;
   return (
-    <label className="ui-switch-row">
+    <label className="mds-switch-row">
       {control}
       <span>{label}</span>
     </label>

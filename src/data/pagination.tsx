@@ -37,7 +37,7 @@ export function Pagination({
   const from = total === 0 ? 0 : pageIndex * pageSize + 1;
   const to = Math.min(total, (pageIndex + 1) * pageSize);
   return (
-    <div className="ui-foot">
+    <div className="mds-foot">
       <span className="pager">
         <button type="button" onClick={() => onChange({ pageIndex: pageIndex - 1, pageSize })} disabled={pageIndex <= 0} aria-label="Previous page">
           <ChevronLeft />
@@ -46,7 +46,7 @@ export function Pagination({
           <ChevronRight />
         </button>
       </span>
-      <span className="ui-num">
+      <span className="mds-num">
         {localeNumber(from)}-{localeNumber(to)} of {localeNumber(total)} {label}
       </span>
       {note && <span>· {note}</span>}
@@ -55,7 +55,7 @@ export function Pagination({
       {pageSizes.length > 0 && (
         <label style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
           Rows Per Page:
-          <select className="ui-select" value={pageSize} onChange={(e) => onChange({ pageIndex: 0, pageSize: Number(e.target.value) })}>
+          <select className="mds-select" value={pageSize} onChange={(e) => onChange({ pageIndex: 0, pageSize: Number(e.target.value) })}>
             {pageSizes.map((n) => (
               <option key={n} value={n}>
                 {n}

@@ -144,34 +144,34 @@ export function Toolbar({
     onRefresh ? () => void refresh() : null,
   );
   return (
-    <div className="toolbar" ref={rootRef}>
+    <div className="mds-toolbar" ref={rootRef}>
       {collapsed && onExpand && (
         <CollapseButton collapsed onToggle={onExpand} />
       )}
       {tabs ? (
-        <div className="toolbar-tabs" aria-label={title}>
+        <div className="mds-toolbar-tabs" aria-label={title}>
           {tabs}
         </div>
       ) : (
-        <span className="toolbar-title">
+        <span className="mds-toolbar-title">
           <Term label={title} />
         </span>
       )}
       {count != null && (
-        <span className="ui-muted ui-num toolbar-count">
+        <span className="mds-muted mds-num mds-toolbar-count">
           {localeNumber(count)} {unit}
         </span>
       )}
       {chips?.map((c) => (
-        <span key={c} className="ui-chip">
+        <span key={c} className="mds-chip">
           {c}
         </span>
       ))}
       <span style={{ flex: 1 }} />
       {children}
-      {filters && <div className="toolbar-filters">{filters}</div>}
+      {filters && <div className="mds-toolbar-filters">{filters}</div>}
       {search && (
-        <div className="toolbar-search">
+        <div className="mds-toolbar-search">
           <SearchBox
             value={search.value}
             onChange={search.onChange}
@@ -184,14 +184,14 @@ export function Toolbar({
       {onRefresh && (
         <button
           type="button"
-          className="ui-iconbtn"
+          className="mds-iconbtn"
           onClick={() => void refresh()}
           aria-label="Refresh"
           aria-keyshortcuts="r"
           aria-busy={spinning || undefined}
           title={spinning ? "Loading…" : "Refresh (R)"}
         >
-          <RefreshCw className={spinning ? "ui-spin" : undefined} />
+          <RefreshCw className={spinning ? "mds-spin" : undefined} />
         </button>
       )}
     </div>

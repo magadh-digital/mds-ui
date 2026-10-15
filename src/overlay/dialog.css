@@ -1,7 +1,7 @@
-/* ---------- dialog (dialog.tsx): the .inv-backdrop / .inv-frame / .inv-toolbar parts — a centred frame over a dim
+/* ---------- dialog (dialog.tsx): the .mds-inv-backdrop / .mds-inv-frame / .mds-inv-toolbar parts — a centred frame over a dim
    backdrop, max-height to the viewport, a scrolling body, a toolbar row (title · extras · ×) and an optional pinned
    foot. Above the panels and the file viewer (1000); under the palette, menus, toasts and popovers (floating.tsx). ---------- */
-.inv-backdrop {
+.mds-inv-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(15, 18, 24, 0.55);
@@ -13,64 +13,64 @@
   overflow: auto;
 }
 
-.inv-frame {
+.mds-inv-frame {
   width: min(900px, 100%);
-  background: var(--c-surface);
-  color: var(--c-text);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-pop);
+  background: var(--mds-c-surface);
+  color: var(--mds-c-text);
+  border: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-md);
+  box-shadow: var(--mds-shadow-pop);
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 48px);
   outline: none;
 }
 
-.inv-frame.lg {
+.mds-inv-frame.lg {
   width: min(1100px, 100%);
 }
 
-.inv-frame.xl {
+.mds-inv-frame.xl {
   width: min(1280px, 100%);
 }
 
-.inv-toolbar {
+.mds-inv-toolbar {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-3);
-  border-bottom: 1px solid var(--c-border);
+  gap: var(--mds-sp-2);
+  padding: var(--mds-sp-2) var(--mds-sp-3);
+  border-bottom: 1px solid var(--mds-c-border);
   flex: none;
 }
 
-.inv-toolbar .inv-title {
+.mds-inv-toolbar .inv-title {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--mds-sp-2);
   min-width: 0;
   font-weight: 600;
-  font-size: var(--fs-lg);
+  font-size: var(--mds-fs-lg);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.inv-toolbar .grow {
+.mds-inv-toolbar .grow {
   flex: 1;
 }
 
-.inv-body {
+.mds-inv-body {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
-  padding: var(--sp-3);
+  padding: var(--mds-sp-3);
 }
 
-.inv-foot {
+.mds-inv-foot {
   flex: none;
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-3);
-  border-top: 1px solid var(--c-border);
+  gap: var(--mds-sp-2);
+  padding: var(--mds-sp-2) var(--mds-sp-3);
+  border-top: 1px solid var(--mds-c-border);
 }

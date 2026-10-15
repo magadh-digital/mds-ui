@@ -1,8 +1,8 @@
 /* the console's react-datepicker styling, kept here only to compare the kit's calendar against it */
 /* ---- date range (react-datepicker under the console's tokens) ---- */
-.daterange-root,
-.daterange-wrap,
-.daterange-wrap .react-datepicker__input-container {
+.mds-daterange-root,
+.mds-daterange-wrap,
+.mds-daterange-wrap .react-datepicker__input-container {
   display: block;
   width: 100%;
 }
@@ -15,79 +15,79 @@
   z-index: 2000;
 }
 
-.daterange-cal.react-datepicker {
+.mds-daterange-cal.react-datepicker {
   display: flex;
   flex-direction: column;
   font-family: inherit;
-  font-size: var(--fs-sm);
-  background: var(--c-surface);
-  color: var(--c-text);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-pop, 0 8px 24px rgba(0, 0, 0, 0.18));
+  font-size: var(--mds-fs-sm);
+  background: var(--mds-c-surface);
+  color: var(--mds-c-text);
+  border: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-md);
+  box-shadow: var(--mds-shadow-pop, 0 8px 24px rgba(0, 0, 0, 0.18));
 }
 
-.daterange-cal .react-datepicker__month-container {
+.mds-daterange-cal .react-datepicker__month-container {
   float: none;
 }
 
-.daterange-cal .react-datepicker__header {
-  background: var(--c-hover);
-  border-bottom: 1px solid var(--c-border);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+.mds-daterange-cal .react-datepicker__header {
+  background: var(--mds-c-hover);
+  border-bottom: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-md) var(--mds-radius-md) 0 0;
 }
 
-.daterange-cal .react-datepicker__current-month,
-.daterange-cal .react-datepicker__day-name,
-.daterange-cal .react-datepicker__day {
-  color: var(--c-text);
+.mds-daterange-cal .react-datepicker__current-month,
+.mds-daterange-cal .react-datepicker__day-name,
+.mds-daterange-cal .react-datepicker__day {
+  color: var(--mds-c-text);
 }
 
-.daterange-cal .react-datepicker__day-name {
-  color: var(--c-muted);
+.mds-daterange-cal .react-datepicker__day-name {
+  color: var(--mds-c-muted);
 }
 
-.daterange-cal .react-datepicker__day {
-  border-radius: var(--radius-sm, 4px);
+.mds-daterange-cal .react-datepicker__day {
+  border-radius: var(--mds-radius-sm, 4px);
 }
 
-.daterange-cal .react-datepicker__day:hover {
-  background: var(--c-hover);
+.mds-daterange-cal .react-datepicker__day:hover {
+  background: var(--mds-c-hover);
 }
 
-.daterange-cal .react-datepicker__day--outside-month {
+.mds-daterange-cal .react-datepicker__day--outside-month {
   opacity: 0.35;
 }
 
-.daterange-cal .react-datepicker__day--today {
+.mds-daterange-cal .react-datepicker__day--today {
   font-weight: 700;
 }
 
-.daterange-cal .react-datepicker__day--keyboard-selected {
-  background: var(--c-accent-soft);
-  color: var(--c-text);
+.mds-daterange-cal .react-datepicker__day--keyboard-selected {
+  background: var(--mds-c-accent-soft);
+  color: var(--mds-c-text);
 }
 
-.daterange-cal .react-datepicker__day--in-selecting-range,
-.daterange-cal .react-datepicker__day--in-range {
-  background: var(--c-accent-soft);
-  color: var(--c-text);
+.mds-daterange-cal .react-datepicker__day--in-selecting-range,
+.mds-daterange-cal .react-datepicker__day--in-range {
+  background: var(--mds-c-accent-soft);
+  color: var(--mds-c-text);
 }
 
-.daterange-cal .react-datepicker__day--selected,
-.daterange-cal .react-datepicker__day--range-start,
-.daterange-cal .react-datepicker__day--range-end,
-.daterange-cal .react-datepicker__day--selecting-range-start,
-.daterange-cal .react-datepicker__day--selecting-range-end {
-  background: var(--c-accent);
+.mds-daterange-cal .react-datepicker__day--selected,
+.mds-daterange-cal .react-datepicker__day--range-start,
+.mds-daterange-cal .react-datepicker__day--range-end,
+.mds-daterange-cal .react-datepicker__day--selecting-range-start,
+.mds-daterange-cal .react-datepicker__day--selecting-range-end {
+  background: var(--mds-c-accent);
   color: #fff;
 }
 
-.daterange-cal .react-datepicker__navigation-icon::before {
-  border-color: var(--c-muted);
+.mds-daterange-cal .react-datepicker__navigation-icon::before {
+  border-color: var(--mds-c-muted);
 }
 
-.daterange-cal .react-datepicker__children-container {
+.mds-daterange-cal .react-datepicker__children-container {
   width: 100%;
   margin: 0;
   padding: 0;

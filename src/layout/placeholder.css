@@ -1,7 +1,7 @@
 /* ---------- placeholder state ---------- */
 
-.placeholder {
-  padding: var(--sp-4);
-  color: var(--c-muted);
-  font-size: var(--fs-md);
+.mds-placeholder {
+  padding: var(--mds-sp-4);
+  color: var(--mds-c-muted);
+  font-size: var(--mds-fs-md);
 }

@@ -1,16 +1,9 @@
-// After tsc: copy every stylesheet next to its module (components that import their own CSS keep working), and join
-// the style sections into dist/styles.css in the order src/styles/order.json gives (the original cascade order).
-import { cpSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-const walk = (d: string): Array<string> =>
-  readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
-for (const f of walk("src")) {
-  if (!f.endsWith(".css")) continue;
-  const to = f.replace(/^src/, "dist");
-  mkdirSync(dirname(to), { recursive: true });
-  cpSync(f, to);
-}
+// After tsc: join the kit's stylesheets into dist/styles.css in the order src/styles/order.json gives (the cascade
+// order), inside the `mds` cascade layer so any app CSS outside a layer wins; dist/reset.css is the opt-in page reset
+// in the lower `mds-reset` layer.
+import { readFileSync, writeFileSync } from "node:fs";
 const order: Array<string> = JSON.parse(readFileSync("src/styles/order.json", "utf8"));
-const css = order.map((p) => `/* ${p} */\n${readFileSync(`src/${p}`, "utf8")}`).join("\n");
-writeFileSync("dist/styles.css", css);
-console.log(`styles.css: ${order.length} sections`);
+const body = order.map((p) => `/* ${p} */\n${readFileSync(`src/${p}`, "utf8")}`).join("\n");
+writeFileSync("dist/styles.css", `@layer mds-reset, mds;\n@layer mds {\n${body}\n}\n`);
+writeFileSync("dist/reset.css", `@layer mds-reset, mds;\n@layer mds-reset {\n${readFileSync("src/styles/reset.css", "utf8")}\n}\n`);
+console.log(`styles.css: ${order.length} sections (layer mds) · reset.css (layer mds-reset)`);

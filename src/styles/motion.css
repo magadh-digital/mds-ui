@@ -1,15 +1,15 @@
 /* layers and rows ease their hover and highlight (the layers themselves fade and scale in and out: floating.tsx) */
-.ui-pop .item,
-.ui-ac-pop .ui-ac-item,
-.daterange-shortcuts button,
-.daterange-nav::before {
+.mds-pop .item,
+.mds-ac-pop .mds-ac-item,
+.mds-daterange-shortcuts button,
+.mds-daterange-nav::before {
   transition: background-color 80ms ease, color 80ms ease, border-color 80ms ease;
 }
 @media (prefers-reduced-motion: reduce) {
-  .ui-pop .item,
-  .ui-ac-pop .ui-ac-item,
-  .daterange-day,
-  .daterange-shortcuts button {
+  .mds-pop .item,
+  .mds-ac-pop .mds-ac-item,
+  .mds-daterange-day,
+  .mds-daterange-shortcuts button {
     transition: none;
   }
 }

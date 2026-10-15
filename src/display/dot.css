@@ -1,14 +1,14 @@
 /* ---------- needs-you marker: a ring around the status dot where a person's input is what the row waits for ---------- */
-.ui-dot.needs {
+.mds-dot.needs {
   box-shadow:
-    0 0 0 1.5px var(--c-surface),
-    0 0 0 3px var(--c-warn);
+    0 0 0 1.5px var(--mds-c-surface),
+    0 0 0 3px var(--mds-c-warn);
 }
 
-.ui-table tbody tr:hover .ui-dot.needs,
-.ui-table tbody tr.selected .ui-dot.needs {
+.mds-table tbody tr:hover .mds-dot.needs,
+.mds-table tbody tr.selected .mds-dot.needs {
   box-shadow:
-    0 0 0 1.5px var(--c-hover),
-    0 0 0 3px var(--c-warn);
+    0 0 0 1.5px var(--mds-c-hover),
+    0 0 0 3px var(--mds-c-warn);
 }
 

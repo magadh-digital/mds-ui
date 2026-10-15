@@ -12,13 +12,13 @@ export type ChipTone = Tone | "muted" | "purple";
 
 /** @internal */
 export const TONE_VAR: Record<ChipTone, string> = {
-  ok: "var(--c-ok)",
-  warn: "var(--c-warn)",
-  error: "var(--c-error)",
-  muted: "var(--c-muted)",
-  neutral: "var(--c-muted)",
-  accent: "var(--c-accent)",
-  purple: "var(--c-purple)",
+  ok: "var(--mds-c-ok)",
+  warn: "var(--mds-c-warn)",
+  error: "var(--mds-c-error)",
+  muted: "var(--mds-c-muted)",
+  neutral: "var(--mds-c-muted)",
+  accent: "var(--mds-c-accent)",
+  purple: "var(--mds-c-purple)",
 };
 
 export function ToneChip({
@@ -41,7 +41,7 @@ export function ToneChip({
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
 }) {
   const c = TONE_VAR[tone] ?? TONE_VAR.muted;
-  const cls = `ui-chip${onClick ? " clickable" : ""}${dim ? " dim" : ""}${className ? ` ${className}` : ""}`;
+  const cls = `mds-chip${onClick ? " clickable" : ""}${dim ? " mds-dim" : ""}${className ? ` ${className}` : ""}`;
   const look: CSSProperties = { color: c, background: `color-mix(in srgb, ${c} 14%, transparent)`, ...style };
   return onClick ? (
     <button type="button" className={cls} title={title} style={look} onClick={onClick}>
@@ -117,7 +117,7 @@ export function StatusChip({
   keep?: ReadonlyArray<string>;
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
 }) {
-  if (!status && !label) return <span className="ui-muted">—</span>;
+  if (!status && !label) return <span className="mds-muted">—</span>;
   return (
     <ToneChip tone={tone ?? statusTone(status, "accent", tones)} title={title} onClick={onClick}>
       {label ?? statusLabel(status, keep)}

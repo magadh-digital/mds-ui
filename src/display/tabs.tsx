@@ -36,7 +36,7 @@ export function Tabs<T extends string>({
     list.current?.querySelector<HTMLButtonElement>(`[data-tab="${CSS.escape(to.value)}"]`)?.focus();
   };
   return (
-    <div className="ui-tabs" role="tablist" aria-label={label} ref={list} onKeyDown={onKey}>
+    <div className="mds-tabs" role="tablist" aria-label={label} ref={list} onKeyDown={onKey}>
       {tabs.map((t) => {
         const on = t.value === value;
         return (
@@ -52,7 +52,7 @@ export function Tabs<T extends string>({
             onClick={() => onChange(t.value)}
           >
             {t.label}
-            {t.count != null && <span className="ui-tabs-count ui-num">{localeNumber(t.count)}</span>}
+            {t.count != null && <span className="mds-tabs-count mds-num">{localeNumber(t.count)}</span>}
           </button>
         );
       })}

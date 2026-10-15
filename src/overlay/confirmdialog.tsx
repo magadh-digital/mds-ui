@@ -65,34 +65,34 @@ export function ConfirmDialog({
       size="sm"
       onClose={close}
       title={
-        <span className="confirm-title">
+        <span className="mds-confirm-title">
           {danger && <AlertTriangle />}
           {title}
         </span>
       }
       label={title}
       footer={
-        <div className="hstack" style={{ justifyContent: "flex-end", gap: 8, width: "100%" }}>
-          <button type="button" className="ui-btn" onClick={close} disabled={busy}>
+        <div className="mds-hstack" style={{ justifyContent: "flex-end", gap: 8, width: "100%" }}>
+          <button type="button" className="mds-btn" onClick={close} disabled={busy}>
             Cancel
           </button>
-          <button type="button" className={`ui-btn ${danger ? "danger" : "primary"}`} onClick={run} disabled={!ready}>
+          <button type="button" className={`mds-btn ${danger ? "danger" : "primary"}`} onClick={run} disabled={!ready}>
             {busy ? "Working…" : confirmLabel}
           </button>
         </div>
       }
     >
       <form
-        className="confirm confirm-dialog"
+        className="mds-confirm mds-confirm-dialog"
         onSubmit={(e) => {
           e.preventDefault();
           void run();
         }}
       >
-        {description && <div className="ui-muted">{description}</div>}
+        {description && <div className="mds-muted">{description}</div>}
         {reason && (
           <textarea
-            className="ui-input ui-textarea"
+            className="mds-input mds-textarea"
             placeholder={reason.label}
             aria-label={reason.label}
             value={text}
@@ -103,7 +103,7 @@ export function ConfirmDialog({
         )}
         {typed && (
           <input
-            className="ui-input"
+            className="mds-input"
             placeholder={`Type ${typed} to confirm`}
             aria-label={`Type ${typed} to confirm`}
             value={word}

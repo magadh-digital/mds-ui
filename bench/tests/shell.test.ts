@@ -51,20 +51,20 @@ describe("AppShell + rail + ⌘K, no router library", () => {
     await page.keyboard.down("Meta");
     await page.keyboard.press("k");
     await page.keyboard.up("Meta");
-    await page.waitForSelector(".cmdk", { timeout: 2000 });
+    await page.waitForSelector(".mds-cmdk", { timeout: 2000 });
     await page.keyboard.type("repo");
     await sleep(100);
     await page.keyboard.press("Enter");
     await sleep(150);
     expect(await path()).toBe("/reports");
-    expect(await page.$(".cmdk")).toBe(null);
+    expect(await page.$(".mds-cmdk")).toBe(null);
     await page.keyboard.down("Meta");
     await page.keyboard.press("k");
     await page.keyboard.up("Meta");
-    await page.waitForSelector(".cmdk");
+    await page.waitForSelector(".mds-cmdk");
     await page.keyboard.press("Escape");
     await sleep(150);
-    expect(await page.$(".cmdk")).toBe(null);
+    expect(await page.$(".mds-cmdk")).toBe(null);
   });
   test("no errors after all of it", async () => {
     await page.screenshot({ path: `${import.meta.dir}/../shots/shell.png` });

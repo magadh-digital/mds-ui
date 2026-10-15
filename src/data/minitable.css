@@ -1,6 +1,6 @@
 /* many module tabs leave no room for the faint title on ordinary laptops */
 @media (max-width: 1600px) {
-  .topbar .title {
+  .mds-topbar .title {
     display: none;
   }
 }

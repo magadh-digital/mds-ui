@@ -1,0 +1,52 @@
+/* Opt-in page defaults: import "@mds/ui/reset.css" for the kit's body font, box sizing and scrollbars on the whole
+   page. The kit's own components do not need it. */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--mds-c-canvas);
+  color: var(--mds-c-text);
+  font-family: var(--mds-font-ui);
+  font-size: var(--mds-fs-md);
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mds-c-neutral) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--mds-c-neutral);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+a {
+  color: var(--mds-c-accent);
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+select {
+  font: inherit;
+  color: inherit;
+  accent-color: var(--mds-c-accent);
+}

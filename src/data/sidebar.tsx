@@ -16,7 +16,7 @@ export function Sidebar({
 }) {
   return (
     <aside
-      className={`sidebar ${collapsed ? "collapsed" : ""}`}
+      className={`mds-sidebar ${collapsed ? "collapsed" : ""}`}
       aria-hidden={collapsed}
       // a collapsed sidebar is off screen: its filters must not take focus
       inert={collapsed}
@@ -41,7 +41,7 @@ export function CollapseButton({
   return (
     <button
       type="button"
-      className="ui-iconbtn"
+      className="mds-iconbtn"
       onClick={onToggle}
       aria-label={collapsed ? "Show filters" : "Hide filters"}
       title={collapsed ? "Show filters" : "Hide filters"}
@@ -70,11 +70,11 @@ export function SearchBox({
   const short = min > 1 && value.length > 0 && value.length < min;
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div className="ui-search">
+      <div className="mds-search">
         <Search />
         <input
           ref={inputRef}
-          className="ui-input"
+          className="mds-input"
           value={value}
           placeholder={placeholder}
           autoFocus={autoFocus}
@@ -108,10 +108,10 @@ export function SearchBox({
           aria-label={placeholder}
           aria-keyshortcuts="/"
         />
-        {!value && <kbd className="ui-search-kbd" aria-hidden>/</kbd>}
+        {!value && <kbd className="mds-search-kbd" aria-hidden>/</kbd>}
       </div>
       {short && (
-        <div className="ui-search-hint">
+        <div className="mds-search-hint">
           Type {min - value.length} more{" "}
           {min - value.length === 1 ? "character" : "characters"} to search
         </div>
@@ -142,13 +142,13 @@ export function FilterGroup({
     const el = bodyRef.current;
     if (!el || typeof ResizeObserver === "undefined") return;
     const check = () => {
-      const row = parseFloat(getComputedStyle(el).getPropertyValue("--ctl-h")) || 28;
+      const row = parseFloat(getComputedStyle(el).getPropertyValue("--mds-ctl-h")) || 28;
       // one control (a toggle group, a picker, a select, a date) or anything a row tall
       const kids = [...el.children].filter(
         (c) => (c as HTMLElement).offsetParent !== null || c.tagName === "SELECT",
       );
       const CONTROL =
-        ".ui-toggle, .ui-seg, .ui-ac, select, .ui-select, input, .daterange-root, .daterange-wrap";
+        ".mds-toggle, .mds-seg, .mds-ac, select, .mds-select, input, .mds-daterange-root, .mds-daterange-wrap";
       // the control itself, or a plain wrapper around just that one control
       let k: Element | undefined = kids.length === 1 ? kids[0] : undefined;
       while (k && !k.matches(CONTROL) && k.children.length === 1) k = k.children[0];
@@ -162,16 +162,16 @@ export function FilterGroup({
   }, [open]);
   const label = (
     <span
-      className="ui-label"
+      className="mds-label"
       style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
     >
       <Term label={title} />
-      {badge && <span className="ui-chip">{badge}</span>}
+      {badge && <span className="mds-chip">{badge}</span>}
     </span>
   );
   if (oneRow && open)
     return (
-      <div className="fgroup">
+      <div className="mds-fgroup">
         <div className="head static">
           {label}
           {right && (
@@ -186,7 +186,7 @@ export function FilterGroup({
       </div>
     );
   return (
-    <div className="fgroup">
+    <div className="mds-fgroup">
       <button
         type="button"
         className="head"
@@ -238,10 +238,10 @@ export function CountCheckbox({
   }, [indeterminate, checked]);
   return (
     <label
-      className={`ui-check ${disabled ? "disabled" : ""}`}
+      className={`mds-check ${disabled ? "disabled" : ""}`}
       style={
         level
-          ? { paddingLeft: `calc(var(--sp-1) + ${level} * var(--sp-4))` }
+          ? { paddingLeft: `calc(var(--mds-sp-1) + ${level} * var(--mds-sp-4))` }
           : undefined
       }
     >
@@ -267,7 +267,7 @@ export function CountCheckbox({
         <Term k={term} label={label} />
       </span>
       {count != null && (
-        <span className="count ui-num">({localeNumber(count)})</span>
+        <span className="count mds-num">({localeNumber(count)})</span>
       )}
     </label>
   );
@@ -275,7 +275,7 @@ export function CountCheckbox({
 
 export function Banner({ children }: { children: ReactNode }) {
   return (
-    <div className="banner">
+    <div className="mds-banner">
       <Info />
       <div>{children}</div>
     </div>
@@ -298,7 +298,7 @@ export function SidebarLink({
   return (
     <button
       type="button"
-      className="ui-link"
+      className="mds-link"
       onClick={onClick}
       disabled={disabled}
       title={title}

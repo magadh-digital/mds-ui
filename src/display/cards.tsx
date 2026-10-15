@@ -32,7 +32,7 @@ export function EntityCard({
 }) {
   return (
     <div
-      className={`ui-card ecard ${offline ? "offline" : ""}`}
+      className={`mds-card mds-ecard ${offline ? "offline" : ""}`}
       onClick={onClick}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -51,22 +51,22 @@ export function EntityCard({
       <div className="name">
         {name} <Icon aria-hidden />
       </div>
-      <div className={`sub ${offline ? "dim" : ""}`}>
+      <div className={`sub ${offline ? "mds-dim" : ""}`}>
         <Dot tone={tone} /> {subLabel}
       </div>
       <HealthBar segments={segments} labels={timeLabels} />
       {provider && (
-        <div className={`prov ${offline ? "dim" : ""}`}>
+        <div className={`prov ${offline ? "mds-dim" : ""}`}>
           <span className="logo">{provider.initial}</span> {provider.label}
         </div>
       )}
       {offline ? (
         <div
-          className="ui-muted"
+          className="mds-muted"
           style={{
-            fontSize: "var(--fs-sm)",
-            borderTop: "1px solid var(--c-border)",
-            paddingTop: "var(--sp-2)",
+            fontSize: "var(--mds-fs-sm)",
+            borderTop: "1px solid var(--mds-c-border)",
+            paddingTop: "var(--mds-sp-2)",
           }}
         >
           Quiet

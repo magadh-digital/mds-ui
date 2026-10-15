@@ -1,168 +1,168 @@
 /* ---------- confirm popover, bulk bar, settings section, toasts ---------- */
-.confirm {
+.mds-confirm {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
-  padding: var(--sp-1);
-  font-size: var(--fs-md);
+  gap: var(--mds-sp-2);
+  padding: var(--mds-sp-1);
+  font-size: var(--mds-fs-md);
 }
 
-.confirm-title {
+.mds-confirm-title {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--mds-sp-2);
   font-weight: 600;
 }
 
-.confirm-title svg {
-  width: var(--icon-sm);
-  height: var(--icon-sm);
-  color: var(--c-warn);
+.mds-confirm-title svg {
+  width: var(--mds-icon-sm);
+  height: var(--mds-icon-sm);
+  color: var(--mds-c-warn);
 }
 
-.bulkbar {
+.mds-bulkbar {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-2) var(--sp-3);
-  background: var(--c-accent-soft);
-  border-bottom: 1px solid var(--c-border);
-  font-size: var(--fs-md);
+  gap: var(--mds-sp-3);
+  padding: var(--mds-sp-2) var(--mds-sp-3);
+  background: var(--mds-c-accent-soft);
+  border-bottom: 1px solid var(--mds-c-border);
+  font-size: var(--mds-fs-md);
 }
 
-.bulkbar .ui-input {
-  width: calc(180px * var(--layout-scale));
+.mds-bulkbar .mds-input {
+  width: calc(180px * var(--mds-layout-scale));
 }
 
-.ssec {
+.mds-ssec {
   padding: 0;
-  margin-bottom: var(--sp-3);
+  margin-bottom: var(--mds-sp-3);
 }
 
-.ssec-head {
+.mds-ssec-head {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--mds-sp-2);
   width: 100%;
-  padding: var(--sp-2) var(--sp-3);
+  padding: var(--mds-sp-2) var(--mds-sp-3);
   background: transparent;
   border: 0;
   cursor: pointer;
   text-align: left;
-  font-size: var(--fs-md);
+  font-size: var(--mds-fs-md);
 }
 
-.ssec-head:hover {
-  background: var(--c-hover);
+.mds-ssec-head:hover {
+  background: var(--mds-c-hover);
 }
 
-.ssec-title {
+.mds-ssec-title {
   font-weight: 600;
 }
 
-.ssec-body {
-  padding: var(--sp-2) var(--sp-3) var(--sp-3);
-  border-top: 1px solid var(--c-border);
+.mds-ssec-body {
+  padding: var(--mds-sp-2) var(--mds-sp-3) var(--mds-sp-3);
+  border-top: 1px solid var(--mds-c-border);
 }
 
-.ssec-links {
-  margin-top: var(--sp-2);
-  font-size: var(--fs-sm);
+.mds-ssec-links {
+  margin-top: var(--mds-sp-2);
+  font-size: var(--mds-fs-sm);
 }
 
-.chev {
+.mds-chev {
   width: 8px;
   height: 8px;
-  border-right: 1.5px solid var(--c-muted);
-  border-bottom: 1.5px solid var(--c-muted);
+  border-right: 1.5px solid var(--mds-c-muted);
+  border-bottom: 1.5px solid var(--mds-c-muted);
   transform: rotate(-45deg);
   transition: transform 0.15s;
 }
 
-.chev.open {
+.mds-chev.open {
   transform: rotate(45deg);
 }
 
 /* z-index: floating.tsx TOAST_Z (set inline; this is the same value) */
-.toasts {
+.mds-toasts {
   position: fixed;
-  right: var(--sp-3);
-  bottom: var(--sp-3);
+  right: var(--mds-sp-3);
+  bottom: var(--mds-sp-3);
   display: flex;
   flex-direction: column;
   z-index: 1400;
 }
 
 /* the two live regions (polite, then errors) stay mounted while empty; a gap only between two that both hold toasts */
-.toasts-region {
+.mds-toasts-region {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--mds-sp-2);
 }
 
-.toasts-region:not(:empty) + .toasts-region:not(:empty) {
-  margin-top: var(--sp-2);
+.mds-toasts-region:not(:empty) + .mds-toasts-region:not(:empty) {
+  margin-top: var(--mds-sp-2);
 }
 
-.toast {
+.mds-toast {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-3);
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-pop);
-  font-size: var(--fs-md);
+  gap: var(--mds-sp-2);
+  padding: var(--mds-sp-2) var(--mds-sp-3);
+  background: var(--mds-c-surface);
+  border: 1px solid var(--mds-c-border);
+  border-radius: var(--mds-radius-md);
+  box-shadow: var(--mds-shadow-pop);
+  font-size: var(--mds-fs-md);
   max-width: 420px;
   cursor: pointer;
 }
 
-.toast svg {
-  width: var(--icon-sm);
-  height: var(--icon-sm);
+.mds-toast svg {
+  width: var(--mds-icon-sm);
+  height: var(--mds-icon-sm);
   flex: none;
 }
 
-.toast:focus-visible {
-  outline: 2px solid var(--c-accent);
+.mds-toast:focus-visible {
+  outline: 2px solid var(--mds-c-accent);
   outline-offset: 2px;
 }
 
-.toast-x {
+.mds-toast-x {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
-  margin-left: var(--sp-1);
+  margin-left: var(--mds-sp-1);
   padding: 2px;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--mds-radius-sm);
   background: transparent;
-  color: var(--c-muted);
+  color: var(--mds-c-muted);
   cursor: pointer;
 }
 
-.toast-x:hover {
-  background: var(--c-hover);
-  color: var(--c-text);
+.mds-toast-x:hover {
+  background: var(--mds-c-hover);
+  color: var(--mds-c-text);
 }
 
-.toast.ok svg {
-  color: var(--c-ok);
+.mds-toast.ok svg {
+  color: var(--mds-c-ok);
 }
 
-.toast.error svg {
-  color: var(--c-error);
+.mds-toast.error svg {
+  color: var(--mds-c-error);
 }
 
-.toast.info svg {
-  color: var(--c-accent);
+.mds-toast.info svg {
+  color: var(--mds-c-accent);
 }
 
 /* after the kind colours, so the × keeps the muted colour */
-.toast .toast-x svg {
-  width: calc(14px * var(--ui-scale));
-  height: calc(14px * var(--ui-scale));
+.mds-toast .mds-toast-x svg {
+  width: calc(14px * var(--mds-ui-scale));
+  height: calc(14px * var(--mds-ui-scale));
   color: inherit;
 }

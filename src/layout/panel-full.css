@@ -1,5 +1,5 @@
 /* ---------- full-page detail view: the panel takes the whole content area (Appearance › Detail view, or the ⤢ in the panel head) ---------- */
-:root[data-detail="full"] .panel {
+:root[data-mds-detail="full"] .mds-panel {
   width: 100%;
   max-width: 100%;
   border-left: 0;
@@ -7,19 +7,19 @@
 }
 
 /* the list's filter sidebar steps aside while a record fills the page; it is back the moment the record closes */
-:root[data-detail="full"] .content:has(.panel.open)>.sidebar {
+:root[data-mds-detail="full"] .mds-content:has(.mds-panel.open)>.mds-sidebar {
   display: none;
 }
 
-:root[data-detail="full"] .panel .body>* {
+:root[data-mds-detail="full"] .mds-panel .body>* {
   max-width: 1100px;
   margin-left: auto;
   margin-right: auto;
 }
 
-:root[data-detail="full"] .panel .tabs,
-:root[data-detail="full"] .panel .head,
-:root[data-detail="full"] .panel .foot .foot-row {
+:root[data-mds-detail="full"] .mds-panel .tabs,
+:root[data-mds-detail="full"] .mds-panel .head,
+:root[data-mds-detail="full"] .mds-panel .foot .foot-row {
   max-width: 1100px;
   margin: 0 auto;
   width: 100%;
