@@ -18,6 +18,7 @@ beforeAll(async () => {
   }
   browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ["--no-sandbox"] });
   page = await browser.newPage();
+  await page.emulateTimezone("Asia/Kolkata"); // the expected times are IST, wherever the tests run
   await page.setViewport({ width: 1280, height: 800 });
   page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
   page.on("console", (m) => m.type() === "error" && errors.push(`console: ${m.text()}`));
