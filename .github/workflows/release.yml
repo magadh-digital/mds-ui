@@ -1,0 +1,39 @@
+name: Release
+
+# Push a tag like v0.3.0 (matching package.json's version) to publish to npm. Every check and the browser tests run
+# first; npm records where the package was built (provenance).
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: The tag matches the version
+        run: |
+          v=$(node -p "require('./package.json').version")
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME does not match package.json $v"; exit 1; }
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - id: chrome
+        uses: browser-actions/setup-chrome@v1
+      - run: bun run bench
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

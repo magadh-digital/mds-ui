@@ -1,0 +1,96 @@
+/* the console's react-datepicker styling, kept here only to compare the kit's calendar against it */
+/* ---- date range (react-datepicker under the console's tokens) ---- */
+.daterange-root,
+.daterange-wrap,
+.daterange-wrap .react-datepicker__input-container {
+  display: block;
+  width: 100%;
+}
+
+#daterange-portal {
+  position: relative;
+  z-index: 2000;
+}
+#daterange-portal .react-datepicker-popper {
+  z-index: 2000;
+}
+
+.daterange-cal.react-datepicker {
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop, 0 8px 24px rgba(0, 0, 0, 0.18));
+}
+
+.daterange-cal .react-datepicker__month-container {
+  float: none;
+}
+
+.daterange-cal .react-datepicker__header {
+  background: var(--c-hover);
+  border-bottom: 1px solid var(--c-border);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.daterange-cal .react-datepicker__current-month,
+.daterange-cal .react-datepicker__day-name,
+.daterange-cal .react-datepicker__day {
+  color: var(--c-text);
+}
+
+.daterange-cal .react-datepicker__day-name {
+  color: var(--c-muted);
+}
+
+.daterange-cal .react-datepicker__day {
+  border-radius: var(--radius-sm, 4px);
+}
+
+.daterange-cal .react-datepicker__day:hover {
+  background: var(--c-hover);
+}
+
+.daterange-cal .react-datepicker__day--outside-month {
+  opacity: 0.35;
+}
+
+.daterange-cal .react-datepicker__day--today {
+  font-weight: 700;
+}
+
+.daterange-cal .react-datepicker__day--keyboard-selected {
+  background: var(--c-accent-soft);
+  color: var(--c-text);
+}
+
+.daterange-cal .react-datepicker__day--in-selecting-range,
+.daterange-cal .react-datepicker__day--in-range {
+  background: var(--c-accent-soft);
+  color: var(--c-text);
+}
+
+.daterange-cal .react-datepicker__day--selected,
+.daterange-cal .react-datepicker__day--range-start,
+.daterange-cal .react-datepicker__day--range-end,
+.daterange-cal .react-datepicker__day--selecting-range-start,
+.daterange-cal .react-datepicker__day--selecting-range-end {
+  background: var(--c-accent);
+  color: #fff;
+}
+
+.daterange-cal .react-datepicker__navigation-icon::before {
+  border-color: var(--c-muted);
+}
+
+.daterange-cal .react-datepicker__children-container {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+

@@ -4,7 +4,7 @@ import { type Tone } from "../core/types";
 import { HealthBar } from "./dot";
 
 /**
- * Pattern E pieces drawn as plain SVG (no chart library): an area/line chart with a faint grid and no title,
+ * Chart pieces drawn as plain SVG (no chart library): an area/line chart with a faint grid and no title,
  * stacked per-entity health timelines, and the horizontal icon strip of "top" tiles.
  */
 

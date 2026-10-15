@@ -3,7 +3,7 @@ import { type ReactNode } from "react";
 import "./empty.css";
 
 /**
- * The console's one empty state (owner, 15 Oct 2026): what is missing, why, and the next step. Tables say it through
+ * The kit's one empty state: what is missing, why, and the next step. Tables say it through
  * `DenseTable emptyText`; panels, sections and pages use this.
  */
 

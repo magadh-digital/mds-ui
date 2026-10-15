@@ -2,7 +2,7 @@ import { CheckCircle2, Info, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
-/** Small one-line toasts, bottom-right, auto-dismiss (guide §5.6). No library: a tiny store + one portal. */
+/** Small one-line toasts, bottom-right, auto-dismiss. No library: a tiny store + one portal. */
 
 export type ToastKind = "ok" | "error" | "info";
 type ToastItem = { id: number; kind: ToastKind; text: string };

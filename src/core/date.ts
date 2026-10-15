@@ -1,5 +1,5 @@
 /**
- * A small date type for the kit and the apps that use it: the part of dayjs the consoles actually call, with no
+ * A small date type for the kit and the apps that use it: the part of dayjs the consoles using it call, with no
  * dependency. Immutable: every change returns a new value.
  *
  *   date()                      now

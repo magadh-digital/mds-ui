@@ -12,8 +12,7 @@ export function Placeholder({
         <span style={{ fontWeight: 600 }}>{section}</span>
       </div>
       <div className="placeholder">
-        {section} arrives in phase {phase} of the console plan. Until then, use
-        the ERP page.
+        {section} is coming in phase {phase}. Until then, use the old page.
       </div>
     </div>
   );

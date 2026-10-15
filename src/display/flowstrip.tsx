@@ -2,7 +2,7 @@ import { type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react"
 import { Pop } from "../overlay/pop";
 
 /**
- * A flow strip in lanes (2026-10-08, first user: the voucher steps of a vehicle). Unlike the panel's `FlowStrip` (one
+ * A flow strip in lanes (a record's steps, grouped by who does them). Unlike the panel's `FlowStrip` (one
  * record's stages in a row of bars), this draws what an engine says: lanes of nodes, `→` where a node needs the one
  * before it, `||` where it runs beside it, and the nodes of another lane it waits for as an "after …" note. A node is a
  * button (open it) or, with `pop`, the trigger of a small popover (the reasons a blocked node waits on). Nodes that are
@@ -12,7 +12,7 @@ import { Pop } from "../overlay/pop";
  * DenseTable), ↓ to the row after it. The table's → enters the strip at its first node (`data-nav`).
  *
  * A node may carry a second glyph (`mark`) beside the state's: the strip only makes room for it — what it means and
- * how it is coloured belong to the page that builds the nodes (Vehicles: whether Tally holds that purchase).
+ * how it is coloured belong to the page that builds the nodes (for example: whether another system already holds that step).
  */
 
 export type LaneNodeState = "done" | "todo" | "blocked" | "not_needed";
@@ -33,7 +33,7 @@ export type LaneNode = {
   title?: string;
   /** done, but its source changed since: shown with the warn tone */
   changed?: boolean;
-  /** this node is the record the strip is shown for (a voucher's own slide-over) */
+  /** this node is the record the strip is shown for (the record's own slide-over) */
   current?: boolean;
   /** a fact the record keeps from elsewhere (an invoice), not work: drawn quieter */
   fact?: boolean;

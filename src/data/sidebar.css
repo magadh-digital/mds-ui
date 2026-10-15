@@ -1,4 +1,4 @@
-/* ---------- sidebar (pattern C) ---------- */
+/* ---------- sidebar ---------- */
 .sidebar {
   width: var(--sidebar-w);
   flex: none;
@@ -98,7 +98,7 @@
 }
 
 /**
- * One sentence a form or a popover opens with (first: "Tally already holds this purchase"). The kit's `Banner` above
+ * One sentence a form or a popover opens with ("This record is already synced"). The kit's `Banner` above
  * is the page-wide one — accent, an Info icon, no tone; this one is tinted by what it says (green when sure, amber
  * when probable) and carries no icon, so it sits above an issues strip without shouting over it.
  */

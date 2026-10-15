@@ -1,4 +1,4 @@
-/* ---------- needs-you marker (13 Sep 2026): a ring around the status dot where a person's input is what the row waits for ---------- */
+/* ---------- needs-you marker: a ring around the status dot where a person's input is what the row waits for ---------- */
 .ui-dot.needs {
   box-shadow:
     0 0 0 1.5px var(--c-surface),

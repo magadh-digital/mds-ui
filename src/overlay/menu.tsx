@@ -5,10 +5,10 @@ import { type Action, type ConfirmSpec } from "../core/types";
 import { ConfirmPop } from "./confirm";
 
 /**
- * Pattern J: the right-click menu on a row (and on anything else that has actions). One list of actions feeds
+ * The right-click menu on a row (and on anything else that has actions). One list of actions feeds
  * three surfaces — the panel's ActionRow, this menu and the BulkBar — so a row never has an action the panel lacks.
  * Opens at the pointer (or under a `⋯` button / the focused row for keyboard and touch), never a modal. Destructive
- * items confirm inside the menu (guide §5.4). Esc, outside click, scroll or blur close it.
+ * items confirm inside the menu. Esc, outside click, scroll or blur close it.
  */
 
 export type MenuItem = {
@@ -66,8 +66,8 @@ export function useContextMenu() {
   ) => {
     at.preventDefault?.();
     if (rawItems.length === 0) return;
-    // the page's own actions come first (the ERP's first item is "Order Details" / "View"); the console's Copy and Open
-    // helpers follow after a separator, so a hand used to the ERP lands on the same first item
+    // the page's own actions come first (the first item is the record's main action, "View"); the kit's Copy and Open
+    // helpers follow after a separator, so the main action is always first
     const util = rawItems.filter((i) => i.key === "copy" || i.key === "open");
     const own = rawItems.filter((i) => i.key !== "copy" && i.key !== "open");
     const items =
@@ -340,7 +340,7 @@ export function RowMenuButton({
 }
 
 /**
- * The record's actions in the panel foot (pattern D, 21 Sep 2026): the primary one filled at the right, one more
+ * The record's actions in the panel foot: the primary one filled at the right, one more
  * outlined, the rest behind `More` as the same menu the row's right-click shows. One `actionsFor(row)`, three surfaces.
  */
 export function FootActions({

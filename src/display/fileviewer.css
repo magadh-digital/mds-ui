@@ -1,4 +1,4 @@
-/* FileViewer (fileviewer.tsx): the console's one image / file viewer. Always dark: a photo reads best on black. */
+/* FileViewer (fileviewer.tsx): the kit's one image / file viewer. Always dark: a photo reads best on black. */
 .fv {
   position: fixed;
   inset: 0;

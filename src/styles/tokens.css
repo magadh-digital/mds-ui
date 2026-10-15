@@ -1,4 +1,4 @@
-/* ---------- Console tokens (guide §2 + §3). Every size derives from --ui-scale. ---------- */
+/* ---------- Tokens: colours, sizes, density. Every size derives from --ui-scale. ---------- */
 :root {
   --ui-scale: 1;
   --font-ui:
@@ -50,7 +50,7 @@
   --sp-4: calc(16px * var(--ui-scale));
   --row-h: calc(30px * var(--ui-scale));
   /* table rows (every DenseTable / .ui-table), after the MUI Data Grid densities: the default sits a little above
-     MUI compact (40 px rows, 44 px header, 10 px cell padding; owner 15 Oct 2026 "a little more room"); the other
+     MUI compact with a little more room (40 px rows, 44 px header, 10 px cell padding); the other
      densities are MUI standard (52 / 56) and comfortable (67 / 67).
      Kept apart from --row-h, which also sizes sidebar rows and controls. Two-line rows (value + muted
      detail) use --table-row-2. */
@@ -66,7 +66,7 @@
   --topbar-h: calc(48px * var(--layout-scale));
   --sidebar-w: calc(264px * var(--layout-scale));
   --panel-w: calc(680px * var(--layout-scale));
-  /* the detail panel: 680 px by default (21 Sep 2026); a user preference (Appearance › Detail panel), see :root[data-panel] below */
+  /* the detail panel: 680 px by default; a user preference (Appearance › Detail panel), see :root[data-panel] below */
   --panel-pad: var(--sp-4);
   /* the panel's side padding: sections, head, foot */
   --kv-k: calc(130px * var(--ui-scale));

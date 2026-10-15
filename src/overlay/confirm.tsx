@@ -4,7 +4,7 @@ import { type Action } from "../core/types";
 import { Pop } from "./pop";
 
 /**
- * Destructive or irreversible actions ask in a small popover (guide §5.4), optionally with a reason.
+ * Destructive or irreversible actions ask in a small popover, optionally with a reason.
  * `trigger` is the link/button that opens it.
  */
 export function ConfirmPop({

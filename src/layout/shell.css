@@ -74,7 +74,7 @@
   height: var(--icon-md);
 }
 
-/* pages (18 Sep 2026): the rail icons drag into the user's order; a 2 px accent line marks where the lifted one lands */
+/* pages: the rail icons drag into the user's order; a 2 px accent line marks where the lifted one lands */
 .rail-item.dragging {
   opacity: 0.35;
 }

@@ -7,6 +7,7 @@ import { mergeOrder, useDragSort } from "./dragsort";
 import { Term } from "../display/term";
 import { dialogOpen } from "../overlay/dialog";
 import { type MenuAnchor, RowMenuButton } from "../overlay/menu";
+import { storageKey } from "../core/storage";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -19,7 +20,7 @@ declare module "@tanstack/react-table" {
   }
 }
 
-/** Pattern K: multi-select. Ids of the selected rows live with the page (a `useSelection`), the table only draws and toggles. */
+/** Multi-select. Ids of the selected rows live with the page (a `useSelection`), the table only draws and toggles. */
 export type Selection<T> = {
   selected: ReadonlyArray<string>;
   onChange: (ids: Array<string>) => void;
@@ -42,7 +43,7 @@ export type DenseTableProps<T> = {
   onColumnOrder?: (order: Array<string>) => void;
   /**
    * given, the table's bottom bar carries `Columns` (show / hide, and reorder when `onColumnOrder` is given): the one
-   * place every table keeps its column choices, never the toolbar or the sidebar (owner, 15 Oct 2026)
+   * place every table keeps its column choices, never the toolbar or the sidebar
    */
   onColumnVisibility?: (v: VisibilityState) => void;
   selectedId?: string;
@@ -64,13 +65,13 @@ export type DenseTableProps<T> = {
   /** server-side paging and sorting: `data` is one page, `rowCount` the total */
   manual?: boolean;
   rowCount?: number;
-  /** checkbox column + ⇧/⌘ click, Space, ⌘A (pattern K) */
+  /** checkbox column + ⇧/⌘ click, Space, ⌘A */
   selection?: Selection<T>;
-  /** right-click, the `.` key or the row's `⋯` button open the same menu (pattern J) */
+  /** right-click, the `.` key or the row's `⋯` button open the same menu */
   onRowContextMenu?: (row: T, at: MenuAnchor) => void;
   /** files dropped on a row (a statement onto its account); the row highlights while a file hovers it */
   onRowDrop?: (row: T, files: Array<File>) => void;
-  /** a chevron column that opens a second row under the row (a truck's lines); rows where `has` is false show no chevron */
+  /** a chevron column that opens a second row under the row (a record's lines); rows where `has` is false show no chevron */
   expand?: {
     expanded: ReadonlyArray<string>;
     onToggle: (id: string) => void;
@@ -95,7 +96,7 @@ const inField = (t: EventTarget | null) =>
   t instanceof HTMLSelectElement ||
   (t instanceof HTMLElement && t.isContentEditable);
 
-/** Pattern B: sticky header, 30 px rows, sort on header click, footer paginator; + selection (K) and row menu (J). */
+/** The page table: sticky header, kit row heights, sort on header click, footer paginator, selection and a row menu. */
 export function DenseTable<T>({
   columns,
   data,
@@ -296,10 +297,10 @@ export function DenseTable<T>({
     ];
   }, [allColumns, columns, columnOrder]);
 
-  // column choices (owner, 15 Oct 2026: "customize columns in the bottom bar, for every table"): a page that keeps its
+  // column choices: a page that keeps its
   // own (`columnVisibility` + `onColumnVisibility`) decides; a table given neither keeps them itself, per table in the
   // browser; one given only `columnVisibility` is fixed by the page and shows no menu
-  const visKey = `mgdh.ui.table.${label}.cols`;
+  const visKey = storageKey(`table.${label}.cols`);
   const ownsVisibility = visibilityProp === undefined && onVisibilityProp === undefined;
   const [ownVisibility, setOwnVisibility] = useState<VisibilityState>(() => {
     if (!ownsVisibility) return {};
@@ -322,7 +323,7 @@ export function DenseTable<T>({
       }
     : onVisibilityProp;
 
-  // header drag (18 Sep 2026): the visible labelled columns in their shown order; a drop re-sequences them inside the
+  // header drag: the visible labelled columns in their shown order; a drop re-sequences them inside the
   // page's full order so hidden columns keep their slots, then the customiser's setOrder saves it
   const labelledIds = useMemo(
     () =>
@@ -351,8 +352,8 @@ export function DenseTable<T>({
     "x",
   );
 
-  // column widths (23 Sep 2026): dragged on the header's right edge, kept per table in the browser; double-click resets one
-  const sizeKey = `mgdh.ui.table.${label}.sizes`;
+  // column widths: dragged on the header's right edge, kept per table in the browser; double-click resets one
+  const sizeKey = storageKey(`table.${label}.sizes`);
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>(() => {
     if (!enableColumnResizing) return {};
     try {
@@ -609,7 +610,7 @@ export function DenseTable<T>({
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (inField(e.target)) return;
-                      // ↑ ↓ move between rows, Enter opens (guide §5.7); Space selects, ⌘A selects the page, `.` opens the row menu
+                      // ↑ ↓ move between rows, Enter opens; Space selects, ⌘A selects the page, `.` opens the row menu
                       if (e.key === "Enter") onRowClick?.(r.original);
                       else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
                         e.preventDefault();

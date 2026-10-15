@@ -1,4 +1,4 @@
-/* ---------- dialog (dialog.tsx, 2026-10-08): the Tally console's .inv-backdrop / .inv-frame / .inv-toolbar, same names
+/* ---------- dialog (dialog.tsx): the .inv-backdrop / .inv-frame / .inv-toolbar parts, same names
    so both consoles share them — a centred frame over a dim backdrop, max-height to the viewport, a scrolling body,
    a toolbar row (title · extras · ×) and an optional pinned foot. Under popovers (1500), toasts and the palette. ---------- */
 .inv-backdrop {

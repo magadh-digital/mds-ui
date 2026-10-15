@@ -4,12 +4,13 @@ import { dropId, moveId, useDragSort } from "./dragsort";
 import { Term } from "../display/term";
 import { Pop } from "../overlay/pop";
 import { Tip } from "../overlay/tip";
+import { storageKey } from "../core/storage";
 
 /**
- * Page layout — the user's order of the rail's pages and which ones are hidden (your ask of 18 Sep 2026).
+ * Page layout — the user's order of the rail's pages and which ones are hidden.
  *
- * Saved per module in this browser as `mgdh.ui.<module>.pages` = `{ order: [to…], hidden: [to…] }`, like the column
- * chooser saves `mgdh.ui.<page>.columns`. `arrangePages` is pure: it sorts a group by the saved order (pages the order
+ * Saved per module in this browser as `<prefix>.<module>.pages` (core/storage) = `{ order: [to…], hidden: [to…] }`, like the column
+ * chooser saves `<prefix>.table.<label>.cols`. `arrangePages` is pure: it sorts a group by the saved order (pages the order
  * does not know — added after the user arranged theirs — join after the ordered ones) and drops the hidden ones.
  *
  * Three ways to arrange, one state: drag a rail icon; right-click it (`Hide page`, `Move up`, `Move down`); or the
@@ -21,7 +22,7 @@ export type PageLayout = { order: Array<string>; hidden: Array<string> };
 export type PageLike = { to: string; label: string };
 export const EMPTY_LAYOUT: PageLayout = { order: [], hidden: [] };
 
-const key = (module: string) => `mgdh.ui.${module}.pages`;
+const key = (module: string) => storageKey(`${module}.pages`);
 
 export function readPageLayout(module: string): PageLayout {
   try {
@@ -45,7 +46,7 @@ function writePageLayout(module: string, layout: PageLayout) {
   } catch {}
 }
 
-/** the saved order first (only the pages that exist), then the pages the order does not know, in the console's order */
+/** the saved order first (only the pages that exist), then the pages the order does not know, in the app's order */
 export const orderPages = <T extends PageLike>(
   items: Array<T>,
   order: Array<string>,

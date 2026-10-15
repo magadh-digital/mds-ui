@@ -1,0 +1,3 @@
+[test]
+# the unit tests; the browser tests in bench/ run with `bun run bench`
+root = "src"

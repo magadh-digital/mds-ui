@@ -1,4 +1,4 @@
-/* ---------- pattern K: selection + row menu ---------- */
+/* ---------- selection + row menu ---------- */
 .ui-table th.sel,
 .ui-table td.sel {
   width: 30px;

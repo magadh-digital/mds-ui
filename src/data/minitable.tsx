@@ -35,7 +35,7 @@ export function MiniTable<T>({
   onRowClick?: (r: T) => void;
   /** `rows2` for two-line rows */
   className?: string;
-  /** right-click or the `.` key on a row opens the same menu kit as the page tables (pattern J) */
+  /** right-click or the `.` key on a row opens the same menu kit as the page tables */
   onRowContextMenu?: (r: T, at: MenuAnchor) => void;
   /** a class per row (`warn`, `error`, `on`): highlights a suspect or picked row */
   rowClassName?: (r: T) => string;

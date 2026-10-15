@@ -3,9 +3,9 @@ import { type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useEffect, us
 import { createPortal } from "react-dom";
 
 /**
- * The one dialog of the kit (2026-10-08, the Tally console's `.inv-backdrop` / `.inv-frame` pattern, shared by both
+ * The one dialog of the kit (the `.inv-backdrop` / `.inv-frame` parts, shared by both
  * consoles, same class names): a centred frame over a dim backdrop for the few things a slide-over cannot hold — a form whose table needs
- * the width (the voucher create form), later a confirm that needs fields. Details stay slide-overs (pattern D).
+ * the width (a create form), later a confirm that needs fields. Details stay slide-overs.
  *
  * Esc, one step at a time: an open list or popover inside it closes first (its own handler); a focused text field is
  * left (blurred) next, so a stray Esc never throws a typed form away; then the dialog closes — the top one only, and

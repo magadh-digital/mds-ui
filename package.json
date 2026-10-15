@@ -1,6 +1,38 @@
 {
-  "name": "@magadhtech/ui",
+  "name": "@mds/ui",
   "version": "0.3.0",
+  "description": "A light React UI kit for data-heavy apps: dense tables, toolbars, filters, side panels, pickers, a date range, a file viewer, an app shell and \u2318K palette. Plain CSS variables, one small dependency.",
+  "license": "MIT",
+  "author": "MagadhTech",
+  "homepage": "https://github.com/MagadhTech/mds-ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MagadhTech/mds-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MagadhTech/mds-ui/issues"
+  },
+  "keywords": [
+    "react",
+    "ui",
+    "components",
+    "table",
+    "data-table",
+    "datepicker",
+    "autocomplete",
+    "combobox",
+    "admin",
+    "dashboard",
+    "floating-ui",
+    "css-variables"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./dist/index.js",
   "devDependencies": {
     "@tanstack/react-table": "^8.21.3",
@@ -280,22 +312,24 @@
     },
     "./*.css": "./dist/*.css"
   },
-  "description": "A compact React UI kit for data-heavy consoles: list pages, dense tables, toolbars, filters, panels, pickers and a file viewer, styled by CSS variables.",
   "files": [
     "dist",
     "README.md",
-    "AGENTS.md"
+    "AGENTS.md",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "peerDependenciesMeta": {
     "@tanstack/react-table": {
       "optional": true
     }
   },
-  "private": true,
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.build.json && bun scripts/copy-css.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "size": "bun scripts/size.ts"
+    "size": "bun scripts/size.ts",
+    "bench": "sh bench/run.sh",
+    "check": "bun run typecheck && bun test src && bun run build && bun scripts/size.ts --check"
   },
   "sideEffects": [
     "**/*.css"

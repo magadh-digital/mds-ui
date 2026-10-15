@@ -1,7 +1,7 @@
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
 
 /**
- * The console's one status / tone chip (owner, 15 Oct 2026: one component per job). `.ui-chip` coloured by a theme
+ * The kit's one status / tone chip. `.ui-chip` coloured by a theme
  * variable, so it reads in dark and light alike. Pages map their statuses to a tone (`statusTone` covers the usual
  * words) instead of keeping their own colour tables.
  */

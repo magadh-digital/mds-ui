@@ -1,100 +1,130 @@
-# @magadhtech/ui
+# @mds/ui
 
-A compact React UI kit for data-heavy consoles: list pages with a toolbar and filters, a dense table with column
-settings and row menus, side panels, toggle groups, a searchable picker, a date-range picker, a file viewer, chips,
-toasts and number and date formats. It is styled with plain CSS variables, so a theme is a set of token values and dark
-mode comes free.
+A light React UI kit for data-heavy apps: list pages with a toolbar and filters, a dense table with a column picker and
+row menus, side panels, searchable pickers, a date range, a file viewer, an app shell with a side rail and a ⌘K palette.
 
-> Status: 0.1, private. It was carved out of procurement-console's `src/console` on 15 Oct 2026, with no app code,
-> then made Chakra-, react-datepicker- and dayjs-free (0.2: organised into folders).
-> It isn't published yet (see "Before publishing").
+- **Plain CSS variables.** A theme is a set of token values; dark mode comes free. No CSS-in-JS.
+- **One runtime dependency** (`@floating-ui/react`). React, `lucide-react` and `@tanstack/react-table` are peers, and
+  the table modules are the only ones that need TanStack.
+- **No router required.** The shell and palette use a tiny adapter: the browser's history by default, or your router.
+- **Its own calendar and date type.** No date library: `date()` covers the dayjs calls a list page needs.
 
-## Use
-
-```tsx
-import "@magadhtech/ui/styles.css";
-import { Toolbar, DenseTable, ToggleGroup, ToneChip, dayTime } from "@magadhtech/ui";
-// or one module alone, so an app that shows no table never loads TanStack Table:
-import { DenseTable } from "@magadhtech/ui/table";
+```bash
+npm install @mds/ui @floating-ui/react lucide-react
+npm install @tanstack/react-table   # only if you use DenseTable / MiniTable / Toolbar's list helpers
 ```
 
-Every module has a short path (`@magadhtech/ui/daterange`, `/autocomplete`, `/pop`, `/toolbar`, `/date`, …) and a folder
-path (`@magadhtech/ui/inputs/daterange`). The 0.1 names `primitives`, `forms` and `listpage` still work: they re-export
-the modules they were split into.
+## Quick start
+
+```tsx
+import "@mds/ui/styles.css";
+import { Toolbar, DenseTable, ToggleGroup, StatusChip, DateRange, Toaster, dayTime } from "@mds/ui";
+
+export function Orders() {
+  const [status, setStatus] = useState<"" | "open" | "closed">("");
+  const [range, setRange] = useState({});
+  const [q, setQ] = useState("");
+  return (
+    <div className="main">
+      <Toolbar
+        title="Orders"
+        count={rows.length}
+        onRefresh={refetch}
+        refreshing={isFetching}
+        filters={
+          <>
+            <DateRange value={range} onChange={setRange} />
+            <ToggleGroup label="Status" value={status} onChange={setStatus}
+              options={[{ value: "open", label: "Open" }, { value: "closed", label: "Closed" }]} />
+          </>
+        }
+        search={{ value: q, onChange: setQ, placeholder: "Search orders" }}
+      />
+      <DenseTable label="Orders" columns={columns} data={rows} getRowId={(r) => r.id} loading={isFetching}
+        sorting={sorting} onSortingChange={setSorting} pagination={page} onPaginationChange={setPage} />
+      <Toaster />
+    </div>
+  );
+}
+```
+
+Every module also loads alone: `@mds/ui/table`, `@mds/ui/daterange`, `@mds/ui/autocomplete`, `@mds/ui/date`, … or by
+folder, `@mds/ui/inputs/daterange`.
 
 ## What's inside
 
 | Folder | Components and helpers |
 | --- | --- |
-| `core` | `date()` (dayjs-style dates), `day`/`dayTime`/`hhmm`/`rupees`/`num`/`mt`/`kg` formats, `useDebounced`, form checks, the router adapter (`RouterProvider`, `useKitRouter`), shared types |
+| `core` | `date()` (dayjs-style dates), `day` / `dayTime` / `hhmm` / `rupees` / `num` formats, `useDebounced`, form checks, the router adapter (`RouterProvider`, `useKitRouter`), `configureStorage` |
 | `overlay` | `Tip`, `Pop`, `EditPop`, `HoverPop`, `ConfirmPop`, `ConfirmDialog` + `useConfirm()`, row menu (`useContextMenu`, `MoreMenu`), `Dialog`, `toast`, the ⌘K `CommandPalette` |
-| `inputs` | `Button`, `IconButton`, `LinkButton`, `Input`, `Select`, `Textarea`, `Checkbox`, `Autocomplete` (single, multiple, groups, server search), `DateRange`, `DateInput`, `ToggleGroup` (one or several), `Seg`, `Switch`, `FileInput`, `FormRow`, `SaveBar`, `ActionRow`, `BulkBar` |
+| `inputs` | `Button`, `IconButton`, `LinkButton`, `Input`, `Select`, `Textarea`, `Checkbox`, `Autocomplete` (single, multiple, groups, server search), `DateRange`, `DateInput`, `ToggleGroup` (one or several), `Seg`, `Switch`, `FileInput`, `FormRow`, `SaveBar` |
 | `display` | `ToneChip` / `StatusChip`, `ToolbarStats`, `Tabs`, `Empty`, `Spinner`, `Progress`, `Kbd`, `Avatar`, `FileViewer` / `FileThumb`, cards, chart, lane strip, `Term` (glossary hover) |
 | `data` | `DenseTable`, `MiniTable`, `Pagination`, `Toolbar`, `Sidebar` / `FilterGroup`, column picker, list state in the URL (`useListState`), page order |
-| `layout` | `SlideOver` panels, `AppShell` (top bar, module tabs, side rail), `useRailLayout`, appearance (theme, density, detail view) |
+| `layout` | `SlideOver` panels, `AppShell` (top bar, module tabs, side rail), `useRailLayout`, appearance (theme, density, panel width, detail view) |
 
-**The app frame without a router library:** `AppShell`, the rail and the ⌘K palette use `useKitRouter()`. With no
-provider they use the browser's history; a TanStack Router app passes its own:
+## Theming
+
+All colours and sizes are CSS variables in `styles.css` (`--c-accent`, `--c-surface`, `--c-text`, `--c-ok`, …,
+`--ui-scale`, `--table-row-h`). Override them on `:root` (light) and `:root.dark` (dark):
+
+```css
+:root { --c-accent: #0f766e; }
+:root.dark { --c-accent: #2dd4bf; }
+```
+
+`AppearanceProvider` (and the appearance popover in `AppShell`) switch theme and density for the reader and remember
+the choice.
+
+## The app frame with your router
+
+`AppShell`, the rail and the ⌘K palette never import a router. Without a provider they use the browser's history. With
+TanStack Router:
 
 ```tsx
-const router = { pathname, navigate: (to) => navigate({ href: to }), Link: ({ to, ...p }) => <Link to={to} {...p} /> };
-<RouterProvider value={router}><AppearanceProvider><AppShell …>{page}</AppShell><CommandPalette pages={pages} /></AppearanceProvider></RouterProvider>
+const navigate = useNavigate();
+const pathname = useLocation({ select: (l) => l.pathname });
+const router = useMemo(
+  () => ({ pathname, navigate: (to: string) => navigate({ href: to }), Link: ({ to, ...p }) => <Link to={to} {...p} /> }),
+  [pathname, navigate],
+);
+
+<RouterProvider value={router}>
+  <AppearanceProvider>
+    <AppShell rail={rail} utility={utility} tabs={tabs} contexts={[]} activeContext="" onContext={() => {}}
+      title="Orders" user={{ initials: "SK", name: "Satyam" }} search={<PaletteButton />}>
+      <Outlet />
+    </AppShell>
+    <CommandPalette pages={pages} />
+  </AppearanceProvider>
+</RouterProvider>
 ```
 
-## Layout
+## Saved choices
 
-```
-src/
-  core/      date, format, hooks, validate, types      no UI; imports nothing from the kit
-  overlay/   floating (shared layer logic), tip, pop, confirm, menu, dialog, toast
-  inputs/    autocomplete, daterange, toggle, seg, switch, fileinput, form, actions
-  display/   chip, empty, cards, chart, flowstrip, fileviewer, term, dot, buttons, skeleton
-  data/      table, minitable, columns, toolbar, listpage, sidebar, pages, dragsort
-  layout/    panel, appearance, placeholder
-  styles/    tokens.css (variables), controls, misc, motion; order.json
-  app/       styles of the console's own pages, kept until they move back to the console
-  compat/    the 0.1 module names
-```
+The reader's theme, density, panel width, column picks and widths, page order and recent ⌘K items are kept in
+localStorage under `mds-ui.*`. An app with saved choices under another prefix sets it once, before the first render:
+`configureStorage({ prefix: "my-app.ui" })`.
 
-- **Imports go one way**, down this list: `core` ← `overlay` ← `inputs`/`display` ← `data` ← `layout`. Nothing imports
-  upward, and there are no circular imports.
-- **One component (or a few tiny siblings) per file**, with its stylesheet next to it (`inputs/daterange.tsx` and
-  `inputs/daterange.css`).
-- **`dist/styles.css`** joins the stylesheets in the order `src/styles/order.json` lists, which is the cascade order the
-  console was built with.
-- **Tests sit next to their code** (`core/date.test.ts`).
+## Rules for pages built with the kit
 
-- **Peers:** `react` 19, `react-dom`, `lucide-react`, and `@tanstack/react-table` (only for `table`, `listpage`, `forms`).
-- **One dependency:** `@floating-ui/react`, for the positioning, outside clicks and focus of the popovers, the tooltip,
-  the Autocomplete list and the calendar. There is no Chakra, no react-datepicker and no dayjs: the calendar, the
-  Autocomplete and the date type are the kit's own.
-- **Dates:** `date()` covers the dayjs calls the consoles make (`format`, `add`/`subtract`, `startOf`/`endOf`, `diff`,
-  `isBefore`/`isSame`, getters). A date-only string is a local day, as in dayjs. `tests/date.test.ts` checks it against
-  dayjs on about 56,000 calls.
-- **Glossary (optional):** `<TermsProvider glossary={{ lookup, label }}>` makes every `Term` header show its meaning on
-  hover. Without a glossary, labels render as plain text.
+[AGENTS.md](AGENTS.md) lists the UI rules the kit is built around (toolbar order, search keys, loading overlay, row
+heights, one component per job, plain words). It is written so coding agents follow it too.
 
 ## Develop
 
 ```bash
 bun install
 bun run typecheck
-bun run build     # dist/: ESM .js + .d.ts per module, CSS copied beside them
-bun run size      # gzip size per file, and how much of styles.css is the kit's own (budget: core JS ≤ 80 KB gzip;
-                  # 0.3.0: 76.9 KB, plus 10.5 KB for the app frame, loaded only by apps that use it)
-bun test          # date() against dayjs
-bun scripts/smoke.tsx   # loads the built package and renders a few components
+bun test          # unit tests in src/ (date() checked against dayjs on ~56,000 calls)
+bun run build     # dist/: ESM .js + .d.ts per module, CSS beside them, dist/styles.css joined in cascade order
+bun run size      # gzip size; budget: core JS ≤ 80 KB (0.3.0: 76.9 KB, + 10.5 KB for the app frame)
+bun run bench     # pack the package, build bench/ with it, and run the browser tests (Chromium)
 ```
 
-To try changes in an app before publishing, run `bun link` here and `bun link @magadhtech/ui` in the app.
-The browser tests live in the sibling repo `mds-ui-test`: it installs this package from its packed tarball, builds a page
-with every component, and drives it in Chromium (`bun run pack-kit && bun run build && bun test`): 44 tests on the
-components and 5 on the app frame driven by the default (history) router.
+`src/` is organised in layers that only import downward: `core` ← `overlay` ← `inputs` / `display` ← `data` ←
+`layout`. One component per file, its stylesheet beside it; `src/styles/order.json` gives the order of the joined
+stylesheet. `bench/` is a small app that installs the packed tarball and drives every component in a real browser.
 
-## Before publishing
+## Licence
 
-1. Move `src/app/` (the console's page styles, about 7 KB gzipped) back into procurement-console.
-2. Make locale and currency options of `format.ts`, keeping `en-IN` and ₹ as the default.
-3. Choose a licence, set `"private": false`, publish from CI with npm provenance.
-
-The UI rules every page follows are in [AGENTS.md](AGENTS.md).
+[MIT](LICENSE) © MagadhTech

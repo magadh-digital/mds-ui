@@ -1,4 +1,4 @@
-/* ---------- table (pattern B) ---------- */
+/* ---------- table ---------- */
 /* the table's box: the scroller plus the loading overlay that sits over it */
 .ui-table-host {
   position: relative;
@@ -134,7 +134,7 @@
 .ui-table th.center .th {
   justify-content: center;
 }
-/* header drag (18 Sep 2026): the lifted column dims, a 2 px accent line marks the edge it lands on */
+/* header drag: the lifted column dims, a 2 px accent line marks the edge it lands on */
 .ui-table th.dragging {
   opacity: 0.35;
 }
@@ -174,7 +174,7 @@
   opacity: 0.68;
 }
 
-/* a closed PO / finished row: readable at a glance, still clearly out of play */
+/* a closed / finished row: readable at a glance, still clearly out of play */
 .ui-table .sub {
   color: var(--c-muted);
   font-size: var(--fs-xs);
@@ -190,7 +190,7 @@
 }
 
 /*
- * A two-line list (Billing › Orders to bill): every row the same height whatever a cell holds, the way the ERP's
+ * A two-line list: every row the same height whatever a cell holds, the way a classic
  * table draws it (64 px rows at its 16 px base). The first line is the value, the second the muted detail, and
  * nothing wraps — a cell that has more clips at its edge and tells the rest in its title.
  */

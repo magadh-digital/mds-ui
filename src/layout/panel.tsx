@@ -11,7 +11,7 @@ export type PanelTab = { key: string; icon: LucideIcon; label: string };
 export type TabCount =
   number | string | { n: number | string; tone?: Tone } | undefined;
 /**
- * The panel's chrome slots (21 Sep 2026 rebuild): the body of a panel knows the record, the SlideOver does not — so the
+ * The panel's chrome slots: the body of a panel knows the record, the SlideOver does not — so the
  * body hands the head its chips and strip, the foot its actions, the tab strip its counts and the head its title through
  * portals and this context. `PanelHead`, `PanelFoot`, `PanelTitle` and `PanelTabCounts` are the four ways in.
  */
@@ -24,8 +24,8 @@ type ChromeCtx = {
 const ChromeContext = createContext<ChromeCtx | null>(null);
 
 /**
- * The slide-over stack. A page may keep several slide-overs mounted (a truck, its PO, a heat, a new-record form) and
- * two can be open at once — a row clicked while the PO panel is up, a linked entity opened from inside a panel. Without
+ * The slide-over stack. A page may keep several slide-overs mounted (a record, a linked record, a new-record form) and
+ * two can be open at once — a row clicked while another panel is up, a linked entity opened from inside a panel. Without
  * this, both sat at right: 0 and the one later in the DOM covered the other: the new detail never showed. Now every open
  * slide-over registers here; only the most recently opened one is in view, the ones under it keep their state and come
  * back when it closes. `Esc` and the ‹ button in the head close the top one only.
@@ -82,7 +82,7 @@ const countOf = (c: TabCount): { n: number | string; tone?: Tone } | null =>
       : { n: c };
 
 /**
- * Pattern D: right slide-over on top of the list; Esc closes the top one; never a modal. 680 px by default (Appearance ›
+ * A right slide-over on top of the list; Esc closes the top one; never a modal. 680 px by default (Appearance ›
  * Detail panel). The head is two rows — identity (title, a state word in `meta`, ⤢, ×) and whatever the body posts with
  * `PanelHead` (chips, a flow strip); the tab strip carries labels and counts; the foot is the body's `PanelFoot` (the
  * action row), pinned under the scrolling body.
@@ -211,7 +211,7 @@ export function SlideOver({
   );
 }
 
-/** The second head row: chips (parties, material, PO, needs) and a flow strip. Rendered by the body, shown under the title. */
+/** The second head row: chips (parties, linked records, needs) and a flow strip. Rendered by the body, shown under the title. */
 export function PanelHead({ children }: { children: ReactNode }) {
   const c = useContext(ChromeContext);
   return c?.head ? createPortal(children, c.head) : null;

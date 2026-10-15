@@ -1,6 +1,6 @@
-# Agent instructions: @magadhtech/ui
+# Agent instructions: @mds/ui
 
-This package is the UI kit of the Magadh consoles. Read the rules below before you build or change a page that uses
+This package is a UI kit for data-heavy React apps. Read the rules below before you build or change a page that uses
 it, and before you change the kit itself.
 
 **Kit rules:**
@@ -33,8 +33,8 @@ it, and before you change the kit itself.
   `onRefresh`. `R` refreshes from anywhere on the page: not while typing, not under a dialog or the file viewer.
 - **Actions**: the primary action is a button in the toolbar; the other page actions go behind one `MoreMenu`
   (`overlay/menu.tsx`). Never put a separate band of buttons above the table.
-- **Headline figures** (counts, the day's totals) go inline in the toolbar (`ToolbarStats` in
-  `erp/panels/field_shared.tsx`), never in a band above the table.
+- **Headline figures** (counts, the day's totals) go inline in the toolbar (`ToolbarStats`,
+  `display/stats.tsx`), never in a band above the table.
 - **Few filters, no sidebar.** When a sidebar would hold only search and a date (or one more small select), put the
   date or select in `Toolbar filters={…}` and drop the `Sidebar`. An empty sidebar is always removed. Keep a sidebar
   only for real filter groups (status lists with counts, several facets). When a page keeps its sidebar, its 2–4
@@ -69,8 +69,8 @@ it, and before you change the kit itself.
 - **2–4 choices: a `ToggleGroup`** (`inputs/toggle.tsx`). Every choice is visible, counts are optional, and
   there is **no "All" button**: nothing picked means all, and clicking the picked choice again clears it. Use a select
   for 5 or more choices, and an `Autocomplete` for searchable lists. A view switch (not a filter) is a `Seg`.
-- **Search-then-pick is one `Autocomplete`** (`inputs/autocomplete.tsx`; `useKeepPicked` for server search; see
-  `RefPicker` in `erp/panels/field_shared.tsx`). Never put a search input next to a `<select>` or above a list of
+- **Search-then-pick is one `Autocomplete`** (`inputs/autocomplete.tsx`; `useKeepPicked` for server search,
+  `localFilter={false}` when the server already filtered). Never put a search input next to a `<select>` or above a list of
   result buttons. This holds across the whole project.
 - **Dates** use the kit date-range picker (`inputs/daterange.tsx`): its shortcuts sit in two rows no wider than the
   calendar, and a second click on the field closes it.
@@ -83,13 +83,12 @@ it, and before you change the kit itself.
 
 | Need | Use |
 | --- | --- |
-| Open an image or a file | `useFileViewer` + `FileThumb` (`display/fileviewer.tsx`); `viewerFiles` / `fileUrl` (`erp/files.ts`). Several files open as one list (← → move, zoom, rotate, PDFs inline). Never `window.open` a photo or a hand-made lightbox. |
+| Open an image or a file | `useFileViewer` + `FileThumb` (`display/fileviewer.tsx`). Build the file list from your own URLs. Several files open as one list (← → move, zoom, rotate, PDFs inline). Never `window.open` a photo or a hand-made lightbox. |
 | Pick or upload files | `FileInput` (`inputs/fileinput.tsx`): drag and drop, `accept`, `maxSizeMb`, `maxFiles`, previews in the viewer |
 | Status or tag chip | `StatusChip` / `ToneChip` (`display/chip.tsx`) with plain-word labels; no local `TONE_VAR` or hex colours |
 | Dates, money, numbers | `day`, `dayTime`, `hhmm`, `monthYear`, `ago`, `num`, `rupees`, `mt`, `kg` (`core/format.ts`) |
 | Empty state | `Empty` (`display/empty.tsx`; `compact` inside panels) |
 | Confirm a risky action | `ConfirmPop` / `Action.confirm` / the row menu's `confirm`. Destructive deletes pass `typed: "DELETE"`. Never `window.confirm`, `alert` or `prompt`. |
-| Download a file | `saveBlob` (`data/reports.ts`) |
 | Toast | `toast` (`overlay/toast.tsx`) |
 | Buttons and fields | `Button` (`variant`, `size`, `loading`), `IconButton` (needs a `label`), `LinkButton`, `Input`, `Select`, `Textarea`, `Checkbox` (`inputs/controls.tsx`); never a bare `<button className="ui-btn">` in new code |
 | One date in a form | `DateInput` (`inputs/dateinput.tsx`, `min`/`max`); never `<input type="date">` |
@@ -104,17 +103,12 @@ When the kit lacks something, add it to the kit once rather than building it int
 
 ### Pages and navigation
 
-- **Sister pages share one rail entry.** Pages of one entity or one flow are a set in `PAGE_TAB_SETS`
-  (`src/erp/page_tabs.tsx`). The set's first page stays on the rail, labelled for the whole set, and the others are
-  `group: "tab"` in `src/erp/modules.tsx` with a `tabLabel`.
-  - The shell puts the tab strip in the page's toolbar in place of the title, so a page joins a set by its path
-    alone.
-  - Pages that draw their own strip are listed in `OWN_STRIP`.
-  - A merged rail entry shows when the person may open any page of its set, and leads to the first one they may
-    open (`RAIL_GRANTS` covers redirect-only pages).
-  - Don't give a page a second tab row when it already has a view switch.
-- **Module landing.** A module tab opens the last page used in that module (or its first allowed page); the M logo
-  opens the module's page list (`/<module>/all`).
+- **Sister pages share one rail entry.** Pages of one entity or one flow sit under a single rail item; the page
+  switches between them with a `Seg` (or `Tabs`) in its toolbar, in place of the title (`Toolbar tabs={…}`, or a
+  host's `ToolbarTabsContext`). A merged rail entry shows when the person may open any page of its set. Don't give a
+  page a second tab row when it already has a view switch.
+- **Module landing.** Opening a module goes to the last page used there (or its first allowed page); the logo can
+  link to the module's page list (`AppShell homeTo`).
 - **Detail view setting** (side panel, popup or full page, in `layout/appearance.tsx`): leaving full page returns to
   whichever of side panel or popup the person last chose.
 
@@ -127,6 +121,5 @@ When the kit lacks something, add it to the kit once rather than building it int
 
 ### Checks before you call a page done
 
-`bun run typecheck` clean; `bun test` green (`orders_base` is known to be flaky); the page opens with no console
-errors; its forms work when filled in for real.
+Typecheck clean, tests green, the page opens with no console errors, and its forms work when filled in for real.
 

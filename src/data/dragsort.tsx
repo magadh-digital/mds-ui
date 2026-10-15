@@ -2,14 +2,14 @@ import { type DragEvent, useState } from "react";
 
 /**
  * Drag to sort — one hook for every list the user may arrange by hand: the rail's pages, the rows of a customiser
- * popover, the columns of a table (18 Sep 2026). HTML5 DnD, so it costs no library; ↑ ↓ arrows beside it cover touch.
+ * popover, the columns of a table. HTML5 DnD, so it costs no library; ↑ ↓ arrows beside it cover touch.
  *
  * `useDragSort(ids, onOrder, group, axis)` → `props(id)` spreads onto each item; the item under the pointer gets
  * `.drop-before` / `.drop-after` (`axis: 'y'` = above / below, `'x'` = left / right), the lifted one `.dragging`. Only
  * items from the same `group` accept a drop, so a rail page cannot land among the utility icons.
  */
 
-const MIME = "application/x-mgdh-sort";
+const MIME = "application/x-mds-ui-sort";
 export type DropMark = { id: string; before: boolean } | null;
 
 /** swap `id` with its neighbour; the same array when it cannot move */

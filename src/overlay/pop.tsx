@@ -84,7 +84,7 @@ function PopLayer({
   );
 }
 
-/** Small popover with the console's surface styling. */
+/** Small popover with the kit's surface styling. */
 export function Pop({
   trigger,
   children,
@@ -114,7 +114,7 @@ export function Pop({
 }
 
 /**
- * A small editor in a popover (21 Sep 2026): quantity, rate, attributes, a vehicle, a gift, an access row — anything
+ * A small editor in a popover: quantity, rate, attributes, a vehicle, a gift, an access row — anything
  * that used to open a second slide-over. The body mounts only while open (its queries fire then, not with the panel)
  * and receives `close`; a title row with × sits above it.
  */

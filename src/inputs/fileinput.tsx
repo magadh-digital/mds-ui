@@ -4,7 +4,7 @@ import { FileThumb, useFileViewer, type ViewerFile } from "../display/fileviewer
 import "./fileinput.css";
 
 /**
- * The console's one file input (owner, 15 Oct 2026): click or drop, the type / size / count checks every upload form
+ * The kit's one file input: click or drop, the type / size / count checks every upload form
  * used to copy, and previews that open in the file viewer. Pages keep their own request (FormData field names stay).
  *
  *   <FileInput accept="image/*" multiple maxFiles={10} maxSizeMb={5} files={files} onChange={setFiles} />

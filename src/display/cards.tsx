@@ -3,7 +3,7 @@ import { type ReactNode } from "react";
 import { type Tone } from "../core/types";
 import { Dot, HealthBar } from "./dot";
 
-/** Pattern A card: name + type icon, status dot + sub-label, 24h health bar, provider chip, capability icons. */
+/** An overview card: name + type icon, status dot + sub-label, 24h health bar, provider chip, capability icons. */
 export function EntityCard({
   name,
   icon: Icon,

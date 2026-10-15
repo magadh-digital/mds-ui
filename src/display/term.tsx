@@ -1,8 +1,9 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Tip } from "../overlay/tip";
+import { storageKey } from "../core/storage";
 
 /**
- * Words with a hover: any label that has a glossary entry shows its description first and the old raw-material name under it.
+ * Words with a hover: any label that has a glossary entry shows its description first and its old name under it.
  * `Term` looks a label up by its text (table headers, field names, titles) or by a coded key (`state:…`, `tag:…`); the
  * "old names" preference appends the old name beside the label everywhere. `Party` shows a company by the short name kept
  * in master data when it has one, with the full name on hover.
@@ -23,7 +24,7 @@ export type Glossary = {
 const NO_GLOSSARY: Glossary = { lookup: () => undefined };
 const GlossaryCtx = createContext<Glossary>(NO_GLOSSARY);
 
-const KEY = "mgdh.ui.oldNames";
+const KEY = () => storageKey("oldNames");
 type Terms = { oldNames: boolean; setOldNames: (v: boolean) => void };
 const Ctx = createContext<Terms>({ oldNames: false, setOldNames: () => {} });
 
@@ -36,7 +37,7 @@ export function TermsProvider({
 }) {
   const [oldNames, set] = useState<boolean>(() => {
     try {
-      return localStorage.getItem(KEY) === "1";
+      return localStorage.getItem(KEY()) === "1";
     } catch {
       return false;
     }
@@ -44,7 +45,7 @@ export function TermsProvider({
   const setOldNames = useCallback((v: boolean) => {
     set(v);
     try {
-      localStorage.setItem(KEY, v ? "1" : "0");
+      localStorage.setItem(KEY(), v ? "1" : "0");
     } catch {
       /* private mode */
     }

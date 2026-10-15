@@ -1,0 +1,35 @@
+/* words with a meaning on hover (display/term.tsx) */
+.term {
+  cursor: help;
+  text-decoration: underline dotted transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.12s;
+}
+
+.term:hover {
+  text-decoration-color: var(--c-muted);
+}
+
+.term-old {
+  color: var(--c-muted);
+  font-weight: 400;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+.ui-tip .term-tip {
+  max-width: 320px;
+  white-space: normal;
+  line-height: 1.35;
+  padding: 2px 0;
+}
+
+.term-tip-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.term-tip-old {
+  opacity: 0.72;
+  margin-top: 3px;
+}

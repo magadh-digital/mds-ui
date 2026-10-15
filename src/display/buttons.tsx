@@ -26,7 +26,7 @@ export function CopyButton({ text }: { text: string }) {
 }
 
 /**
- * The small in-cell action (21 Sep 2026): a pencil, sliders or trash icon beside the value it acts on — inline, 20 px,
+ * The small in-cell action: a pencil, sliders or trash icon beside the value it acts on — inline, 20 px,
  * the label as tooltip and aria-label, red on hover when `danger`. Use it as a popover / confirm trigger (`ref` passes
  * through) or with `onClick`. Never a text link for edit / delete inside a table.
  */

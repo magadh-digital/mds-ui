@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Term } from "../display/term";
 
-/** Label-left / control-right row (guide §4.F). `hint` renders the ⓘ tooltip text under the label. */
+/** Label-left / control-right row. `hint` renders the ⓘ tooltip text under the label. */
 export function FormRow({
   label,
   hint,

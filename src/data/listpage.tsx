@@ -205,7 +205,7 @@ export const facetList = (
   field: string,
 ) => [...(facets?.[field] ?? [])].sort((a, b) => b.count - a.count);
 
-// ---------------------------------------------------------------- pattern K: selection + bulk actions
+// ---------------------------------------------------------------- selection + bulk actions
 
 /**
  * The page's selection: ids (so it survives paging) plus the rows behind them (kept as they are seen, so bulk actions can

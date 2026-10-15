@@ -1,5 +1,5 @@
-// @magadhtech/ui: every component and helper. Subpaths ("@magadhtech/ui/table") load one module alone;
-// the stylesheet is "@magadhtech/ui/styles.css" (imported here too).
+// @mds/ui: every component and helper. Subpaths ("@mds/ui/table") load one module alone;
+// the stylesheet is "@mds/ui/styles.css" (imported here too).
 import "./styles.css";
 
 // core

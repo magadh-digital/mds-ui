@@ -350,7 +350,7 @@ export function AppShell({
   contexts: Array<ContextOption>;
   activeContext: string;
   onContext: (id: string) => void;
-  /** the heading over the context list (the console says "Fabric") */
+  /** the heading over the context list (e.g. "Workspace") */
   contextTitle?: string;
   title: string;
   /** `menu`: items under the avatar (e.g. Sign out) */

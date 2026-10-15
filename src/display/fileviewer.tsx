@@ -4,8 +4,7 @@ import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText, RotateCw, 
 import "./fileviewer.css";
 
 /**
- * The console's one way to open an image or a file (owner, 15 Oct 2026: "image or file opening is not consistent…
- * wherever there is more than one, arrow keys change it").
+ * The kit's one way to open an image or a file.
  *
  *   const viewer = useFileViewer();
  *   <FileThumb file={f} onOpen={() => viewer.open(files, i)} />

@@ -5,7 +5,7 @@ import { CalendarMonth as Month, DateTrigger as Trigger, iso } from "./calendar"
 import { isInsideLayer, useLayerMotion } from "../overlay/floating";
 
 /**
- * The date control every list uses, after the ERP web's FlexiDateRange: one field that reads like a date, a calendar
+ * The date control every list uses, one field that reads like a date, a calendar
  * where a range is two clicks on the same grid, a Day / Range switch and the shortcuts the office reaches for (today,
  * yesterday, 7 and 30 days, this and last month, financial year, all time). Values are YYYY-MM-DD strings kept in the
  * URL; a blank side is open-ended. The calendar is the kit's own (it replaced react-datepicker; same look and keys).
@@ -76,7 +76,7 @@ const same = (a: RangeValue, b: RangeValue) =>
 const presetOf = (v: RangeValue, now = date()): PresetKey | null =>
   PRESETS.find((p) => same(v, presetRange(p.key, now)))?.key ?? null;
 
-/** How the field reads a value: the dates, as the ERP page shows them; blank means every date. */
+/** How the field reads a value: the dates, short; blank means every date. */
 export const rangeLabel = (v: RangeValue): string => {
   if (!v.from && !v.to) return "All time";
   if (v.from && v.to)

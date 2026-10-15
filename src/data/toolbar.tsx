@@ -12,7 +12,7 @@ export type ToolbarSearch = {
 };
 
 /**
- * The list page's head (console UI rules, Oct 2026), right to left: refresh, search, filters (date / one select),
+ * The list page's head (the UI rules in AGENTS.md), right to left: refresh, search, filters (date / one select),
  * then the page's own figures and buttons:
  *   [title · count · chips] ··········· [children: figures, buttons] [filters] [search] [refresh]
  * - `search` is always a visible box; `/` focuses it from anywhere on the page with its text selected (type to
@@ -22,7 +22,7 @@ export type ToolbarSearch = {
  *   refreshes from anywhere on the page.
  */
 /**
- * Tabs a host puts in every toolbar below it (the ERP shell: the sister-page strip of a merged rail entry), shown when
+ * Tabs a host puts in every toolbar below it (an app shell: the sister-page strip of a merged rail entry), shown when
  * the page passes no `tabs` of its own. One rendered toolbar per page, so the strip appears once.
  */
 export const ToolbarTabsContext = createContext<ReactNode>(null);

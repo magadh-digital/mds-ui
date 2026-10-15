@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 
 /**
  * Form checks that run before Send, so the form says what is wrong per field while the person is still on it
- * (your ask of 13 Sep 2026); the service's field list is the safety net and lands on the same fields.
+ *; the service's field list is the safety net and lands on the same fields.
  * Pure: a rule takes a value and gives a sentence or null.
  */
 

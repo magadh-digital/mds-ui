@@ -1,7 +1,7 @@
 /**
  * Every service's pages, for the command palette: each app shell registers the pages it owns at module load, and the
  * palette lists the pages of the services the reader is *not* in under "Other services", so ⌘K reaches any page of
- * the console from anywhere.
+ * the app from anywhere.
  *
  * Only what is static: the page, its label, its service. Permissions of another service are not known here, so
  * these entries are not gated — the page itself still gates on arrival.

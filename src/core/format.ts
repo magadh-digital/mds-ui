@@ -1,7 +1,7 @@
 import { date } from "./date";
 
 /**
- * The console's date, time, money and number formats for ERP pages (owner, 15 Oct 2026: one helper per job). Every
+ * The kit's date, time, money and number formats. Every
  * helper takes nullish input and answers "—".
  */
 

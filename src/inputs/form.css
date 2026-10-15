@@ -1,4 +1,4 @@
-/* ---------- pattern F: label-left rows, save bar ---------- */
+/* ---------- label-left rows, save bar ---------- */
 .frow-f {
   display: grid;
   grid-template-columns: calc(200px * var(--layout-scale)) 1fr;

@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.2
+      - run: bun install --frozen-lockfile
+      - name: Typecheck, unit tests, build, size budget
+        run: bun run check
+      - name: Chromium for the browser tests
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+      - name: Browser tests (bench/)
+        run: bun run bench
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-shots
+          path: bench/shots
+          if-no-files-found: ignore

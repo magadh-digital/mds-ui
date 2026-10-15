@@ -4,7 +4,7 @@ import { ActionConfirm } from "../overlay/confirm";
 
 /**
  * Panel actions: at most two outlined buttons (`primary` fills the one that matters), the rest as text links
- * in a second row. Disabled actions carry a title that says why (guide §4.D). An action may bring its own element
+ * in a second row. Disabled actions carry a title that says why. An action may bring its own element
  * (a ConfirmPop) instead of an onClick.
  */
 export function ActionRow({
@@ -98,7 +98,7 @@ export function ActionRow({
 }
 
 /**
- * Pattern K: shown above the table while rows are selected. `actions` are the ones every selected row shares (see
+ * Shown above the table while rows are selected. `actions` are the ones every selected row shares (see
  * `commonActions` in listpage.tsx): the first `primary` fills, one more is outlined, the rest are links; a `confirm`
  * asks first and names the count. `total` + `onSelectAll` offer "Select all N matching" when only a page is picked.
  * `children` is for inputs the action needs (a UTR, a note). Esc clears the selection when the panel is closed.

@@ -4,8 +4,8 @@ import { type CSSProperties, type KeyboardEvent, useEffect, useId, useMemo, useR
 import { isInsideLayer, LAYER_Z, LayerTree, useLayerMotion } from "../overlay/floating";
 
 /**
- * Autocomplete: the console's one searchable picker, for any list longer than a handful of fixed choices (heads,
- * accounts, products, POs…). Built on Floating UI (positioning, outside press) with the console's own look:
+ * Autocomplete: the kit's one searchable picker, for any list longer than a handful of fixed choices (heads,
+ * accounts, products, POs…). Built on Floating UI (positioning, outside press) with the kit's own look:
  * type to filter, arrows and Enter to pick, Escape to close, × to clear, optional groups. Options are plain
  * `{ value, label }` rows; the caller maps its data once.
  *

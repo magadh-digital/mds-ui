@@ -1,5 +1,5 @@
 /**
- * Pattern I: the ⌘K palette. One box to jump to a page, reopen something recent, run a page action, change the
+ * The ⌘K palette. One box to jump to a page, reopen something recent, run a page action, change the
  * appearance, or find an entity by its number or name — without leaving the keyboard. Pages register their actions
  * while mounted (`useCommands`); entity search is an async `CommandSource` the app wires to its list endpoints.
  * `/` still focuses the page's own search box; ⌘K is global.
@@ -18,6 +18,7 @@ import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, u
 import { createPortal } from "react-dom";
 import { useKitRouter } from "../core/router";
 import { otherServicePages } from "../core/service_pages";
+import { storageKey } from "../core/storage";
 
 export type Command = {
   id: string;
@@ -106,11 +107,11 @@ export type RecentItem = {
   search?: Record<string, unknown>;
   at: number;
 };
-const RECENT_KEY = "mgdh.ui.recent";
+const RECENT_KEY = () => storageKey("recent");
 export function readRecent(): Array<RecentItem> {
   try {
     return JSON.parse(
-      localStorage.getItem(RECENT_KEY) ?? "[]",
+      localStorage.getItem(RECENT_KEY()) ?? "[]",
     ) as Array<RecentItem>;
   } catch {
     return [];
@@ -123,7 +124,7 @@ export function rememberRecent(item: Omit<RecentItem, "at">) {
       { ...item, at: Date.now() },
       ...readRecent().filter((r) => r.id !== item.id),
     ].slice(0, 20);
-    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    localStorage.setItem(RECENT_KEY(), JSON.stringify(list));
   } catch {
     /* private mode */
   }
@@ -476,7 +477,7 @@ export function CommandPalette({
   );
 }
 
-/** The top-bar trigger: a quiet search pill with the shortcut on it (guide §1). */
+/** The top-bar trigger: a quiet search pill with the shortcut on it. */
 export function PaletteButton() {
   return (
     <button

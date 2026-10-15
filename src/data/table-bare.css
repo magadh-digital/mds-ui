@@ -1,5 +1,5 @@
 /*
- * DenseTable `bare` (what MiniTable draws, 15 Oct 2026: one table for pages and panels): sized to its content, compact
+ * DenseTable `bare` (what MiniTable draws: one table for pages and panels): sized to its content, compact
  * rows, a quiet header, no bottom bar. The page table's cells, chips, hover and row menu stay the same.
  */
 .ui-table-host.bare {

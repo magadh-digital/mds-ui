@@ -1,4 +1,4 @@
-/* ---------- lane strip (flowstrip.tsx, 2026-10-08): an engine's steps by lane — ✓ done · ○ to do · ! blocked · dimmed not
+/* ---------- lane strip (flowstrip.tsx): an engine's steps by lane — ✓ done · ○ to do · ! blocked · dimmed not
    needed; → a node needs the one before it, || it runs beside it ---------- */
 .lstrip {
   display: flex;
@@ -108,10 +108,8 @@
 }
 
 /**
- * The second tick of a Vehicles purchase node (TICKS-CONTRACT §3): the same disc as the book's glyph, so the two read
- * at one glance (owner 2026-10-14: the flat character beside the filled disc was too faint to see). In Tally = the
- * filled green disc, probably = the filled amber disc with `?`, not in Tally = the empty grey ring, unknown = the ring,
- * faint. The tints are the theme's own, so light and dark both hold.
+ * A node's second tick: a small disc beside it. Filled green = held elsewhere, filled amber with `?` = probably held,
+ * empty grey ring = not held, faint ring = unknown. The tints are the theme's own, so light and dark both hold.
  */
 .lstrip-node .tglyph {
   flex: none;
@@ -219,4 +217,13 @@
 
 .ui-table tr.exp-row .lstrip {
   padding: var(--sp-1) 0;
+}
+
+/* a fact node (a sale the book records from its invoice): drawn, not worked — a dotted edge, a lighter word */
+.lstrip-node.fact {
+  border-style: dotted;
+}
+
+.lstrip-node.fact .what {
+  font-weight: 500;
 }

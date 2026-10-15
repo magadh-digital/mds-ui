@@ -1,8 +1,9 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { storageKey } from "../core/storage";
 
 export type Density = "compact" | "comfortable" | "large";
 export type Theme = "light" | "dark" | "system";
-/** how wide the right detail panel (pattern D) opens; the px are for the compact density and scale with the layout */
+/** how wide the right detail panel opens; the px are for the compact density and scale with the layout */
 export type PanelWidth = "narrow" | "default" | "wide" | "wider";
 export const PANEL_WIDTHS: Array<{
   value: PanelWidth;
@@ -15,7 +16,7 @@ export const PANEL_WIDTHS: Array<{
   { value: "wide", label: "Wide", hint: "800 px", px: 800 },
   { value: "wider", label: "Wider", hint: "960 px", px: 960 },
 ];
-/** where a record opens: the right slide-over, a popup centred over the page (your ask of 13 Sep 2026), or the whole page (15 Sep) */
+/** where a record opens: the right slide-over, a popup centred over the page, or the whole page (15 Sep) */
 export type DetailView = "panel" | "popup" | "full";
 export const DETAIL_VIEWS: Array<{
   value: DetailView;
@@ -41,11 +42,11 @@ export const THEMES: Array<{ value: Theme; label: string }> = [
   { value: "dark", label: "Dark" },
   { value: "system", label: "System" },
 ];
-const DENSITY_KEY = "mgdh.ui.density";
-const THEME_KEY = "mgdh.ui.theme";
-const PANEL_KEY = "mgdh.ui.panel";
-const DETAIL_KEY = "mgdh.ui.detail";
-const DETAIL_LAST_KEY = "mgdh.ui.detail.windowed";
+const DENSITY_KEY = () => storageKey("density");
+const THEME_KEY = () => storageKey("theme");
+const PANEL_KEY = () => storageKey("panel");
+const DETAIL_KEY = () => storageKey("detail");
+const DETAIL_LAST_KEY = () => storageKey("detail.windowed");
 
 function read<T extends string>(
   key: string,
@@ -101,21 +102,21 @@ const AppearanceContext = createContext<Ctx | null>(null);
 
 export function AppearanceProvider({ children }: { children: ReactNode }) {
   const [density, setDensityState] = useState<Density>(() =>
-    read(DENSITY_KEY, ["compact", "comfortable", "large"], defaultDensity()),
+    read(DENSITY_KEY(), ["compact", "comfortable", "large"], defaultDensity()),
   );
   const [theme, setThemeState] = useState<Theme>(() =>
-    read(THEME_KEY, ["light", "dark", "system"], "system"),
+    read(THEME_KEY(), ["light", "dark", "system"], "system"),
   );
   const [panelWidth, setPanelWidthState] = useState<PanelWidth>(() =>
-    read(PANEL_KEY, ["narrow", "default", "wide", "wider"], "default"),
+    read(PANEL_KEY(), ["narrow", "default", "wide", "wider"], "default"),
   );
   const [detailView, setDetailViewState] = useState<DetailView>(() =>
-    read(DETAIL_KEY, ["panel", "popup", "full"], "panel"),
+    read(DETAIL_KEY(), ["panel", "popup", "full"], "panel"),
   );
   // full page is its own state: leaving it goes back to the last side panel / popup choice
   const [windowedView, setWindowedView] = useState<"panel" | "popup">(() => {
-    const cur = read(DETAIL_KEY, ["panel", "popup", "full"], "panel");
-    return cur === "full" ? read(DETAIL_LAST_KEY, ["panel", "popup"], "panel") : cur;
+    const cur = read(DETAIL_KEY(), ["panel", "popup", "full"], "panel");
+    return cur === "full" ? read(DETAIL_LAST_KEY(), ["panel", "popup"], "panel") : cur;
   });
   const [sysDark, setSysDark] = useState(systemDark);
 
@@ -133,27 +134,27 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   const setDensity = useCallback((d: Density) => {
     setDensityState(d);
     try {
-      localStorage.setItem(DENSITY_KEY, d);
+      localStorage.setItem(DENSITY_KEY(), d);
     } catch {}
   }, []);
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t);
     try {
-      localStorage.setItem(THEME_KEY, t);
+      localStorage.setItem(THEME_KEY(), t);
     } catch {}
   }, []);
   const setPanelWidth = useCallback((w: PanelWidth) => {
     setPanelWidthState(w);
     try {
-      localStorage.setItem(PANEL_KEY, w);
+      localStorage.setItem(PANEL_KEY(), w);
     } catch {}
   }, []);
   const setDetailView = useCallback((v: DetailView) => {
     setDetailViewState(v);
     if (v !== "full") setWindowedView(v);
     try {
-      localStorage.setItem(DETAIL_KEY, v);
-      if (v !== "full") localStorage.setItem(DETAIL_LAST_KEY, v);
+      localStorage.setItem(DETAIL_KEY(), v);
+      if (v !== "full") localStorage.setItem(DETAIL_LAST_KEY(), v);
     } catch {}
   }, []);
   const value = useMemo<Ctx>(
