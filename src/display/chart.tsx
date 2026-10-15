@@ -226,7 +226,7 @@ export function Timelines({
           }
         >
           <span className="mds-tl-label">{r.label}</span>
-          <span className="tl-bar">
+          <span>
             <HealthBar segments={r.segments} labels={labels} />
           </span>
           <span className="mds-tl-right mds-num mds-muted">{r.right}</span>

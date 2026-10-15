@@ -1,28 +1,35 @@
-// Every page of the site: its path, title, section (the rail) and what it renders.
+// Every page of the site, grouped for the sidebar. The component and helper pages come from registry/<section>.ts
+// (one file per section); the setup pages are listed here.
 import type { ComponentType } from "react";
-import { BookOpen, Layers, LayoutPanelLeft, MousePointerClick, Table2, TextCursorInput, Wrench } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { Rules } from "./pages/rules";
 import { GettingStarted, LocaleStorage, Providers, Theming } from "./pages/start";
 
-export type Section = { id: string; label: string; icon: LucideIcon };
 export type DocPage = { path: string; title: string; section: string; render: ComponentType; keywords?: string };
+export type Group = { id: string; label: string };
 
-export const SECTIONS: Array<Section> = [
-  { id: "start", label: "Start", icon: BookOpen },
-  { id: "inputs", label: "Inputs", icon: TextCursorInput },
-  { id: "overlays", label: "Overlays", icon: Layers },
-  { id: "display", label: "Display", icon: MousePointerClick },
-  { id: "data", label: "Data", icon: Table2 },
-  { id: "layout", label: "Layout", icon: LayoutPanelLeft },
-  { id: "helpers", label: "Helpers", icon: Wrench },
+export const GROUPS: Array<Group> = [
+  { id: "start", label: "Getting started" },
+  { id: "inputs", label: "Inputs" },
+  { id: "overlays", label: "Overlays" },
+  { id: "display", label: "Display" },
+  { id: "data", label: "Data" },
+  { id: "layout", label: "Layout" },
+  { id: "helpers", label: "Helpers" },
 ];
+
+const START: Array<DocPage> = [
+  { path: "/", title: "Introduction", section: "start", render: GettingStarted, keywords: "install setup quick start" },
+  { path: "/providers", title: "Providers and router", section: "start", render: Providers, keywords: "UIProvider router tanstack" },
+  { path: "/theming", title: "Theming", section: "start", render: Theming, keywords: "css variables dark mode layer" },
+  { path: "/locale", title: "Locale and saved choices", section: "start", render: LocaleStorage, keywords: "currency storage" },
+  { path: "/rules", title: "UI rules", section: "start", render: Rules, keywords: "agents guidelines toolbar search loading" },
+];
+
+const sections = import.meta.glob<{ pages: Array<DocPage> }>("./registry/*.ts", { eager: true });
+const rest = Object.values(sections).flatMap((m) => m.pages ?? []);
 
 export const PAGES: Array<DocPage> = [
-  { path: "/", title: "Getting started", section: "start", render: GettingStarted, keywords: "install setup" },
-  { path: "/providers", title: "Providers and router", section: "start", render: Providers, keywords: "UIProvider router" },
-  { path: "/theming", title: "Theming", section: "start", render: Theming, keywords: "css variables dark mode" },
-  { path: "/locale", title: "Locale and saved choices", section: "start", render: LocaleStorage, keywords: "currency storage" },
+  ...START,
+  ...GROUPS.slice(1).flatMap((g) => rest.filter((p) => p.section === g.id)),
 ];
-
-export const pageAt = (path: string) => PAGES.find((p) => p.path === path) ?? PAGES[0]!;
-export const sectionOf = (path: string) => SECTIONS.find((s) => s.id === pageAt(path).section) ?? SECTIONS[0]!;
+export const pageAt = (path: string) => PAGES.find((p) => p.path === path.replace(/\/+$/, "") || (path === "/" && p.path === "/"));

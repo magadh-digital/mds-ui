@@ -21,7 +21,7 @@ export type ConfirmSpec = {
 export type Action = {
   key: string;
   label: string;
-  onClick?: (reason?: string) => void | Promise<unknown>;
+  onClick?: (reason?: string) => unknown;
   disabled?: boolean;
   title?: string;
   primary?: boolean;

@@ -34,6 +34,12 @@
   min-width: 0;
 }
 
+/* a segmented control keeps its own width in a form row */
+.mds-frow-control > .mds-seg,
+.mds-frow-control > .mds-pills {
+  align-self: flex-start;
+}
+
 .mds-frow-control .mds-input,
 .mds-frow-control .mds-select,
 .mds-frow-control > .mds-vstack {

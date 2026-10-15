@@ -33,7 +33,7 @@ export function ConfirmDialog({
   typed?: string;
   reason?: { label: string; required?: boolean };
   /** runs with the reason ("" without one); the dialog closes when it resolves, stays open when it throws */
-  onConfirm: (reason: string) => void | Promise<unknown>;
+  onConfirm: (reason: string) => unknown;
 }) {
   const [text, setText] = useState("");
   const [word, setWord] = useState("");

@@ -7,7 +7,11 @@
   flex-direction: column;
   background: rgba(8, 9, 12, 0.92);
   color: #e6e8eb;
-  animation: fv-in 0.12s ease-out;
+  animation: mds-fv-in 0.12s ease-out;
+  /* it also carries .mds-inv-backdrop (for the keyboard rules); undo that one's centred, padded layout */
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
 }
 
 /* the viewer itself takes the focus on open (its keys start there); its buttons keep their own focus ring */
@@ -15,7 +19,7 @@
   outline: none;
 }
 
-@keyframes fv-in {
+@keyframes mds-fv-in {
   from {
     opacity: 0;
   }

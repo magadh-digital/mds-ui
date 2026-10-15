@@ -2,7 +2,7 @@ import type { CSSProperties, MouseEvent, ReactNode } from "react";
 import type { Tone } from "../core/types.js";
 
 /**
- * The kit's one status / tone chip. `.ui-chip` coloured by a theme
+ * The kit's one status / tone chip. `.mds-chip` coloured by a theme
  * variable, so it reads in dark and light alike. Pages map their statuses to a tone (`statusTone` covers the usual
  * words) instead of keeping their own colour tables.
  */
@@ -74,10 +74,12 @@ export function statusTone(
     const hit = Object.entries(overrides).find(([k]) => k.trim().toLowerCase() === s);
     if (hit) return hit[1];
   }
-  if (OK.test(s)) return "ok";
-  if (WARN.test(s)) return "warn";
-  if (ERROR.test(s)) return "error";
-  if (MUTED.test(s)) return "muted";
+  // "ON_HOLD", "on-hold" and "on hold" are one word to the lists below, as they are to statusLabel
+  const w = s.replace(/[\s_-]+/g, "_");
+  if (OK.test(w)) return "ok";
+  if (WARN.test(w)) return "warn";
+  if (ERROR.test(w)) return "error";
+  if (MUTED.test(w)) return "muted";
   return fallback;
 }
 

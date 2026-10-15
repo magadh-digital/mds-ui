@@ -102,7 +102,7 @@ export function ActionRow({
  * Shown above the table while rows are selected. `actions` are the ones every selected row shares (see
  * the page): the first `primary` fills, one more is outlined, the rest are links; a `confirm`
  * asks first and names the count. `total` + `onSelectAll` offer "Select all N matching" when only a page is picked.
- * `children` is for inputs the action needs (a UTR, a note). Esc clears the selection when the panel is closed.
+ * `children` is for inputs the action needs (a UTR, a note). With a DenseTable, Esc clears the selection when the panel is closed.
  */
 export function BulkBar({
   count,

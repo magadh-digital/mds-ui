@@ -13,8 +13,9 @@ const parser = withCustomConfig(join(SRC, "../tsconfig.json"), {
   savePropValueAsString: true,
   shouldExtractLiteralValuesFromEnum: true,
   shouldRemoveUndefinedFromOptional: true,
-  // only the kit's own props, not every HTML attribute a component forwards
-  propFilter: (p) => !p.parent || !/node_modules/.test(p.parent.fileName),
+  skipChildrenPropWithoutDoc: false,
+  // only the kit's own props (and children), not every HTML attribute a component forwards
+  propFilter: (p) => p.name === "children" || !p.parent || !/node_modules/.test(p.parent.fileName),
 });
 type Prop = { name: string; type: string; required: boolean; default?: string; description: string };
 const out: Record<string, { file: string; description: string; props: Array<Prop> }> = {};

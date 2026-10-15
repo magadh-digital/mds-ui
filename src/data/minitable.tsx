@@ -9,7 +9,8 @@ export type MiniCol<T> = {
   header: string;
   align?: "right" | "acts";
   cell: (row: T) => ReactNode;
-  width?: string;
+  /** the column's width in px: 120 or "120px" (percentages are not supported) */
+  width?: number | string;
 };
 
 /**
@@ -55,7 +56,7 @@ export function MiniTable<T>({
           align: c.align ? "right" : "left",
           cls: c.align === "acts" ? "acts" : undefined,
         },
-        ...(c.width ? { size: parseInt(c.width, 10) || undefined } : {}),
+        ...(c.width ? { size: (typeof c.width === "number" ? c.width : parseInt(c.width, 10)) || undefined } : {}),
       })),
     [cols],
   );

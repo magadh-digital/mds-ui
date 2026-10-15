@@ -10,7 +10,7 @@ import { useFieldControl } from "./field.js";
  * type to filter, arrows and Enter to pick, Escape to close, × to clear, optional groups. Options are plain
  * `{ value, label }` rows; the caller maps its data once.
  *
- * Keep a `<select className="ui-select">` for short fixed lists (2–4 choices): a dropdown reads faster than a search box.
+ * For 2–4 fixed choices use a ToggleGroup instead: every choice stays in view.
  *
  * `multiple` picks several: `value` is the picked values in click order, `onChange(values, options)`, the picks show
  * as removable chips under the box and the box stays for searching (a row's tick toggles it, the list stays open).
@@ -215,6 +215,7 @@ function AutocompleteInner(props: AutocompleteProps) {
       else {
         setFilterText("");
         onInputChange?.("");
+        onSearchChange?.(""); // a server search lists from scratch too, not the last search's rows
       }
       // the pick is highlighted when the list shows it (else `current` falls to the first row)
       setActive(selected[0] ?? null);
@@ -466,14 +467,14 @@ function AutocompleteInner(props: AutocompleteProps) {
           </div>
         </div>
         {multi && selected.length > 0 && (
-          <div className="ui-ac-chips" style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4, minWidth: 0 }}>
+          <div className="mds-ac-chips" style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4, minWidth: 0 }}>
             {selected.map((v) => {
               const o = optionOf(v);
               const fixed = disabled || locked(v);
               return (
                 <span
                   key={v}
-                  className="mds-chip ui-ac-chip"
+                  className="mds-chip mds-ac-chip"
                   title={o.hint ? `${o.label} · ${o.hint}` : o.label}
                   style={{ maxWidth: "100%", color: "var(--mds-c-text)", paddingRight: fixed ? undefined : 2 }}
                 >
@@ -481,7 +482,7 @@ function AutocompleteInner(props: AutocompleteProps) {
                   {!fixed && (
                     <button
                       type="button"
-                      className="ui-ac-chip-x"
+                      className="mds-ac-chip-x"
                       aria-label={`Remove ${o.label}`}
                       title="Remove"
                       onClick={() => emitMany(selected.filter((x) => x !== v), "remove")}

@@ -26,7 +26,7 @@ export type MenuItem = {
   sep?: boolean;
   /** ask first, inside the menu; the reason (if any) reaches onSelect */
   confirm?: ConfirmSpec;
-  onSelect?: (reason?: string) => void | Promise<unknown>;
+  onSelect?: (reason?: string) => unknown;
 };
 
 /** Where to put the menu: a mouse event, or any object with a viewport point. */

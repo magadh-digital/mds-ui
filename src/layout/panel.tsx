@@ -171,9 +171,17 @@ export function SlideOver({
       restoreTo.current = null;
       const a = document.activeElement;
       // only when the focus is still ours to give (in this panel or nowhere), and the place to go back to still exists
-      if (!back || !back.isConnected || back.closest("[inert]")) return;
+      if (!back || !back.isConnected) return;
       if (a && a !== document.body && !(el?.contains(a) ?? false)) return;
-      back.focus({ preventScroll: true });
+      if (!back.closest("[inert]")) return back.focus({ preventScroll: true });
+      // the link sits in the panel underneath, still inert until the stack re-renders: try again once it is not
+      requestAnimationFrame(() => {
+        if (!back.isConnected || back.closest("[inert]")) return;
+        const now = document.activeElement;
+        const host = back.closest(".mds-panel");
+        if (now && now !== document.body && now !== host && !(el?.contains(now) ?? false)) return;
+        back.focus({ preventScroll: true });
+      });
     };
   }, [open]);
   useEffect(() => {

@@ -39,7 +39,7 @@
   background: color-mix(in srgb, var(--mds-c-surface) 55%, transparent);
   pointer-events: none;
   opacity: 0;
-  animation: ui-table-loading-in 0.2s ease-out 0.15s forwards;
+  animation: mds-table-loading-in 0.2s ease-out 0.15s forwards;
 }
 
 .mds-table-loading-spin {
@@ -56,7 +56,7 @@
   color: var(--mds-c-accent);
 }
 
-@keyframes ui-table-loading-in {
+@keyframes mds-table-loading-in {
   to {
     opacity: 1;
   }

@@ -16,7 +16,7 @@ import {
   SunMoon,
   type LucideIcon,
 } from "lucide-react";
-import { type MouseEvent, type ReactNode } from "react";
+import { type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { isActivePath, useKitRouter } from "../core/router.js";
 import { useDragSort } from "../data/dragsort.js";
 import { Dot } from "../display/dot.js";
@@ -341,6 +341,8 @@ export function AppShell({
   homeTo,
   homeTitle,
   brand,
+  className,
+  style,
 }: {
   rail: Array<RailItem>;
   utility: Array<RailItem>;
@@ -373,12 +375,15 @@ export function AppShell({
   homeTitle?: string;
   /** the logo at the top of the rail: a letter, an <img>, an icon; the first letter of `title` by default */
   brand?: ReactNode;
+  /** on the shell's root; it fills the viewport (100vh) unless you size it, e.g. `style={{ height: "100%" }}` in a box */
+  className?: string;
+  style?: CSSProperties;
 }) {
   const { Link, pathname } = useKitRouter();
   const logo = brand ?? title.trim().charAt(0).toUpperCase();
   const ctx = contexts.find((c) => c.id === activeContext) ?? contexts[0];
   return (
-    <div className="mds-shell">
+    <div className={`mds-shell${className ? ` ${className}` : ""}`} style={style}>
       <nav className="mds-rail" aria-label="Sections">
         {homeTo ? (
           <Link

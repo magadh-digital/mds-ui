@@ -36,9 +36,9 @@
 .mds-progress-track.indeterminate .mds-progress-bar {
   position: absolute;
   width: 35%;
-  animation: ui-progress-slide 1.1s ease-in-out infinite;
+  animation: mds-progress-slide 1.1s ease-in-out infinite;
 }
-@keyframes ui-progress-slide {
+@keyframes mds-progress-slide {
   from { left: -35%; }
   to { left: 100%; }
 }

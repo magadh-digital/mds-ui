@@ -15,7 +15,7 @@ import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText, RotateCw, 
  * - More than one file: ← / → (or the side arrows, or the strip of thumbnails) move between them; "2 / 5" in the head.
  * - Esc closes; + / − zoom; 0 resets; R rotates. The keys work while the focus is in the viewer (it moves in on open,
  *   Tab stays inside, and it returns on close), never while typing in a field, and not when a layer above has taken
- *   them. The backdrop carries `.inv-backdrop`, so tables and panels under it leave their keyboard shortcuts alone
+ *   them. The backdrop carries `.mds-inv-backdrop`, so tables and panels under it leave their keyboard shortcuts alone
  *   while it is open (dialog.tsx `dialogOpen`).
  * - Files are plain URLs, so it works for every service; `kind` is guessed from the name / URL when not given, and a
  *   URL with no extension (the static service's `/files/preview/<id>`) is tried as an image first, then shown inline.
@@ -41,10 +41,11 @@ const DOC = /\.(xlsx?|csv|docx?|pptx?|zip|txt|json)(\?|#|$)/i;
 /** @internal */
 export function kindOf(f: ViewerFile): "image" | "pdf" | "file" | "unknown" {
   if (f.kind) return f.kind;
-  const s = `${f.name ?? ""} ${f.src}`;
-  if (IMG.test(s)) return "image";
-  if (PDF.test(s)) return "pdf";
-  if (DOC.test(s)) return "file";
+  // the name first (a blob: or signed URL often has no extension), then the URL
+  const is = (re: RegExp) => re.test(f.name ?? "") || re.test(f.src);
+  if (is(IMG)) return "image";
+  if (is(PDF)) return "pdf";
+  if (is(DOC)) return "file";
   return "unknown";
 }
 const nameOf = (f: ViewerFile) => {

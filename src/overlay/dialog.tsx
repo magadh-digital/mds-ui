@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { DIALOG_Z } from "./floating.js";
 
 /**
- * The one dialog of the kit (the `.inv-backdrop` / `.inv-frame` parts): a centred frame over a dim backdrop for the few
+ * The one dialog of the kit (the `.mds-inv-backdrop` / `.mds-inv-frame` parts): a centred frame over a dim backdrop for the few
  * things a slide-over cannot hold — a form whose table needs the width (a create form), a confirm that needs fields.
  * Details stay slide-overs. It sits above the panels and the file viewer, under toasts and popovers.
  *

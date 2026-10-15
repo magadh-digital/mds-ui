@@ -10,12 +10,11 @@
     "preview": "vite preview --port 5195 --strictPort"
   },
   "dependencies": {
+    "prism-react-renderer": "2.4.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^5.0.0",
     "react-docgen-typescript": "^2.4.0",
     "typescript": "^5.9.0",

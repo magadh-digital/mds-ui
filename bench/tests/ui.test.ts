@@ -131,7 +131,7 @@ describe("Autocomplete (multiple)", () => {
     await rows[3]!.click(); // Ranchi
     expect(await visible(".mds-ac-pop")).toBe(true);
     expect(await out("ac-multi-out")).toBe("patna,ranchi");
-    const chips = await page.$$eval('[data-testid="ac-multi"] .ui-ac-chip', (els) => els.map((e) => e.textContent));
+    const chips = await page.$$eval('[data-testid="ac-multi"] .mds-ac-chip', (els) => els.map((e) => e.textContent));
     expect(chips).toEqual(["Patna", "Ranchi"]);
     await (await page.$$(`${AC} [role=option]`))[0]!.click(); // untick Patna
     expect(await out("ac-multi-out")).toBe("ranchi");
@@ -143,7 +143,7 @@ describe("Autocomplete (multiple)", () => {
     await page.keyboard.press("Backspace");
     expect(await out("ac-multi-out")).toBe("ranchi");
     await page.keyboard.press("Escape");
-    await page.click('[data-testid="ac-multi"] .ui-ac-chip-x');
+    await page.click('[data-testid="ac-multi"] .mds-ac-chip-x');
     expect(await out("ac-multi-out")).toBe("");
   });
 });

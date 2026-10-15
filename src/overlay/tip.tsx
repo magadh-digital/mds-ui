@@ -2,7 +2,7 @@ import { autoUpdate, flip, FloatingPortal, offset, shift, useDismiss, useFloatin
 import { type ReactNode, useState } from "react";
 import { TIP_Z, Trigger, useLayerMotion } from "./floating.js";
 
-/** A hover / focus hint (250 ms in, 50 ms out), drawn in `.ui-tip`. */
+/** A hover / focus hint (250 ms in, 50 ms out), drawn in `.mds-tip`. */
 export function Tip({
   label,
   children,

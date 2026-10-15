@@ -27,7 +27,7 @@ export function ConfirmPop({
   danger?: boolean;
   /** the word the person must type to enable the button (a destructive delete: "DELETE") */
   typed?: string;
-  onConfirm: (reason: string) => void | Promise<unknown>;
+  onConfirm: (reason: string) => unknown;
   placement?: PopPlacement;
 }) {
   const [open, setOpen] = useState(false);
@@ -43,6 +43,7 @@ export function ConfirmPop({
     }
     setOpen(v);
   };
+  const ready = !busy && !(reason?.required && !text.trim()) && !(!!typed && word.trim() !== typed);
   const run = async () => {
     setBusy(true);
     try {
@@ -86,6 +87,13 @@ export function ConfirmPop({
             aria-label={`Type ${typed} to confirm`}
             value={word}
             onChange={(e) => setWord(e.target.value)}
+            // Enter confirms once the word is right, as in ConfirmDialog
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && ready) {
+                e.preventDefault();
+                void run();
+              }
+            }}
             autoFocus
           />
         )}
@@ -93,11 +101,7 @@ export function ConfirmPop({
           <button
             type="button"
             className={`mds-btn ${danger ? "danger" : ""}`}
-            disabled={
-              busy ||
-              (reason?.required && !text.trim()) ||
-              (!!typed && word.trim() !== typed)
-            }
+            disabled={!ready}
             onClick={() => void run()}
           >
             {busy ? "Working…" : confirmLabel}
