@@ -3,7 +3,6 @@ import { type ReactNode, type Ref, useEffect, useRef, useState } from "react";
 import { type Tone } from "../core/types";
 import { Dot } from "../display/dot";
 import { Term } from "../display/term";
-import "./searchbox.css";
 
 export function Sidebar({
   collapsed,

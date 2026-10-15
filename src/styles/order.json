@@ -36,5 +36,9 @@
  "display/stats.css",
  "display/tabs.css",
  "display/feedback.css",
+ "display/empty.css",
+ "display/fileviewer.css",
+ "data/searchbox.css",
+ "inputs/fileinput.css",
  "styles/motion.css"
 ]

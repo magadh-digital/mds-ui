@@ -16,8 +16,12 @@ npm install @mds/ui
 ## Quick start
 
 ```tsx
-import "@mds/ui/styles.css";
-import { Toolbar, DenseTable, ToggleGroup, StatusChip, DateRange, Toaster, dayTime } from "@mds/ui";
+import { UIProvider, Toolbar, DenseTable, ToggleGroup, StatusChip, DateRange, dayTime } from "@mds/ui";
+
+// once, around the app (it mounts the toast host, appearance, panels, glossary and your router)
+<UIProvider>
+  <App />
+</UIProvider>
 
 export function Orders() {
   const [status, setStatus] = useState<"" | "open" | "closed">("");
@@ -41,14 +45,14 @@ export function Orders() {
       />
       <DenseTable label="Orders" columns={columns} data={rows} getRowId={(r) => r.id} loading={isFetching}
         sorting={sorting} onSortingChange={setSorting} pagination={page} onPaginationChange={setPage} />
-      <Toaster />
     </div>
   );
 }
 ```
 
-Import everything from `@mds/ui` and the stylesheet from `@mds/ui/styles.css`. A single module can also be imported by
-its folder path (`@mds/ui/inputs/daterange`, `@mds/ui/core/date`).
+**Styles come with the main entry:** importing anything from `@mds/ui` loads the kit's stylesheet. Import
+`@mds/ui/styles.css` yourself only when you use single modules by folder path (`@mds/ui/inputs/daterange`,
+`@mds/ui/core/date`) and never the main entry, or to place the kit's CSS at a precise spot among your own.
 
 ## What's inside
 

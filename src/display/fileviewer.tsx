@@ -1,7 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Download, ExternalLink, FileText, RotateCw, X, ZoomIn, ZoomOut } from "lucide-react";
-import "./fileviewer.css";
 
 /**
  * The kit's one way to open an image or a file.

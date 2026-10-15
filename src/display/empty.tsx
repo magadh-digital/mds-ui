@@ -1,6 +1,5 @@
 import { type LucideIcon } from "lucide-react";
 import { type ReactNode } from "react";
-import "./empty.css";
 
 /**
  * The kit's one empty state: what is missing, why, and the next step. Tables say it through
