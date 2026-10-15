@@ -1,0 +1,116 @@
+/* ---------- sidebar (pattern C) ---------- */
+.sidebar {
+  width: var(--sidebar-w);
+  flex: none;
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transition: width 0.15s ease;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  border-right: 0;
+  overflow: hidden;
+}
+
+.sidebar .top {
+  padding: var(--sp-2) var(--sp-2) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.sidebar .scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 0 var(--sp-2);
+}
+
+.sidebar .foot {
+  border-top: 1px solid var(--c-border);
+  padding: var(--sp-2) var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: var(--sp-2);
+  z-index: 5;
+}
+
+.fgroup {
+  padding: var(--sp-2) var(--sp-1) var(--sp-1);
+}
+
+.fgroup .head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(var(--row-h) - 6px);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  padding: 0 var(--sp-1);
+}
+
+.fgroup .head svg {
+  width: 14px;
+  height: 14px;
+  color: var(--c-muted);
+}
+
+.fgroup .body {
+  display: flex;
+  flex-direction: column;
+}
+
+.frow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(var(--row-h) - 2px);
+  padding: 0 var(--sp-1);
+  font-size: var(--fs-md);
+}
+
+.banner {
+  margin: var(--sp-2) var(--sp-1) 0;
+  padding: var(--sp-2);
+  border-radius: var(--radius-md);
+  background: var(--c-accent-soft);
+  font-size: var(--fs-sm);
+  display: flex;
+  gap: var(--sp-2);
+  align-items: flex-start;
+}
+
+.banner svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--c-accent);
+  flex: none;
+}
+
+/**
+ * One sentence a form or a popover opens with (first: "Tally already holds this purchase"). The kit's `Banner` above
+ * is the page-wide one — accent, an Info icon, no tone; this one is tinted by what it says (green when sure, amber
+ * when probable) and carries no icon, so it sits above an issues strip without shouting over it.
+ */
+.ui-note {
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--c-ok) 35%, transparent);
+  background: color-mix(in srgb, var(--c-ok) 10%, transparent);
+  font-size: var(--fs-sm);
+}
+
+.ui-note.warn {
+  border-color: color-mix(in srgb, var(--c-warn) 40%, transparent);
+  background: color-mix(in srgb, var(--c-warn) 12%, transparent);
+}

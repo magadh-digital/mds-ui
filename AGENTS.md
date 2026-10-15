@@ -8,12 +8,15 @@ it, and before you change the kit itself.
   something like that, it takes it as a prop or through a provider (see `TermsProvider glossary={...}`).
 - Keep it light: React, lucide-react and TanStack Table are peers. Run `bun run size` after a change, and don't add a
   dependency without a reason.
-- Styles are plain CSS on the tokens in `src/tokens.css`. Themes and dark mode come from CSS variables; no CSS-in-JS.
+- Styles are plain CSS on the variables in `src/styles/tokens.css`. Themes and dark mode come from CSS variables; no
+  CSS-in-JS. A component's stylesheet sits next to it; add a new one to `src/styles/order.json`.
+- Folders are layers (see README "Layout"): `core` ← `overlay` ← `inputs`/`display` ← `data` ← `layout`. Import only
+  from your own layer or below. Put a new component in the folder of its kind, one component per file.
 - Public API changes need a version bump and a line in the changelog.
 
 ## UI rules for pages built with the kit
 
-### Toolbar (`Toolbar` in `src/listpage.tsx`)
+### Toolbar (`Toolbar` in `src/data/toolbar.tsx`)
 
 ```
 [tabs or title · count · chips] ··········· [page buttons, figures] [filters: date / select] [search] [refresh]
@@ -40,7 +43,7 @@ it, and before you change the kit itself.
 - **Filter groups** (`FilterGroup`): a group whose body is one row, or one control, has no show/hide arrow. The kit
   measures this, so don't add the arrow back.
 
-### Tables (`DenseTable` in `src/table.tsx`)
+### Tables (`DenseTable` in `src/data/table.tsx`)
 
 - **`loading` is required**: pass the query's `isFetching` (not `isLoading`). Every load looks the same, whether
   first load, background refetch or toolbar refresh: a veil plus a spinner, fading in after 150 ms. There is no progress

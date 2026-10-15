@@ -6,17 +6,44 @@ toasts and number and date formats. It is styled with plain CSS variables, so a 
 mode comes free.
 
 > Status: 0.1, private. It was carved out of procurement-console's `src/console` on 15 Oct 2026, with no app code,
-> then made Chakra-, react-datepicker- and dayjs-free.
+> then made Chakra-, react-datepicker- and dayjs-free (0.2: organised into folders).
 > It isn't published yet (see "Before publishing").
 
 ## Use
 
 ```tsx
-import "@magadhtech/ui/tokens.css";
+import "@magadhtech/ui/styles.css";
 import { Toolbar, DenseTable, ToggleGroup, ToneChip, dayTime } from "@magadhtech/ui";
 // or one module alone, so an app that shows no table never loads TanStack Table:
 import { DenseTable } from "@magadhtech/ui/table";
 ```
+
+Every module has a short path (`@magadhtech/ui/daterange`, `/autocomplete`, `/pop`, `/toolbar`, `/date`, …) and a folder
+path (`@magadhtech/ui/inputs/daterange`). The 0.1 names `primitives`, `forms` and `listpage` still work: they re-export
+the modules they were split into.
+
+## Layout
+
+```
+src/
+  core/      date, format, hooks, validate, types      no UI; imports nothing from the kit
+  overlay/   floating (shared layer logic), tip, pop, confirm, menu, dialog, toast
+  inputs/    autocomplete, daterange, toggle, seg, switch, fileinput, form, actions
+  display/   chip, empty, cards, chart, flowstrip, fileviewer, term, dot, buttons, skeleton
+  data/      table, minitable, columns, toolbar, listpage, sidebar, pages, dragsort
+  layout/    panel, appearance, placeholder
+  styles/    tokens.css (variables), controls, misc, motion; order.json
+  app/       styles of the console's own pages, kept until they move back to the console
+  compat/    the 0.1 module names
+```
+
+- **Imports go one way**, down this list: `core` ← `overlay` ← `inputs`/`display` ← `data` ← `layout`. Nothing imports
+  upward, and there are no circular imports.
+- **One component (or a few tiny siblings) per file**, with its stylesheet next to it (`inputs/daterange.tsx` and
+  `inputs/daterange.css`).
+- **`dist/styles.css`** joins the stylesheets in the order `src/styles/order.json` lists, which is the cascade order the
+  console was built with.
+- **Tests sit next to their code** (`core/date.test.ts`).
 
 - **Peers:** `react` 19, `react-dom`, `lucide-react`, and `@tanstack/react-table` (only for `table`, `listpage`, `forms`).
 - **One dependency:** `@floating-ui/react`, for the positioning, outside clicks and focus of the popovers, the tooltip,
@@ -34,7 +61,7 @@ import { DenseTable } from "@magadhtech/ui/table";
 bun install
 bun run typecheck
 bun run build     # dist/: ESM .js + .d.ts per module, CSS copied beside them
-bun run size      # gzip size per file
+bun run size      # gzip size per file, and how much of styles.css is the kit's own
 bun test          # date() against dayjs
 bun scripts/smoke.tsx   # loads the built package and renders a few components
 ```
@@ -45,7 +72,7 @@ with every component, and drives it in Chromium (`bun run pack-kit && bun run bu
 
 ## Before publishing
 
-1. Move the console-only styles out of `tokens.css`; today it still carries page styles from procurement-console.
+1. Move `src/app/` (the console's page styles, about 7 KB gzipped) back into procurement-console.
 2. Bring over the shell and the command palette with a router adapter (they import TanStack Router today, so they
    stayed in the app).
 3. Make locale and currency options of `format.ts`, keeping `en-IN` and ₹ as the default.

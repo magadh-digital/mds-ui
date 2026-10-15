@@ -1,0 +1,279 @@
+/* ---------- table (pattern B) ---------- */
+/* the table's box: the scroller plus the loading overlay that sits over it */
+.ui-table-host {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ui-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--c-surface);
+}
+
+/* before the first data: a blank body the loading overlay sits on */
+.ui-table tbody tr.ui-table-pending td {
+  height: calc(var(--table-row-h) * 8);
+  border-bottom: 0;
+}
+
+.ui-table tbody tr.ui-table-pending:hover td {
+  background: transparent;
+}
+
+/*
+ * Loading overlay: rows stay visible under a veil with a spinner in the middle, for every load (first, refetch,
+ * refresh). It fades in after 150 ms so a quick answer never flashes it.
+ */
+.ui-table-loading {
+  position: absolute;
+  inset: var(--table-head-h) 0 0 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--c-surface) 55%, transparent);
+  pointer-events: none;
+  opacity: 0;
+  animation: ui-table-loading-in 0.2s ease-out 0.15s forwards;
+}
+
+.ui-table-loading-spin {
+  display: inline-flex;
+  padding: var(--sp-2);
+  border-radius: 50%;
+  background: var(--c-surface);
+  box-shadow: var(--shadow-pop);
+}
+
+.ui-table-loading-spin svg {
+  width: 22px;
+  height: 22px;
+  color: var(--c-accent);
+}
+
+@keyframes ui-table-loading-in {
+  to {
+    opacity: 1;
+  }
+}
+
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ui-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 100%;
+  width: max-content;
+  font-size: var(--fs-sm);
+}
+
+.ui-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--c-surface);
+  text-align: left;
+  font-weight: 600;
+  color: var(--c-text);
+  height: var(--table-head-h);
+  padding: 0 var(--table-cell-px);
+  border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ui-table th.sortable {
+  cursor: pointer;
+}
+
+.ui-table th.sortable:hover {
+  color: var(--c-accent);
+}
+
+.ui-table th .th {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ui-table th .th svg {
+  width: 12px;
+  height: 12px;
+  color: var(--c-accent);
+}
+
+.ui-table th.right,
+.ui-table td.right {
+  text-align: right;
+}
+
+.ui-table th.right .th {
+  flex-direction: row-reverse;
+}
+
+.ui-table th.center,
+.ui-table td.center {
+  text-align: center;
+}
+.ui-table th.center .th {
+  justify-content: center;
+}
+/* header drag (18 Sep 2026): the lifted column dims, a 2 px accent line marks the edge it lands on */
+.ui-table th.dragging {
+  opacity: 0.35;
+}
+
+.ui-table th.drop-before {
+  box-shadow: inset 2px 0 0 0 var(--c-accent);
+}
+
+.ui-table th.drop-after {
+  box-shadow: inset -2px 0 0 0 var(--c-accent);
+}
+
+.ui-table td {
+  height: var(--table-row-h);
+  padding: 0 var(--table-cell-px);
+  border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+  vertical-align: middle;
+}
+
+.ui-table tbody tr {
+  cursor: pointer;
+}
+
+.ui-table tbody tr:hover td {
+  background: var(--c-hover);
+}
+
+.ui-table tbody tr.selected td {
+  background: var(--c-accent-soft);
+}
+
+.ui-table tbody tr.dim td {
+  opacity: 0.68;
+}
+
+/* a closed PO / finished row: readable at a glance, still clearly out of play */
+.ui-table .sub {
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+  margin-left: var(--sp-1);
+}
+
+.ui-table .cell-link {
+  color: var(--c-accent);
+}
+
+.ui-table .cell-link:hover {
+  text-decoration: underline;
+}
+
+/*
+ * A two-line list (Billing › Orders to bill): every row the same height whatever a cell holds, the way the ERP's
+ * table draws it (64 px rows at its 16 px base). The first line is the value, the second the muted detail, and
+ * nothing wraps — a cell that has more clips at its edge and tells the rest in its title.
+ */
+.ui-table.two-line td {
+  height: var(--table-row-2);
+}
+
+/* three-line rows: a value and two muted detail lines (.sub) */
+.ui-table.three-line td {
+  height: var(--table-row-3);
+  white-space: normal;
+}
+
+.ui-table.three-line td .sub {
+  display: block;
+  margin-left: 0;
+  line-height: 1.4;
+}
+
+.ui-table.two-line td .sub {
+  display: block;
+  margin-left: 0;
+  line-height: 1.4;
+}
+
+.ui-table.two-line td > .hstack {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.ui-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: calc(var(--row-h) + 8px);
+  padding: 0 var(--sp-3);
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface);
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  flex: none;
+}
+
+.ui-foot .pager {
+  display: inline-flex;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.ui-foot .pager button {
+  width: 22px;
+  height: 20px;
+  border: 0;
+  background: transparent;
+  color: var(--c-muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.ui-foot .pager button:disabled {
+  color: var(--c-neutral);
+  cursor: default;
+}
+
+.ui-foot .pager button svg {
+  width: 12px;
+  height: 12px;
+}
+
+.ui-foot .pager button+button {
+  border-left: 1px solid var(--c-border);
+}
+
+.ui-empty {
+  padding: var(--sp-4);
+  color: var(--c-muted);
+  font-size: var(--fs-md);
+}
+
+.ui-error {
+  padding: var(--sp-3);
+  color: var(--c-error);
+  font-size: var(--fs-md);
+}

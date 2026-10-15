@@ -1,0 +1,63 @@
+/* ---------- pattern G: log rows ---------- */
+.logs {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.logrow {
+  display: grid;
+  grid-template-columns: calc(120px * var(--layout-scale)) var(--icon-sm) 1fr auto;
+  gap: var(--sp-2);
+  align-items: start;
+  padding: 5px var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+  font-size: var(--fs-sm);
+}
+
+.logrow:hover {
+  background: var(--c-hover);
+}
+
+.logrow .when {
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.logrow svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--c-muted);
+  margin-top: 1px;
+}
+
+.logrow .who {
+  color: var(--c-muted);
+  white-space: nowrap;
+}
+
+.sev-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.sev-pills button {
+  height: var(--ctl-h);
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--c-muted);
+}
+
+.sev-pills button.active {
+  border-color: var(--c-accent);
+  color: var(--c-text);
+  background: var(--c-accent-soft);
+}

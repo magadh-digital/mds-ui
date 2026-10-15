@@ -1,0 +1,222 @@
+/* ---------- lane strip (flowstrip.tsx, 2026-10-08): an engine's steps by lane — ✓ done · ○ to do · ! blocked · dimmed not
+   needed; → a node needs the one before it, || it runs beside it ---------- */
+.lstrip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+}
+
+.lstrip-caption {
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+
+.lstrip-lane {
+  display: grid;
+  grid-template-columns: calc(64px * var(--ui-scale)) 1fr;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.lstrip-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-muted);
+  white-space: nowrap;
+}
+
+.lstrip-nodes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-2);
+  min-width: 0;
+}
+
+.lstrip-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.lstrip-join {
+  color: var(--c-muted);
+  font-size: var(--fs-md);
+  line-height: 1;
+}
+
+.lstrip-join.beside {
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--c-neutral);
+}
+
+.lstrip-after {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  white-space: nowrap;
+}
+
+.lstrip-node {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-width: 0;
+  max-width: calc(300px * var(--ui-scale));
+  padding: 3px var(--sp-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.lstrip-node:hover {
+  border-color: var(--c-accent);
+}
+
+.lstrip-node:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 1px;
+}
+
+.lstrip-node .n1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.lstrip-node .glyph {
+  flex: none;
+  width: calc(14px * var(--ui-scale));
+  height: calc(14px * var(--ui-scale));
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1;
+}
+
+/**
+ * The second tick of a Vehicles purchase node (TICKS-CONTRACT §3): the same disc as the book's glyph, so the two read
+ * at one glance (owner 2026-10-14: the flat character beside the filled disc was too faint to see). In Tally = the
+ * filled green disc, probably = the filled amber disc with `?`, not in Tally = the empty grey ring, unknown = the ring,
+ * faint. The tints are the theme's own, so light and dark both hold.
+ */
+.lstrip-node .tglyph {
+  flex: none;
+  width: calc(14px * var(--ui-scale));
+  height: calc(14px * var(--ui-scale));
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+}
+
+.lstrip-node .tglyph.ok {
+  background: var(--c-ok);
+  color: #fff;
+}
+
+.lstrip-node .tglyph.warn {
+  background: var(--c-warn);
+  color: #fff;
+}
+
+.lstrip-node .tglyph.none {
+  border: 1.5px solid var(--c-muted);
+  color: var(--c-muted);
+}
+
+.lstrip-node .tglyph.faint {
+  border: 1.5px solid var(--c-muted);
+  color: var(--c-muted);
+  opacity: 0.5;
+}
+
+.lstrip-node .tag {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+.lstrip-node .what {
+  font-weight: 600;
+}
+
+.lstrip-node .to {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lstrip-node .n2 {
+  max-width: 100%;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lstrip-node.done .glyph {
+  background: var(--c-ok);
+  color: #fff;
+}
+
+.lstrip-node.todo {
+  border-color: color-mix(in srgb, var(--c-accent) 45%, var(--c-border));
+}
+
+.lstrip-node.todo .glyph {
+  border: 1.5px solid var(--c-accent);
+}
+
+.lstrip-node.blocked {
+  border-color: color-mix(in srgb, var(--c-warn) 55%, var(--c-border));
+}
+
+.lstrip-node.blocked .glyph,
+.lstrip-node.changed .glyph {
+  background: var(--c-warn);
+  color: #fff;
+}
+
+.lstrip-node.not_needed {
+  opacity: 0.5;
+  border-style: dashed;
+  cursor: default;
+}
+
+.lstrip-node.not_needed:hover {
+  border-color: var(--c-border);
+}
+
+.lstrip-node.current {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 2px var(--c-accent-soft);
+  cursor: default;
+}
+
+.lstrip-reasons {
+  margin: 0;
+  padding-left: var(--sp-4);
+  font-size: var(--fs-sm);
+}
+
+.ui-table tr.exp-row .lstrip {
+  padding: var(--sp-1) 0;
+}

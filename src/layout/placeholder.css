@@ -1,0 +1,23 @@
+/* ---------- signed-out and placeholder states ---------- */
+.signin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  color: var(--c-muted);
+  height: 100%;
+  font-size: var(--fs-md);
+}
+
+.signin svg {
+  width: calc(var(--icon-md) * 1.4);
+  height: calc(var(--icon-md) * 1.4);
+}
+
+.placeholder {
+  padding: var(--sp-4);
+  color: var(--c-muted);
+  font-size: var(--fs-md);
+}

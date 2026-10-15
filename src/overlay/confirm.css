@@ -1,0 +1,134 @@
+/* ---------- confirm popover, bulk bar, settings section, toasts ---------- */
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-1);
+  font-size: var(--fs-md);
+}
+
+.confirm-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: 600;
+}
+
+.confirm-title svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--c-warn);
+}
+
+.bulkbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--c-accent-soft);
+  border-bottom: 1px solid var(--c-border);
+  font-size: var(--fs-md);
+}
+
+.bulkbar .ui-input {
+  width: calc(180px * var(--layout-scale));
+}
+
+.ssec {
+  padding: 0;
+  margin-bottom: var(--sp-3);
+}
+
+.ssec-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--fs-md);
+}
+
+.ssec-head:hover {
+  background: var(--c-hover);
+}
+
+.ssec-title {
+  font-weight: 600;
+}
+
+.ssec-body {
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+  border-top: 1px solid var(--c-border);
+}
+
+.ssec-links {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+
+.chev {
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--c-muted);
+  border-bottom: 1.5px solid var(--c-muted);
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+
+.chev.open {
+  transform: rotate(45deg);
+}
+
+.mini tr.clickable {
+  cursor: pointer;
+}
+
+.mini tr.clickable:hover td {
+  background: var(--c-hover);
+}
+
+.toasts {
+  position: fixed;
+  right: var(--sp-3);
+  bottom: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  z-index: 1000;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+  font-size: var(--fs-md);
+  max-width: 420px;
+  cursor: pointer;
+}
+
+.toast svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex: none;
+}
+
+.toast.ok svg {
+  color: var(--c-ok);
+}
+
+.toast.error svg {
+  color: var(--c-error);
+}
+
+.toast.info svg {
+  color: var(--c-accent);
+}

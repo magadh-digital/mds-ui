@@ -1,0 +1,80 @@
+/* ---------- pattern J: context menu ---------- */
+.ctxmenu {
+  position: fixed;
+  z-index: 950;
+  min-width: calc(200px * var(--layout-scale));
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+  padding: var(--sp-1);
+  font-size: var(--fs-md);
+  outline: 0;
+}
+
+.ctxmenu .title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--c-muted);
+  padding: var(--sp-1) var(--sp-2) 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(320px * var(--layout-scale));
+}
+
+.ctxmenu .sep {
+  border-top: 1px solid var(--c-border);
+  margin: var(--sp-1) 0;
+}
+
+.ctxmenu .mi {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  height: calc(var(--row-h) - 2px);
+  padding: 0 var(--sp-2);
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--fs-md);
+  color: inherit;
+}
+
+.ctxmenu .mi:hover,
+.ctxmenu .mi.active {
+  background: var(--c-hover);
+}
+
+.ctxmenu .mi:disabled {
+  color: var(--c-neutral);
+  cursor: default;
+  background: transparent;
+}
+
+.ctxmenu .mi.danger {
+  color: var(--c-error);
+}
+
+.ctxmenu .mi svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--c-muted);
+  flex: none;
+}
+
+.ctxmenu .mi.danger svg {
+  color: var(--c-error);
+}
+
+.ctxmenu .mi .ui-kbd {
+  margin-left: var(--sp-3);
+}
+
+.ctxmenu .confirm {
+  min-width: calc(260px * var(--layout-scale));
+}

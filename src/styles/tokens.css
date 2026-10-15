@@ -1,0 +1,157 @@
+/* ---------- Console tokens (guide §2 + §3). Every size derives from --ui-scale. ---------- */
+:root {
+  --ui-scale: 1;
+  --font-ui:
+    -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+:root[data-density="comfortable"] {
+  --ui-scale: 1.15;
+  /* MUI Data Grid "standard" */
+  --table-row-h: 52px;
+  --table-row-2: 64px;
+  --table-row-3: 80px;
+  --table-head-h: 56px;
+}
+
+:root[data-density="large"] {
+  --ui-scale: 1.3;
+  /* MUI Data Grid "comfortable" */
+  --table-row-h: 67px;
+  --table-row-2: 80px;
+  --table-row-3: 96px;
+  --table-head-h: 67px;
+}
+
+:root[data-panel="narrow"] {
+  --panel-w: calc(560px * var(--layout-scale));
+}
+
+:root[data-panel="wide"] {
+  --panel-w: calc(800px * var(--layout-scale));
+}
+
+:root[data-panel="wider"] {
+  --panel-w: calc(960px * var(--layout-scale));
+}
+
+:root {
+  --layout-scale: min(var(--ui-scale), 1.15);
+  --fs-xs: calc(11px * var(--ui-scale));
+  --fs-sm: calc(12px * var(--ui-scale));
+  --fs-md: calc(13px * var(--ui-scale));
+  --fs-lg: calc(14px * var(--ui-scale));
+  --fs-xl: calc(18px * var(--ui-scale));
+  --sp-1: calc(4px * var(--ui-scale));
+  --sp-2: calc(8px * var(--ui-scale));
+  --sp-3: calc(12px * var(--ui-scale));
+  --sp-4: calc(16px * var(--ui-scale));
+  --row-h: calc(30px * var(--ui-scale));
+  /* table rows (every DenseTable / .ui-table), after the MUI Data Grid densities: the default sits a little above
+     MUI compact (40 px rows, 44 px header, 10 px cell padding; owner 15 Oct 2026 "a little more room"); the other
+     densities are MUI standard (52 / 56) and comfortable (67 / 67).
+     Kept apart from --row-h, which also sizes sidebar rows and controls. Two-line rows (value + muted
+     detail) use --table-row-2. */
+  --table-row-h: 40px;
+  --table-row-2: 52px;
+  --table-row-3: 68px;
+  --table-head-h: 44px;
+  --table-cell-px: 10px;
+  --ctl-h: calc(28px * var(--ui-scale));
+  --icon-sm: calc(16px * var(--ui-scale));
+  --icon-md: calc(20px * var(--ui-scale));
+  --rail-w: calc(48px * var(--layout-scale));
+  --topbar-h: calc(48px * var(--layout-scale));
+  --sidebar-w: calc(264px * var(--layout-scale));
+  --panel-w: calc(680px * var(--layout-scale));
+  /* the detail panel: 680 px by default (21 Sep 2026); a user preference (Appearance › Detail panel), see :root[data-panel] below */
+  --panel-pad: var(--sp-4);
+  /* the panel's side padding: sections, head, foot */
+  --kv-k: calc(130px * var(--ui-scale));
+  /* the key-value label column */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  --c-canvas: #f6f7f9;
+  --c-surface: #ffffff;
+  --c-border: #e5e7eb;
+  --c-text: #1f2328;
+  --c-muted: #6b7280;
+  --c-accent: #006fff;
+  --c-accent-soft: rgba(0, 111, 255, 0.08);
+  --c-hover: #f3f4f6;
+  --c-ok: #22c55e;
+  --c-warn: #f59e0b;
+  --c-error: #ef4444;
+  --c-neutral: #d1d5db;
+  --shadow-pop:
+    0 8px 24px rgba(16, 24, 40, 0.12), 0 1px 2px rgba(16, 24, 40, 0.08);
+  color-scheme: light;
+}
+
+:root.dark {
+  --c-canvas: #111317;
+  --c-surface: #1b1e24;
+  --c-border: #2a2e35;
+  --c-text: #e6e8eb;
+  --c-muted: #9aa0a6;
+  --c-accent: #3b8cff;
+  --c-accent-soft: rgba(59, 140, 255, 0.14);
+  --c-hover: #22262e;
+  --c-neutral: #3a3f47;
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--c-canvas);
+  color: var(--c-text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-md);
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-neutral) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--c-neutral);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+a {
+  color: var(--c-accent);
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+select {
+  font: inherit;
+  color: inherit;
+  accent-color: var(--c-accent);
+}

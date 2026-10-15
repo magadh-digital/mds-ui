@@ -1,0 +1,18 @@
+/* MiniTable `rowClassName`: a suspect (error / warn) or picked (on) row */
+table.mini tr.error > td {
+  background: color-mix(in srgb, var(--c-error) 10%, transparent);
+}
+table.mini tr.warn > td {
+  background: color-mix(in srgb, var(--c-warn) 12%, transparent);
+}
+table.mini tr.on > td {
+  background: var(--c-accent-soft);
+}
+table.mini .mini-clip {
+  display: inline-block;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}

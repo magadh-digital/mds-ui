@@ -1,0 +1,74 @@
+/* ---- small grids inside panels (an order's products, gifts, return items) ---- */
+.pgrid {
+  display: grid;
+  gap: 0 var(--sp-3);
+  font-size: var(--fs-sm);
+  align-items: start;
+}
+
+.pgrid-h {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-muted);
+  padding: 0 0 4px;
+  border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
+}
+
+.pgrid-c {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--c-border);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+.pgrid-h.right,
+.pgrid-c.right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pgrid-c .sub {
+  display: block;
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+}
+
+.pgrid-c .ui-link {
+  font-size: var(--fs-xs);
+}
+
+.pgrid-c.acts {
+  white-space: nowrap;
+}
+
+/* seven app tabs leave no room for the faint title on ordinary laptops */
+@media (max-width: 1600px) {
+  .topbar .title {
+    display: none;
+  }
+}
+
+/* sister pages joined under one rail entry (src/erp/page_tabs.tsx): a full-width segmented strip above the sidebar's search */
+.sidebar .page-tabs {
+  padding: var(--sp-2) var(--sp-2) 0;
+}
+
+.sidebar .page-tabs .ui-seg {
+  display: flex;
+  width: 100%;
+}
+
+.sidebar .page-tabs .ui-seg button {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding: 2px var(--sp-1);
+  height: auto;
+  min-height: calc(var(--ctl-h) - 6px);
+  white-space: normal;
+  text-align: center;
+  line-height: 1.15;
+  font-size: var(--fs-xs);
+}

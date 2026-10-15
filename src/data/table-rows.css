@@ -1,0 +1,18 @@
+/* a highlighted row (DenseTable / MiniTable `rowClassName`) */
+.ui-table tr.error > td {
+  background: color-mix(in srgb, var(--c-error) 10%, transparent);
+}
+.ui-table tr.warn > td {
+  background: color-mix(in srgb, var(--c-warn) 12%, transparent);
+}
+.ui-table tr.on > td {
+  background: var(--c-accent-soft);
+}
+.ui-table .mini-clip {
+  display: inline-block;
+  max-width: calc(320px * var(--ui-scale, 1));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}

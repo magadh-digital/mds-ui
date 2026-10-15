@@ -1,4 +1,10 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "noEmit": false, "sourceMap": false }
+  "compilerOptions": {
+    "noEmit": false,
+    "sourceMap": false
+  },
+  "exclude": [
+    "src/**/*.test.ts"
+  ]
 }

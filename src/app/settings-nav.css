@@ -1,0 +1,71 @@
+/* ---------- settings sub-nav (pattern F) ---------- */
+.snav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: 0 var(--sp-2);
+  height: var(--row-h);
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-md);
+  color: var(--c-text);
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--fs-md);
+}
+
+.snav:hover {
+  background: var(--c-hover);
+}
+
+.snav.active {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+.snav svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+/* words with a meaning on hover (console/term.tsx) */
+.term {
+  cursor: help;
+  text-decoration: underline dotted transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.12s;
+}
+
+.term:hover {
+  text-decoration-color: var(--c-muted);
+}
+
+.term-old {
+  color: var(--c-muted);
+  font-weight: 400;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+.ui-tip .term-tip {
+  max-width: 320px;
+  white-space: normal;
+  line-height: 1.35;
+  padding: 2px 0;
+}
+
+.term-tip-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.term-tip-old {
+  opacity: 0.72;
+  margin-top: 3px;
+}
+
+.glossary-search {
+  margin-bottom: var(--sp-3);
+  max-width: 360px;
+}

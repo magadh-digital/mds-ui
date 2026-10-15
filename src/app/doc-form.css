@@ -1,0 +1,308 @@
+/* ---------- document create form (panels/billing_invoice_form.tsx, and the voucher form on branch voucher):
+   sections in a Dialog xl, each field with the source its value came from ---------- */
+.vf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.vf-notes {
+  border: 1px solid var(--c-border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-sm);
+}
+
+.vf-notes.warn {
+  border-left-color: var(--c-warn);
+  background: color-mix(in srgb, var(--c-warn) 7%, var(--c-surface));
+}
+
+.vf-notes.bad {
+  border-left-color: var(--c-error);
+  background: color-mix(in srgb, var(--c-error) 7%, var(--c-surface));
+}
+
+.vf-notes-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-weight: 600;
+}
+
+.vf-notes-title svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex: none;
+}
+
+.vf-notes.warn .vf-notes-title svg {
+  color: var(--c-warn);
+}
+
+.vf-notes.bad .vf-notes-title svg {
+  color: var(--c-error);
+}
+
+.vf-notes ul {
+  margin: var(--sp-1) 0 0;
+  padding-left: calc(var(--sp-4) + var(--sp-1));
+}
+
+.vf-sec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.vf-sec:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.vf-sec h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.vf-sec h3 .grow {
+  flex: 1;
+}
+
+.vf-sec h4 {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--c-muted);
+}
+
+.vf-sec > .ui-link {
+  align-self: flex-start;
+}
+
+.vf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(170px * var(--ui-scale)), 1fr));
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.vf-field {
+  position: relative;
+  min-width: 0;
+}
+
+.vf-field.wide {
+  grid-column: span 2;
+}
+
+.vf-sec > .vf-field.wide {
+  grid-column: auto;
+}
+
+.vf-field > label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vf-l {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: calc(var(--fs-xs) + 4px);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-muted);
+  white-space: nowrap;
+}
+
+.vf-src {
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  color: var(--c-muted);
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.vf-src.edited {
+  color: var(--c-accent);
+  opacity: 1;
+}
+
+.vf-flag {
+  width: 12px;
+  height: 12px;
+  color: var(--c-warn);
+}
+
+.vf-extra {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.vf-mini {
+  font-size: var(--fs-xs);
+}
+
+.vf-field.flagged .ui-input,
+.vf-field.flagged .ui-select,
+.vf-cell.flagged .ui-input {
+  border-color: var(--c-warn);
+}
+
+.vf-field.bad .ui-input,
+.vf-field.bad .ui-select,
+.vf-cell.bad .ui-input {
+  border-color: var(--c-error);
+}
+
+.vf-field .ui-select {
+  width: 100%;
+}
+
+.vf-ro {
+  display: flex;
+  align-items: center;
+  height: var(--ctl-h);
+  padding: 0 var(--sp-2);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-md);
+}
+
+.vf-hint {
+  font-size: var(--fs-xs);
+}
+
+.vf-accept {
+  font-weight: 400;
+  font-size: var(--fs-sm);
+}
+
+.vf-lines-wrap {
+  overflow-x: auto;
+}
+
+.vf-lines td {
+  max-width: none;
+  overflow: visible;
+  vertical-align: top;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.vf-lines td .ui-input {
+  height: calc(var(--ctl-h) - 2px);
+  padding: 0 var(--sp-1);
+}
+
+.vf-lines td .sub {
+  display: block;
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+}
+
+.vf-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vf-cell .vf-src {
+  line-height: 1;
+}
+
+.vf-num {
+  text-align: right;
+  min-width: calc(80px * var(--ui-scale));
+}
+
+.vf-lines td:nth-child(2) .ui-input {
+  min-width: calc(150px * var(--ui-scale));
+}
+
+.vf-lines td:nth-child(3) .ui-input {
+  width: calc(84px * var(--ui-scale));
+}
+
+.vf-lines td:nth-child(5) .ui-input {
+  width: calc(52px * var(--ui-scale));
+}
+
+.vf-lines td:nth-child(8) .vf-num {
+  min-width: calc(48px * var(--ui-scale));
+}
+
+.vf-total {
+  font-weight: 600;
+  line-height: var(--ctl-h);
+}
+
+.vf-warnword {
+  color: var(--c-warn);
+}
+
+.vf-bad {
+  color: var(--c-error);
+}
+
+/* the Tally sub-line under a purchase line's item (voucher_form TallyLine): the picker and what Tally gets */
+.vf-lines td .sub.vf-tally {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-2);
+  margin-top: var(--sp-1);
+}
+
+.vf-tally-pick {
+  min-width: calc(220px * var(--ui-scale));
+}
+
+.vf-tally-ok {
+  color: var(--c-text);
+}
+
+.vf-check,
+.vf-verdict > span {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+}
+
+.vf-check svg,
+.vf-verdict svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex: none;
+}
+
+.vf-check.good svg,
+.vf-verdict .good svg {
+  color: var(--c-ok);
+}
+
+.vf-check.bad,
+.vf-verdict .bad {
+  color: var(--c-error);
+}
+
+/* a fact node (a sale the book records from its invoice): drawn, not worked — a dotted edge, a lighter word */
+.lstrip-node.fact {
+  border-style: dotted;
+}
+
+.lstrip-node.fact .what {
+  font-weight: 500;
+}

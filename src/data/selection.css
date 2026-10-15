@@ -1,0 +1,131 @@
+/* ---------- pattern K: selection + row menu ---------- */
+.ui-table th.sel,
+.ui-table td.sel {
+  width: 30px;
+  max-width: 30px;
+  padding: 0 0 0 var(--sp-2);
+}
+
+.ui-table th.sel input,
+.ui-table td.sel input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  vertical-align: middle;
+  opacity: 0.45;
+  cursor: pointer;
+}
+
+.ui-table th.sel input:checked,
+.ui-table th.sel input:indeterminate,
+.ui-table th:hover.sel input,
+.ui-table tbody tr:hover td.sel input,
+.ui-table tbody tr.checked td.sel input,
+.ui-table tbody tr:focus-within td.sel input {
+  opacity: 1;
+}
+
+.ui-table tbody tr.checked td {
+  background: var(--c-accent-soft);
+}
+
+.ui-table tbody tr.dropping td {
+  background: var(--c-accent-soft);
+  box-shadow:
+    inset 0 1px 0 var(--c-accent),
+    inset 0 -1px 0 var(--c-accent);
+}
+
+/* a file drop zone (statement upload): dashed hairline, accent while a file hovers */
+.dropzone {
+  border: 1px dashed var(--c-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3);
+  text-align: center;
+  color: var(--c-muted);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+}
+
+.dropzone:hover,
+.dropzone:focus-visible {
+  border-color: var(--c-accent);
+  color: var(--c-text);
+  outline: 0;
+}
+
+.dropzone.over {
+  border-color: var(--c-accent);
+  background: var(--c-accent-soft);
+  color: var(--c-text);
+}
+
+.upq {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px var(--sp-2);
+  font-size: var(--fs-sm);
+  align-items: center;
+}
+
+.upq .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upq .msg {
+  grid-column: 1 / -1;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  padding-bottom: 4px;
+}
+
+.ui-table tbody tr.checked:hover td {
+  background: color-mix(in srgb, var(--c-accent-soft), var(--c-hover));
+}
+
+.ui-table tbody tr:focus {
+  outline: none;
+}
+
+.ui-table tbody tr:focus-visible td:first-child {
+  box-shadow: inset 2px 0 0 var(--c-accent);
+}
+
+.ui-table th.rowmenu,
+.ui-table td.rowmenu {
+  width: 30px;
+  max-width: 30px;
+  padding: 0;
+  text-align: center;
+}
+
+.ui-table td.rowmenu .ui-iconbtn {
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  margin: 0 auto;
+}
+
+.ui-table tbody tr:hover td.rowmenu .ui-iconbtn,
+.ui-table tbody tr:focus-within td.rowmenu .ui-iconbtn,
+.ui-table td.rowmenu .ui-iconbtn:focus-visible {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+
+  .ui-table td.rowmenu .ui-iconbtn,
+  .ui-table td.sel input {
+    opacity: 1;
+  }
+}
+
+.bulkbar .ui-btn {
+  height: calc(var(--ctl-h) - 4px);
+}
+
+.bulkbar .ui-kbd {
+  margin-left: var(--sp-1);
+}

@@ -1,0 +1,153 @@
+/* ---- the document viewer: the image or PDF beside how it was processed ---- */
+.docviewer {
+  position: fixed;
+  inset: 0;
+  z-index: 920;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(calc(380px * var(--layout-scale)),
+      38%);
+  background: var(--c-canvas);
+  color: var(--c-text);
+  font-size: var(--fs-md);
+}
+
+.docviewer .media {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid var(--c-border);
+}
+
+.docviewer .bar {
+  height: var(--topbar-h);
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-surface);
+  min-width: 0;
+}
+
+.docviewer .stagearea {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  place-items: center;
+  background: #0f1115;
+}
+
+.docviewer .stagearea.fit img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+}
+
+.docviewer .stagearea.actual {
+  place-items: start;
+}
+
+.docviewer .stagearea.actual img {
+  cursor: zoom-out;
+  max-width: none;
+}
+
+.docviewer iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.docviewer .info {
+  overflow: auto;
+  background: var(--c-surface);
+  min-width: 0;
+}
+
+.pipe {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 4px var(--sp-2);
+  font-size: var(--fs-sm);
+}
+
+.pipe .ui-dot {
+  margin-top: 6px;
+}
+
+.pipe .t {
+  font-weight: 600;
+}
+
+.pipe .d {
+  color: var(--c-muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.readkv {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.55fr) minmax(0, 1.45fr);
+  gap: 3px var(--sp-2);
+  font-size: var(--fs-sm);
+}
+
+.readkv .k {
+  color: var(--c-muted);
+}
+
+.readkv .v {
+  overflow-wrap: anywhere;
+}
+
+.filled {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.filled th {
+  text-align: left;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  font-weight: 600;
+  padding: 0 var(--sp-1) var(--sp-1);
+}
+
+.filled td {
+  padding: 3px var(--sp-1);
+  border-top: 1px solid var(--c-border);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.filled td.changed {
+  color: var(--c-warn);
+  font-weight: 500;
+}
+
+.filled tr.group td {
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-top: 0;
+  padding-top: var(--sp-2);
+}
+
+@media (max-width: 900px) {
+  .docviewer {
+    grid-template-columns: 1fr;
+    grid-template-rows: 45vh 1fr;
+  }
+
+  .docviewer .media {
+    border-right: 0;
+    border-bottom: 1px solid var(--c-border);
+  }
+}

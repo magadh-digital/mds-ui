@@ -1,0 +1,41 @@
+/* ---------- finding cards, PO picker ---------- */
+.finding-card {
+  padding: var(--sp-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-sm);
+  background: var(--c-surface);
+}
+
+.finding-card.block {
+  border-color: var(--c-error);
+}
+
+.finding-card .ui-dot {
+  margin-top: 5px;
+}
+
+.picker {
+  margin-top: var(--sp-2);
+  padding: var(--sp-2);
+  border: 1px solid var(--c-accent);
+  border-radius: var(--radius-md);
+  background: var(--c-accent-soft);
+  font-size: var(--fs-sm);
+}
+
+.ui-chip.error {
+  color: var(--c-error);
+  border-color: var(--c-error);
+}
+
+tr.dim td {
+  opacity: 0.68;
+}
+
+.ui-radio .count {
+  margin-left: auto;
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+}

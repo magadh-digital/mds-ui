@@ -1,0 +1,130 @@
+/* ---------- panel tabs with labels; the record header; the flow strip ---------- */
+.rec-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.rec-head .line1 {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.rec-head .next {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.rec-head .next .why {
+  color: var(--c-muted);
+  font-size: var(--fs-sm);
+}
+
+.flow {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+}
+
+.flow .st {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.flow .st .bar {
+  height: 6px;
+  border-radius: 2px;
+  background: var(--c-neutral);
+}
+
+.flow .st.done .bar {
+  background: var(--c-ok);
+}
+
+.flow .st.now .bar {
+  background: var(--c-accent);
+}
+
+.flow .st.bad .bar {
+  background: var(--c-error);
+}
+
+.flow .st.hold .bar {
+  background: var(--c-warn);
+}
+
+.flow .st .lbl {
+  font-size: 10px;
+  color: var(--c-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flow .st.now .lbl {
+  color: var(--c-accent);
+  font-weight: 600;
+}
+
+.flow .st .when {
+  font-size: 10px;
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.psec-title .pencil {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-xs);
+  color: var(--c-accent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.psec-title .pencil svg {
+  width: 12px;
+  height: 12px;
+}
+
+.psec.collapsed .psec-title {
+  margin-bottom: 0;
+}
+
+.psec-title .toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+}
+
+.psec-title .toggle svg {
+  display: none;
+}
+
+/* no chevrons: the heading itself folds the section */
+.psec-title .toggle:hover span {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}

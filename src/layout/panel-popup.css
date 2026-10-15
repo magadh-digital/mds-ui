@@ -1,0 +1,41 @@
+/* ---------- popup detail view: the same panel, centred over the page (Appearance › Detail view) ---------- */
+/* backdrop on :root — not on .panel — so the dim never paints over the surface (transform + z-index:-1 did) */
+:root[data-detail="popup"]:has(.panel.open)::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.35);
+  z-index: 29;
+}
+:root[data-detail="popup"] .panel {
+  position: fixed;
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: min(1100px, 92vw);
+  max-width: 92vw;
+  height: auto;
+  max-height: 90vh;
+  overflow: hidden;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  transform: translate(-50%, calc(-50% + 110vh));
+  transition: transform 0.2s ease;
+  z-index: 30;
+}
+
+:root[data-detail="popup"] .panel.open {
+  transform: translate(-50%, -50%);
+  box-shadow: 0 24px 64px rgba(16, 24, 40, 0.28);
+}
+
+:root[data-detail="popup"] .panel .body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 var(--sp-2);
+  background: var(--c-surface);
+}

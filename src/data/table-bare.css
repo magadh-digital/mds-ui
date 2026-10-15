@@ -1,0 +1,33 @@
+/*
+ * DenseTable `bare` (what MiniTable draws, 15 Oct 2026: one table for pages and panels): sized to its content, compact
+ * rows, a quiet header, no bottom bar. The page table's cells, chips, hover and row menu stay the same.
+ */
+.ui-table-host.bare {
+  flex: none;
+  display: block;
+  --table-row-h: calc(32px * var(--ui-scale, 1));
+  --table-row-2: calc(44px * var(--ui-scale, 1));
+  --table-row-3: calc(58px * var(--ui-scale, 1));
+  --table-head-h: calc(28px * var(--ui-scale, 1));
+  --table-cell-px: var(--sp-1);
+}
+.ui-table-host.bare .ui-table-wrap {
+  flex: none;
+  overflow-x: auto;
+  overflow-y: visible;
+  background: transparent;
+}
+.ui-table-host.bare .ui-table {
+  width: 100%;
+}
+.ui-table-host.bare .ui-table th {
+  position: static;
+  background: transparent;
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+}
+.ui-table-host.bare .ui-table:not(.two-line):not(.three-line) td {
+  max-width: calc(260px * var(--ui-scale, 1));
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

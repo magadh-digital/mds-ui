@@ -1,0 +1,30 @@
+/* ---------- needs-you marker (13 Sep 2026): a ring around the status dot where a person's input is what the row waits for ---------- */
+.ui-dot.needs {
+  box-shadow:
+    0 0 0 1.5px var(--c-surface),
+    0 0 0 3px var(--c-warn);
+}
+
+.ui-table tbody tr:hover .ui-dot.needs,
+.ui-table tbody tr.selected .ui-dot.needs {
+  box-shadow:
+    0 0 0 1.5px var(--c-hover),
+    0 0 0 3px var(--c-warn);
+}
+
+.needs-hand {
+  width: 12px;
+  height: 12px;
+  color: var(--c-warn);
+  vertical-align: -2px;
+  margin-left: 3px;
+}
+
+.needs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  color: var(--c-warn);
+  font-weight: 500;
+}
