@@ -21,4 +21,4 @@ All notable changes to `@mds/ui`. Versions below 1.0 may change the API in a min
   detail view).
 - **Router-free:** the shell and palette use a small adapter (`RouterProvider`); the browser's history by default.
 - **Storage:** saved choices live under a configurable prefix (`configureStorage`), `mds-ui` by default.
-- One runtime dependency (`@floating-ui/react`); React, lucide-react and TanStack Table are peers.
+- Two runtime dependencies (`@floating-ui/react`, `lucide-react`); React and TanStack Table are peers.

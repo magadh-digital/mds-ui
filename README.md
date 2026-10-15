@@ -4,13 +4,13 @@ A light React UI kit for data-heavy apps: list pages with a toolbar and filters,
 row menus, side panels, searchable pickers, a date range, a file viewer, an app shell with a side rail and a ⌘K palette.
 
 - **Plain CSS variables.** A theme is a set of token values; dark mode comes free. No CSS-in-JS.
-- **One runtime dependency** (`@floating-ui/react`). React, `lucide-react` and `@tanstack/react-table` are peers.
-  Bundlers keep only what you import, so an app pays for the components it uses.
+- **Two small dependencies** (`@floating-ui/react`, `lucide-react` for the icons). React and `@tanstack/react-table`
+  are peers. Bundlers keep only what you import, so an app pays for the components it uses.
 - **No router required.** The shell and palette use a tiny adapter: the browser's history by default, or your router.
 - **Its own calendar and date type.** No date library: `date()` covers the dayjs calls a list page needs.
 
 ```bash
-npm install @mds/ui lucide-react @tanstack/react-table
+npm install @mds/ui @tanstack/react-table
 ```
 
 ## Quick start
