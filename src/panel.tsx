@@ -23,7 +23,7 @@ import {
 import { createPortal } from "react-dom";
 import type { Tone } from "./primitives";
 import { CopyButton } from "./primitives";
-import { dialogOpen } from "./dialog";
+import { dialogOpen, listOpen } from "./dialog";
 
 export type PanelTab = { key: string; icon: LucideIcon; label: string };
 export type TabCount =
@@ -159,13 +159,7 @@ export function SlideOver({
     // a dialog over the panel (dialog.tsx) takes it too and closes first
     const fn = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented) return;
-      if (
-        dialogOpen() ||
-        document.querySelector(
-          '.ui-pop, [data-scope="popover"][data-part="content"], [data-scope="menu"][data-part="content"]',
-        )
-      )
-        return;
+      if (dialogOpen() || listOpen()) return;
       onClose();
     };
     window.addEventListener("keydown", fn);

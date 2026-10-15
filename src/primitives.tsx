@@ -1,16 +1,36 @@
-import { Popover, Portal, Tooltip } from "@chakra-ui/react";
+import {
+  FloatingFocusManager,
+  FloatingNode,
+  FloatingPortal,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useClick,
+  useDismiss,
+  useFloating,
+  useFloatingNodeId,
+  useFocus,
+  useHover,
+  useInteractions,
+  useRole,
+  type Placement,
+} from "@floating-ui/react";
 import { Check, Copy, Plus, type LucideIcon } from "lucide-react";
 import {
   useRef,
   useState,
   type ButtonHTMLAttributes,
+  type CSSProperties,
   type ReactNode,
   type Ref,
 } from "react";
 import { X } from "lucide-react";
+import { LAYER_Z, LayerTree, TIP_Z, Trigger, isInsideLayer } from "./floating";
 
 export type Tone = "ok" | "warn" | "error" | "accent" | "neutral";
 
+/** A hover / focus hint (250 ms in, 50 ms out), drawn in `.ui-tip`. */
 export function Tip({
   label,
   children,
@@ -20,37 +40,118 @@ export function Tip({
   children: ReactNode;
   placement?: "top" | "bottom" | "left" | "right";
 }) {
+  const [open, setOpen] = useState(false);
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement,
+    whileElementsMounted: autoUpdate,
+    middleware: [offset(8), flip(), shift({ padding: 8 })],
+  });
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    useHover(context, { delay: { open: 250, close: 50 }, move: false }),
+    useFocus(context),
+    useDismiss(context),
+    useRole(context, { role: "tooltip" }),
+  ]);
   return (
-    <Tooltip.Root openDelay={250} closeDelay={50} positioning={{ placement }}>
-      <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
-      <Portal>
-        <Tooltip.Positioner>
-          <Tooltip.Content
+    <>
+      <Trigger setRef={refs.setReference} getProps={getReferenceProps}>
+        {children}
+      </Trigger>
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
             className="ui-tip"
-            bg="var(--c-text)"
-            color="var(--c-canvas)"
-            fontSize="var(--fs-xs)"
-            px="7px"
-            py="3px"
-            borderRadius="4px"
+            style={{ ...floatingStyles, zIndex: TIP_Z }}
+            {...getFloatingProps()}
           >
             {label}
-          </Tooltip.Content>
-        </Tooltip.Positioner>
-      </Portal>
-    </Tooltip.Root>
+          </div>
+        </FloatingPortal>
+      )}
+    </>
   );
 }
 
-const isPortalledPicker = (e: {
-  detail?: { originalEvent?: { target?: EventTarget | null } };
-  target?: EventTarget | null;
-}) => {
-  const target = (e.detail?.originalEvent?.target ?? e.target) as HTMLElement | null;
-  return !!target?.closest?.(
-    '#daterange-portal, .react-datepicker-popper, .react-datepicker, .daterange-cal, [data-scope="menu"][data-part="content"], [data-scope="combobox"][data-part="content"], .ui-ac-pop'
+type PopPlacement = "bottom-end" | "bottom-start" | "top-start" | "top-end";
+
+/**
+ * The one floating surface behind Pop, EditPop and HoverPop: positioned under its trigger, mounted only while open,
+ * closed by Escape or a press outside (a picker or menu the popover opened does not count as outside).
+ */
+function PopLayer({
+  trigger,
+  open,
+  setOpen,
+  placement,
+  hover,
+  focus = true,
+  className,
+  style,
+  children,
+}: {
+  trigger: ReactNode;
+  open: boolean;
+  setOpen: (v: boolean) => void;
+  placement: Placement;
+  /** opened and closed by the caller's hover timers instead of a click */
+  hover?: { onEnter: () => void; onLeave: () => void };
+  /** move focus into the popover (and back to the trigger on close) */
+  focus?: boolean;
+  className: string;
+  style: CSSProperties;
+  children: ReactNode;
+}) {
+  const nodeId = useFloatingNodeId();
+  const { refs, floatingStyles, context } = useFloating({
+    nodeId,
+    open,
+    onOpenChange: setOpen,
+    placement,
+    whileElementsMounted: autoUpdate,
+    middleware: [offset(8), flip(), shift({ padding: 8 })],
+  });
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    useClick(context, { enabled: !hover }),
+    useDismiss(context, {
+      outsidePress: (e) => !isInsideLayer(e.target),
+      bubbles: { escapeKey: false },
+    }),
+    useRole(context, { role: "dialog" }),
+  ]);
+  const body = (
+    <div
+      ref={refs.setFloating}
+      className={className}
+      style={{ ...floatingStyles, zIndex: LAYER_Z, ...style }}
+      onMouseEnter={hover?.onEnter}
+      onMouseLeave={hover?.onLeave}
+      {...getFloatingProps()}
+    >
+      {children}
+    </div>
   );
-};
+  return (
+    <FloatingNode id={nodeId}>
+      <Trigger setRef={refs.setReference} getProps={getReferenceProps}>
+        {trigger}
+      </Trigger>
+      {open && (
+        <FloatingPortal>
+          {focus ? (
+            <FloatingFocusManager context={context} modal={false} initialFocus={0} returnFocus>
+              {body}
+            </FloatingFocusManager>
+          ) : (
+            body
+          )}
+        </FloatingPortal>
+      )}
+    </FloatingNode>
+  );
+}
 
 /** Small popover with the console's surface styling. */
 export function Pop({
@@ -64,41 +165,20 @@ export function Pop({
   placement?: "bottom-end" | "bottom-start" | "top-start";
   width?: string;
 }) {
+  const [open, setOpen] = useState(false);
   return (
-    <Popover.Root
-      positioning={{ placement }}
-      lazyMount
-      unmountOnExit
-      onInteractOutside={(e) => {
-        if (isPortalledPicker(e)) e.preventDefault();
-      }}
-      onPointerDownOutside={(e) => {
-        if (isPortalledPicker(e)) e.preventDefault();
-      }}
-      onFocusOutside={(e) => {
-        if (isPortalledPicker(e)) e.preventDefault();
-      }}
-    >
-      <Popover.Trigger asChild>{trigger}</Popover.Trigger>
-      <Portal>
-        <Popover.Positioner>
-          <Popover.Content
-            className="ui-pop"
-            width={width ?? "auto"}
-            minW="180px"
-            bg="var(--c-surface)"
-            color="var(--c-text)"
-            borderWidth="1px"
-            borderColor="var(--c-border)"
-            boxShadow="var(--shadow-pop)"
-            p="var(--sp-2)"
-            borderRadius="var(--radius-md)"
-          >
-            {children}
-          </Popover.Content>
-        </Popover.Positioner>
-      </Portal>
-    </Popover.Root>
+    <LayerTree>
+      <PopLayer
+        trigger={trigger}
+        open={open}
+        setOpen={setOpen}
+        placement={placement}
+        className="ui-pop"
+        style={{ width: width ?? "auto", minWidth: 180 }}
+      >
+        {children}
+      </PopLayer>
+    </LayerTree>
   );
 }
 
@@ -117,62 +197,32 @@ export function EditPop({
   trigger: ReactNode;
   title?: string;
   width?: string;
-  placement?: "bottom-end" | "bottom-start" | "top-start" | "top-end";
+  placement?: PopPlacement;
   children: (close: () => void) => ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
   return (
-    <Popover.Root
-      open={open}
-      onOpenChange={(e) => setOpen(e.open)}
-      positioning={{ placement }}
-      lazyMount
-      unmountOnExit
-      onInteractOutside={(e) => {
-        if (isPortalledPicker(e)) e.preventDefault();
-      }}
-      onPointerDownOutside={(e) => {
-        if (isPortalledPicker(e)) e.preventDefault();
-      }}
-      onFocusOutside={(e) => {
-        if (isPortalledPicker(e)) e.preventDefault();
-      }}
-    >
-      <Popover.Trigger asChild>{trigger}</Popover.Trigger>
-      <Portal>
-        <Popover.Positioner>
-          <Popover.Content
-            className="ui-pop ui-editpop"
-            width={width}
-            maxW="92vw"
-            minW="180px"
-            bg="var(--c-surface)"
-            color="var(--c-text)"
-            borderWidth="1px"
-            borderColor="var(--c-border)"
-            boxShadow="var(--shadow-pop)"
-            p="var(--sp-2)"
-            borderRadius="var(--radius-md)"
-          >
-            {title && (
-              <div className="ui-editpop-title">
-                <span>{title}</span>
-                <button
-                  type="button"
-                  className="ui-iconbtn sm"
-                  aria-label="Close"
-                  onClick={close}
-                >
-                  <X />
-                </button>
-              </div>
-            )}
-            {open && children(close)}
-          </Popover.Content>
-        </Popover.Positioner>
-      </Portal>
-    </Popover.Root>
+    <LayerTree>
+      <PopLayer
+        trigger={trigger}
+        open={open}
+        setOpen={setOpen}
+        placement={placement}
+        className="ui-pop ui-editpop"
+        style={{ width, maxWidth: "92vw", minWidth: 180 }}
+      >
+        {title && (
+          <div className="ui-editpop-title">
+            <span>{title}</span>
+            <button type="button" className="ui-iconbtn sm" aria-label="Close" onClick={close}>
+              <X />
+            </button>
+          </div>
+        )}
+        {children(close)}
+      </PopLayer>
+    </LayerTree>
   );
 }
 
@@ -201,47 +251,30 @@ export function HoverPop({
     timer.current = window.setTimeout(() => setOpen(false), 150);
   };
   return (
-    <Popover.Root
-      open={open}
-      onOpenChange={(e) => setOpen(e.open)}
-      positioning={{ placement }}
-      lazyMount
-      unmountOnExit
-      autoFocus={false}
-    >
-      <Popover.Trigger asChild>
-        <span
-          onMouseEnter={show}
-          onMouseLeave={hide}
-          onFocus={show}
-          onBlur={hide}
-          style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
-        >
-          {trigger}
-        </span>
-      </Popover.Trigger>
-      <Portal>
-        <Popover.Positioner>
-          <Popover.Content
-            className="ui-pop"
+    <LayerTree>
+      <PopLayer
+        trigger={
+          <span
             onMouseEnter={show}
             onMouseLeave={hide}
-            width={width ?? "auto"}
-            minW="220px"
-            bg="var(--c-surface)"
-            color="var(--c-text)"
-            borderWidth="1px"
-            borderColor="var(--c-border)"
-            boxShadow="var(--shadow-pop)"
-            p="var(--sp-2)"
-            borderRadius="var(--radius-md)"
-            fontSize="var(--fs-sm)"
+            onFocus={show}
+            onBlur={hide}
+            style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
           >
-            {children}
-          </Popover.Content>
-        </Popover.Positioner>
-      </Portal>
-    </Popover.Root>
+            {trigger}
+          </span>
+        }
+        open={open}
+        setOpen={setOpen}
+        placement={placement}
+        hover={{ onEnter: show, onLeave: hide }}
+        focus={false}
+        className="ui-pop"
+        style={{ width: width ?? "auto", minWidth: 220, fontSize: "var(--fs-sm)" }}
+      >
+        {children}
+      </PopLayer>
+    </LayerTree>
   );
 }
 

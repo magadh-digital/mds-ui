@@ -1,14 +1,24 @@
 /**
- * The date control every list uses, after the ERP web's FlexiDateRange (react-datepicker underneath, as there): one
- * field that reads like a date, a calendar where a range is two clicks on the same grid, a Day / Range switch and the
- * shortcuts the office reaches for (today, yesterday, 7 and 30 days, this and last month, financial year, all time).
- * Values are YYYY-MM-DD strings kept in the URL; a blank side is open-ended.
+ * The date control every list uses, after the ERP web's FlexiDateRange: one field that reads like a date, a calendar
+ * where a range is two clicks on the same grid, a Day / Range switch and the shortcuts the office reaches for (today,
+ * yesterday, 7 and 30 days, this and last month, financial year, all time). Values are YYYY-MM-DD strings kept in the
+ * URL; a blank side is open-ended. The calendar is the kit's own (it replaced react-datepicker; same look and keys).
  */
-import dayjs from "dayjs";
+import {
+  FloatingFocusManager,
+  FloatingPortal,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useDismiss,
+  useFloating,
+  useInteractions,
+} from "@floating-ui/react";
 import { Calendar, X } from "lucide-react";
-import { forwardRef, useRef, useState, type MouseEvent } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import { date, type KitDate } from "./date";
+import { isInsideLayer } from "./floating";
 
 export type RangeValue = { from?: string; to?: string };
 export type PresetKey =
@@ -19,18 +29,18 @@ const D = "YYYY-MM-DD";
 const FMT = "MMM D, YYYY";
 export const dateOnly = (v: unknown) =>
   typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : undefined;
-const toDate = (v?: string) => (v ? dayjs(v).startOf("day").toDate() : null);
-const fmt = (d: Date | string) => dayjs(d).format(FMT);
+const fmt = (d: Date | string) => date(d).format(FMT);
+const iso = (d: KitDate | Date) => date(d).format(D);
 
 /** Indian financial year: 1 Apr to 31 Mar. */
-const fyBounds = (now = dayjs()) => {
+const fyBounds = (now = date()) => {
   const y = now.month() >= 3 ? now.year() : now.year() - 1;
   return {
-    from: dayjs(new Date(y, 3, 1)).format(D),
-    to: dayjs(new Date(y + 1, 2, 31)).format(D),
+    from: date(new Date(y, 3, 1)).format(D),
+    to: date(new Date(y + 1, 2, 31)).format(D),
   };
 };
-export const presetRange = (key: PresetKey, now = dayjs()): RangeValue => {
+export const presetRange = (key: PresetKey, now = date()): RangeValue => {
   const t = now.format(D);
   switch (key) {
     case "today":
@@ -73,7 +83,7 @@ const PRESETS: Array<{ key: PresetKey; label: string; title: string }> = [
 ];
 const same = (a: RangeValue, b: RangeValue) =>
   (a.from ?? "") === (b.from ?? "") && (a.to ?? "") === (b.to ?? "");
-const presetOf = (v: RangeValue, now = dayjs()): PresetKey | null =>
+const presetOf = (v: RangeValue, now = date()): PresetKey | null =>
   PRESETS.find((p) => same(v, presetRange(p.key, now)))?.key ?? null;
 
 /** How the field reads a value: the dates, as the ERP page shows them; blank means every date. */
@@ -84,27 +94,176 @@ export const rangeLabel = (v: RangeValue): string => {
   return v.from ? `${fmt(v.from)} → …` : `… → ${fmt(v.to!)}`;
 };
 
-// the library hands its own className (the click-outside ignore marker) and handlers to the custom input; both must be kept
-const Trigger = forwardRef<
-  HTMLButtonElement,
-  {
-    label: string;
-    pending?: boolean;
-    empty?: boolean;
-    onClick?: () => void;
-    onClear?: (e: MouseEvent) => void;
-    className?: string;
-  }
->(function Trigger(
-  { label, pending, empty, onClick, onClear, className },
-  ref,
-) {
+
+const DOW = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+/** The month grid: six weeks from the Sunday on or before the 1st, as react-datepicker drew it. */
+function Month({
+  view,
+  setView,
+  mode,
+  value,
+  draft,
+  hover,
+  setHover,
+  onPick,
+  onEscape,
+}: {
+  view: KitDate;
+  setView: (d: KitDate) => void;
+  mode: Mode;
+  value: RangeValue;
+  draft: KitDate | null;
+  hover: KitDate | null;
+  setHover: (d: KitDate | null) => void;
+  onPick: (d: KitDate) => void;
+  onEscape: () => void;
+}) {
+  const today = iso(date());
+  const first = view.startOf("month");
+  const start = first.subtract(first.day(), "day");
+  const days = Array.from({ length: 42 }, (_, i) => start.add(i, "day"));
+  // the keyboard's day: the picked day in view, else today in view, else the 1st
+  const [focus, setFocus] = useState<string>(() => {
+    const pickIn = value.from && date(value.from).isSame(view, "month") ? value.from : null;
+    return pickIn ?? (date().isSame(view, "month") ? today : iso(first));
+  });
+  const grid = useRef<HTMLDivElement>(null);
+  const moved = useRef(false);
+  useEffect(() => {
+    if (!moved.current) return;
+    moved.current = false;
+    grid.current?.querySelector<HTMLButtonElement>(`[data-day="${focus}"]`)?.focus();
+  }, [focus, view]);
+
+  // what is lit: a range being picked (first click + hover), or the saved value
+  const [lo, hi] = (() => {
+    if (draft) {
+      const other = hover ?? draft;
+      return draft.valueOf() <= other.valueOf() ? [iso(draft), iso(other)] : [iso(other), iso(draft)];
+    }
+    if (mode === "day") return [value.from ?? null, value.from ?? null];
+    return [value.from ?? null, value.to ?? value.from ?? null];
+  })();
+
+  const go = (d: KitDate) => {
+    moved.current = true;
+    if (!d.isSame(view, "month")) setView(d.startOf("month"));
+    setFocus(iso(d));
+  };
+  const onKey = (e: KeyboardEvent) => {
+    const f = date(focus);
+    const step: Record<string, () => KitDate> = {
+      ArrowLeft: () => f.subtract(1, "day"),
+      ArrowRight: () => f.add(1, "day"),
+      ArrowUp: () => f.subtract(1, "week"),
+      ArrowDown: () => f.add(1, "week"),
+      PageUp: () => f.subtract(1, e.shiftKey ? "year" : "month"),
+      PageDown: () => f.add(1, e.shiftKey ? "year" : "month"),
+      Home: () => f.subtract(f.day(), "day"),
+      End: () => f.add(6 - f.day(), "day"),
+    };
+    if (step[e.key]) {
+      e.preventDefault();
+      const d = step[e.key]!();
+      go(d);
+      if (draft) setHover(d);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onEscape();
+    }
+  };
+
+  return (
+    <div className="daterange-month">
+      <div className="daterange-head">
+        <button
+          type="button"
+          className="daterange-nav prev"
+          aria-label="Previous month"
+          onClick={() => setView(view.subtract(1, "month"))}
+        />
+        <div className="daterange-title" aria-live="polite">
+          {view.format("MMMM YYYY")}
+        </div>
+        <button
+          type="button"
+          className="daterange-nav next"
+          aria-label="Next month"
+          onClick={() => setView(view.add(1, "month"))}
+        />
+        <div className="daterange-dows" aria-hidden>
+          {DOW.map((d) => (
+            <span key={d} className="daterange-dow">
+              {d}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="daterange-grid" role="grid" aria-label={view.format("MMMM YYYY")} ref={grid} onKeyDown={onKey}>
+        {Array.from({ length: 6 }, (_, w) => (
+          <div key={w} role="row" className="daterange-week">
+            {days.slice(w * 7, w * 7 + 7).map((d) => {
+              const k = iso(d);
+              const inRange = lo != null && hi != null && k >= lo && k <= hi;
+              const edge = k === lo || k === hi;
+              const cls = [
+                "daterange-day",
+                !d.isSame(view, "month") && "outside",
+                k === today && "today",
+                inRange && "in-range",
+                edge && "edge",
+                k === focus && "kb",
+              ]
+                .filter(Boolean)
+                .join(" ");
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  role="gridcell"
+                  className={cls}
+                  data-day={k}
+                  tabIndex={k === focus ? 0 : -1}
+                  aria-selected={edge || undefined}
+                  aria-current={k === today ? "date" : undefined}
+                  aria-label={d.format("dddd, D MMMM YYYY")}
+                  onMouseEnter={() => draft && setHover(d)}
+                  onFocus={() => setFocus(k)}
+                  onClick={() => onPick(d)}
+                >
+                  {d.date()}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Trigger({
+  label,
+  pending,
+  empty,
+  onClear,
+  open,
+  ...rest
+}: {
+  label: string;
+  pending?: boolean;
+  empty?: boolean;
+  onClear?: (e: MouseEvent) => void;
+  open: boolean;
+} & Record<string, unknown>) {
   return (
     <button
-      ref={ref}
+      {...rest}
       type="button"
-      className={`ui-btn daterange ${className ?? ""}`}
-      onClick={onClick}
+      className="ui-btn daterange"
+      aria-haspopup="dialog"
+      aria-expanded={open}
       title="Pick a day, or click a start and an end for a range"
       style={{
         width: "100%",
@@ -115,23 +274,8 @@ const Trigger = forwardRef<
         fontStyle: pending ? "italic" : "normal",
       }}
     >
-      <Calendar
-        style={{
-          width: 14,
-          height: 14,
-          color: "var(--c-muted)",
-          flexShrink: 0,
-        }}
-      />
-      <span
-        style={{
-          flex: 1,
-          textAlign: "left",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
+      <Calendar style={{ width: 14, height: 14, color: "var(--c-muted)", flexShrink: 0 }} />
+      <span style={{ flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {label}
       </span>
       {onClear && !empty && (
@@ -144,19 +288,14 @@ const Trigger = forwardRef<
             e.preventDefault();
             onClear(e);
           }}
-          style={{
-            display: "inline-grid",
-            placeItems: "center",
-            color: "var(--c-muted)",
-            borderRadius: 999,
-          }}
+          style={{ display: "inline-grid", placeItems: "center", color: "var(--c-muted)", borderRadius: 999 }}
         >
           <X style={{ width: 12, height: 12 }} />
         </span>
       )}
     </button>
   );
-});
+}
 
 /**
  * The control. `allowAll` off means "every date" is not offered (pages that must have a window, like the sheet);
@@ -175,14 +314,13 @@ export function DateRange({
   emptyLabel?: string;
   presets?: Array<PresetKey>;
 }) {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const pressedOwnButton = useRef(false);
+  const [open, setOpenState] = useState(false);
   const [mode, setMode] = useState<Mode>(
     value.from && value.to && value.from !== value.to ? "range" : "day",
   );
-  const [draft, setDraft] = useState<Date | null>(null); // the first click of a range, until the second
-  const [hover, setHover] = useState<Date | null>(null);
+  const [draft, setDraft] = useState<KitDate | null>(null); // the first click of a range, until the second
+  const [hover, setHover] = useState<KitDate | null>(null);
+  const [view, setView] = useState<KitDate>(() => date(value.from).isValid() ? date(value.from).startOf("month") : date().startOf("month"));
   const isSet = !!(value.from || value.to);
   const active = presetOf(value);
   const shown = PRESETS.filter(
@@ -190,25 +328,50 @@ export function DateRange({
       (allowAll || p.key !== "all") && (!presets || presets.includes(p.key)),
   );
   const close = () => {
-    setOpen(false);
+    setOpenState(false);
     setDraft(null);
     setHover(null);
+  };
+  const setOpen = (v: boolean) => {
+    if (!v) return close();
+    // open on the picked month (or this month)
+    setView(date(value.from).isValid() ? date(value.from).startOf("month") : date().startOf("month"));
+    setDraft(null);
+    setHover(null);
+    setOpenState(true);
   };
   const commit = (v: RangeValue) => {
     onChange(v);
     close();
   };
-  const commitRange = (a: Date, b: Date) => {
-    const [s, e] = a <= b ? [a, b] : [b, a];
-    commit({ from: dayjs(s).format(D), to: dayjs(e).format(D) });
+  const commitRange = (a: KitDate, b: KitDate) => {
+    const [s, e] = a.valueOf() <= b.valueOf() ? [a, b] : [b, a];
+    commit({ from: iso(s), to: iso(e) });
+  };
+  const onPick = (d: KitDate) => {
+    if (mode === "day") return commit({ from: iso(d), to: iso(d) });
+    if (draft) return commitRange(draft, d);
+    setDraft(d);
+    setHover(null);
   };
   const label = draft
     ? hover
-      ? `${fmt(draft <= hover ? draft : hover)} – ${fmt(draft <= hover ? hover : draft)}`
-      : `${fmt(draft)} → …`
+      ? `${fmt(draft.valueOf() <= hover.valueOf() ? draft.toDate() : hover.toDate())} – ${fmt(draft.valueOf() <= hover.valueOf() ? hover.toDate() : draft.toDate())}`
+      : `${fmt(draft.toDate())} → …`
     : isSet
       ? rangeLabel(value)
       : emptyLabel;
+
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: "bottom-start",
+    whileElementsMounted: autoUpdate,
+    middleware: [offset(10), flip({ padding: 8 }), shift({ padding: 8 })],
+  });
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    useDismiss(context, { outsidePress: (e) => !isInsideLayer(e.target), bubbles: { escapeKey: false } }),
+  ]);
 
   const footer = (
     <div className="daterange-foot">
@@ -221,6 +384,7 @@ export function DateRange({
           onClick={() => {
             setMode("day");
             setDraft(null);
+            setHover(null);
           }}
         >
           Day
@@ -260,77 +424,46 @@ export function DateRange({
       </div>
     </div>
   );
-  const shared = {
-    open,
-    // the button toggles: a second click on it closes the calendar
-    onInputClick: () => {
-      pressedOwnButton.current = false;
-      setDraft(null);
-      setHover(null);
-      setOpen((o) => !o);
-    },
-    // a press on this picker's own button is not "outside": the button's click toggles instead
-    onClickOutside: (e: { target: EventTarget | null }) => {
-      if (rootRef.current?.contains(e.target as Node)) {
-        pressedOwnButton.current = true;
-        return;
-      }
-      close();
-    },
-    // the library closes on that same press; skip it so the button's click (onInputClick) decides
-    onCalendarClose: () => {
-      if (pressedOwnButton.current) return;
-      close();
-    },
-    customInput: (
-      <Trigger
-        label={label}
-        pending={!!draft}
-        empty={!isSet && !draft}
-        onClear={allowAll ? () => commit({}) : undefined}
-      />
-    ),
-    wrapperClassName: "daterange-wrap",
-    calendarClassName: "daterange-cal",
-    portalId: "daterange-portal",
-    showPopperArrow: false,
-    dateFormat: "dd/MM/yyyy",
-  };
   return (
-    <div className="daterange-root" ref={rootRef}>
-      {mode === "day" ? (
-        <DatePicker
-          {...shared}
-          selected={toDate(value.from)}
-          onChange={(d: Date | null) =>
-            d && commit({ from: dayjs(d).format(D), to: dayjs(d).format(D) })
-          }
-          shouldCloseOnSelect
-        >
-          {footer}
-        </DatePicker>
-      ) : (
-        <DatePicker
-          {...shared}
-          selectsRange
-          swapRange
-          shouldCloseOnSelect={false}
-          startDate={draft ?? toDate(value.from)}
-          endDate={draft ? null : toDate(value.to)}
-          onDayMouseEnter={(d: Date) => {
-            if (draft) setHover(d);
-          }}
-          onChange={(dates: [Date | null, Date | null]) => {
-            const [start, end] = dates;
-            if (!start) return;
-            if (draft && end) return commitRange(draft, end);
-            if (draft && !end) return commitRange(draft, start); // the library hands back the second click as a new start when it precedes the first
-            setDraft(start);
-            setHover(null);
-          }}
-        >
-          {footer}
-        </DatePicker>
+    <div className="daterange-root">
+      <div className="daterange-wrap">
+        <Trigger
+          ref={refs.setReference}
+          label={label}
+          pending={!!draft}
+          empty={!isSet && !draft}
+          open={open}
+          onClear={allowAll ? () => commit({}) : undefined}
+          // a second click on the field closes the calendar
+          {...getReferenceProps({ onClick: () => setOpen(!open) })}
+        />
+      </div>
+      {open && (
+        <FloatingPortal>
+          <FloatingFocusManager context={context} modal={false} initialFocus={-1} returnFocus>
+            <div
+              ref={refs.setFloating}
+              className="daterange-pop"
+              style={{ ...floatingStyles, zIndex: 2000 }}
+              {...getFloatingProps()}
+            >
+              <div className="daterange-cal" role="dialog" aria-label="Pick dates">
+                <Month
+                  view={view}
+                  setView={setView}
+                  mode={mode}
+                  value={value}
+                  draft={draft}
+                  hover={hover}
+                  setHover={setHover}
+                  onPick={onPick}
+                  onEscape={close}
+                />
+                {footer}
+              </div>
+            </div>
+          </FloatingFocusManager>
+        </FloatingPortal>
       )}
     </div>
   );

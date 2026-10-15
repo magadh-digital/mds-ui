@@ -20,9 +20,8 @@ import { createPortal } from "react-dom";
 
 /** an open dialog's backdrop: other Esc handlers stand aside while one is in the document */
 export const DIALOG_SELECTOR = ".inv-backdrop";
-/** lists and popovers that take the first Esc (an autocomplete list, a kit Pop, a Chakra menu, the date picker) */
-export const LIST_OPEN_SELECTOR =
-  '.ui-pop, [data-scope="popover"][data-part="content"], [data-scope="menu"][data-part="content"], [data-scope="combobox"][data-part="content"][data-state="open"], .react-datepicker-popper, .ctxmenu, .cmdk';
+/** lists and popovers that take the first Esc (an autocomplete list, a kit Pop, the calendar, a row menu, ⌘K) */
+export const LIST_OPEN_SELECTOR = ".ui-pop, .daterange-pop, .ctxmenu, .cmdk";
 export const dialogOpen = () => !!document.querySelector(DIALOG_SELECTOR);
 export const listOpen = () => !!document.querySelector(LIST_OPEN_SELECTOR);
 

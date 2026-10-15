@@ -152,7 +152,7 @@ export function FilterGroup({
         (c) => (c as HTMLElement).offsetParent !== null || c.tagName === "SELECT",
       );
       const CONTROL =
-        ".ui-toggle, .ui-seg, .ui-ac, select, .ui-select, input, .daterange-root, .daterange-wrap, [data-scope='combobox']";
+        ".ui-toggle, .ui-seg, .ui-ac, select, .ui-select, input, .daterange-root, .daterange-wrap";
       // the control itself, or a plain wrapper around just that one control
       let k: Element | undefined = kids.length === 1 ? kids[0] : undefined;
       while (k && !k.matches(CONTROL) && k.children.length === 1) k = k.children[0];

@@ -5,6 +5,7 @@ export * from "./autocomplete";
 export * from "./cards";
 export * from "./chart";
 export * from "./chip";
+export * from "./date";
 export * from "./daterange";
 export * from "./dialog";
 export * from "./dragsort";

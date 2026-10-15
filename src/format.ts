@@ -1,25 +1,25 @@
 /**
  * The console's date, time, money and number formats for ERP pages (owner, 15 Oct 2026: one helper per job). Every
- * helper takes nullish input and answers "—". (Procurement's compact formats live in data/present.ts.)
+ * helper takes nullish input and answers "—".
  */
-import dayjs from "dayjs";
+import { date } from "./date";
 
 type DateIn = string | number | Date | null | undefined;
-const ok = (v: DateIn) => v != null && v !== "" && dayjs(v).isValid();
+const ok = (v: DateIn) => v != null && v !== "" && date(v).isValid();
 
 /** "15 Oct 2026" */
-export const day = (v: DateIn) => (ok(v) ? dayjs(v).format("DD MMM YYYY") : "—");
+export const day = (v: DateIn) => (ok(v) ? date(v).format("DD MMM YYYY") : "—");
 /** "15 Oct 2026, 02:30 PM" */
-export const dayTime = (v: DateIn) => (ok(v) ? dayjs(v).format("DD MMM YYYY, hh:mm A") : "—");
+export const dayTime = (v: DateIn) => (ok(v) ? date(v).format("DD MMM YYYY, hh:mm A") : "—");
 /** "02:30 PM" */
-export const hhmm = (v: DateIn) => (ok(v) ? dayjs(v).format("hh:mm A") : "—");
+export const hhmm = (v: DateIn) => (ok(v) ? date(v).format("hh:mm A") : "—");
 /** "Oct 2026" */
-export const monthYear = (v: DateIn) => (ok(v) ? dayjs(v).format("MMM YYYY") : "—");
+export const monthYear = (v: DateIn) => (ok(v) ? date(v).format("MMM YYYY") : "—");
 
 /** "just now", "5m ago", "3h ago", "2d ago", then the date */
 export function ago(v: DateIn, now: number = Date.now()) {
   if (!ok(v)) return "—";
-  const m = Math.floor((now - dayjs(v).valueOf()) / 60_000);
+  const m = Math.floor((now - date(v).valueOf()) / 60_000);
   if (m < 1) return "just now";
   if (m < 60) return `${m}m ago`;
   const h = Math.floor(m / 60);

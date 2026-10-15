@@ -1,6 +1,6 @@
 /**
  * Autocomplete: the console's one searchable picker, for any list longer than a handful of fixed choices (heads,
- * accounts, products, POs…). Built on Chakra's Combobox (Ark underneath, like `Pop`) with the console's own look:
+ * accounts, products, POs…). Built on Floating UI (positioning, outside press) with the console's own look:
  * type to filter, arrows and Enter to pick, Escape to close, × to clear, optional groups. Options are plain
  * `{ value, label }` rows; the caller maps its data once.
  *
@@ -11,9 +11,29 @@
  * A picked row the server search no longer returns keeps its chip and label (the rows seen so far, plus
  * `pickedOptions` for saved picks); a picked row marked `disabled` is locked (no ×, not cleared by the box's ×).
  */
-import { Combobox, Portal, useFilter, useListCollection } from "@chakra-ui/react";
+import {
+  FloatingNode,
+  FloatingPortal,
+  autoUpdate,
+  flip,
+  offset,
+  size,
+  useDismiss,
+  useFloating,
+  useFloatingNodeId,
+  useInteractions,
+} from "@floating-ui/react";
 import { Check, ChevronDown, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+} from "react";
+import { LAYER_Z, LayerTree, isInsideLayer } from "./floating";
 
 export type AutocompleteOption = {
   value: string;
@@ -105,7 +125,34 @@ type AutocompleteMultipleProps = AutocompleteCommonProps & {
 };
 export type AutocompleteProps = AutocompleteSingleProps | AutocompleteMultipleProps;
 
+// case- and accent-blind "contains", as Intl's base sensitivity: "Ram" finds "rām", "RAM", "Rām Traders"
+const fold = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
+const matches = (o: AutocompleteOption, q: string) =>
+  !q || fold(`${o.label} ${o.hint ?? ""} ${o.keywords ?? ""}`).includes(fold(q));
+
+/** groups in `groupOrder` first (in its order), then the rest A→Z; rows keep their order inside a group */
+function groupRows(rows: Array<AutocompleteOption>, order?: Array<string>) {
+  const by = new Map<string, Array<AutocompleteOption>>();
+  for (const o of rows) {
+    const g = o.group ?? "";
+    by.set(g, [...(by.get(g) ?? []), o]);
+  }
+  const rank = (g: string) => {
+    const i = order?.indexOf(g) ?? -1;
+    return i < 0 ? Number.MAX_SAFE_INTEGER : i;
+  };
+  return [...by.entries()].sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b));
+}
+
 export function Autocomplete(props: AutocompleteProps) {
+  return (
+    <LayerTree>
+      <AutocompleteInner {...props} />
+    </LayerTree>
+  );
+}
+
+function AutocompleteInner(props: AutocompleteProps) {
   const {
     options,
     onInputValueChange,
@@ -129,199 +176,354 @@ export function Autocomplete(props: AutocompleteProps) {
     onInputChange,
   } = props;
   const multi = props.multiple === true;
-  const { contains } = useFilter({ sensitivity: "base" });
-  const grouped = options.some((o) => o.group);
-  const { collection, filter, set } = useListCollection<AutocompleteOption>({
-    initialItems: options,
-    itemToValue: (o) => o.value,
-    itemToString: (o) => o.label,
-    isItemDisabled: (o) => !!o.disabled,
-    // the filter reads the label, the hint and the keywords: a head by its code, an account by its bank or number
-    filter: (_text, q, o) => contains(`${o.label} ${o.hint ?? ""} ${o.keywords ?? ""}`, q),
-    ...(grouped ? { groupBy: (o: AutocompleteOption) => o.group ?? "", groupSort: groupOrder ?? "asc" } : {}),
-  });
-  // the options prop is usually built inline; resync only when its rows actually change, so typing keeps its filter
-  const key = useMemo(() => options.map((o) => `${o.value}\u0001${o.label}\u0001${o.hint ?? ""}\u0001${o.group ?? ""}`).join("\n"), [options]);
-  useEffect(() => { set(options) }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
-  const narrow = (text: string) => filter(localFilter ? text : "");
-  // multiple: every row seen so far, so a pick the search moved past keeps its chip label
+  const listId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpenState] = useState(false);
+  // single: the text while the person types (null = show the pick's label); multiple: the box's own search text
+  const [query, setQuery] = useState<string | null>(null);
+  const [text, setText] = useState(props.multiple ? (props.defaultSearch ?? "") : "");
+  // what the list is narrowed by: nothing right after opening a single box, the typed text after that
+  const [filterText, setFilterText] = useState("");
+  const [active, setActive] = useState<string | null>(null);
+
+  // every row seen so far, so a pick the server search moved past keeps its label (chips, the single box)
   const seen = useRef(new Map<string, AutocompleteOption>());
   if (props.multiple) for (const o of props.pickedOptions ?? []) seen.current.set(o.value, o);
   for (const o of options) seen.current.set(o.value, o);
   const optionOf = (v: string) => seen.current.get(v) ?? { value: v, label: v };
-  // multiple: the box's text is ours, so a pick can keep it (to tick more of the same search) or empty it
-  const [text, setText] = useState(props.multiple ? (props.defaultSearch ?? "") : "");
   const selected = props.multiple ? props.value : props.value ? [props.value] : [];
   const locked = (v: string) => !!seen.current.get(v)?.disabled;
+
+  const grouped = options.some((o) => o.group);
+  const rows = useMemo(
+    () => (localFilter ? options.filter((o) => matches(o, filterText)) : options),
+    [options, filterText, localFilter],
+  );
+  const groups = useMemo(() => (grouped ? groupRows(rows, groupOrder) : null), [rows, grouped, groupOrder]);
+  // the rows in the order they show, for the arrow keys
+  const flat = useMemo(() => (groups ? groups.flatMap(([, r]) => r) : rows), [groups, rows]);
+  const enabled = flat.filter((o) => !o.disabled);
+
+  const nodeId = useFloatingNodeId();
+  const setOpen = (v: boolean) => {
+    if (v === open) return;
+    setOpenState(v);
+    if (v) {
+      // opening shows the whole list with the pick ticked, not the rows that matched the pick's own label (a
+      // multiple box holds the search itself, so its rows stay narrowed to it)
+      if (multi) setFilterText(text);
+      else {
+        setFilterText("");
+        onInputChange?.("");
+      }
+      setActive(selected.find((v2) => flat.some((o) => o.value === v2)) ?? null);
+    } else {
+      setQuery(null);
+      setActive(null);
+    }
+    onOpenChange?.(v);
+  };
+  const { refs, floatingStyles, context } = useFloating({
+    nodeId,
+    open,
+    onOpenChange: setOpen,
+    placement: "bottom-start",
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(4),
+      flip({ padding: 8 }),
+      size({
+        apply({ rects, elements }) {
+          const w = `${rects.reference.width}px`;
+          elements.floating.style.setProperty("--reference-width", w);
+          elements.floating.style.width = w;
+        },
+      }),
+    ],
+  });
+  const { getFloatingProps } = useInteractions([
+    useDismiss(context, {
+      escapeKey: false,
+      outsidePress: (e) => !isInsideLayer(e.target),
+      bubbles: { escapeKey: false },
+    }),
+  ]);
+
+  // the highlighted row stays in view as the arrows move it
+  useEffect(() => {
+    if (!open || active == null) return;
+    const el = document.getElementById(`${listId}-${CSS.escape(active)}`);
+    el?.scrollIntoView({ block: "nearest" });
+  }, [active, open, listId]);
+
   const emitMany = (next: Array<string>, cause: "pick" | "remove" | "clear") => {
     if (props.multiple) props.onChange(next, next.map(optionOf), cause);
   };
   const searchCleared = () => {
     setText("");
-    filter("");
+    setFilterText("");
     onInputChange?.("");
     onInputValueChange?.("");
     onSearchChange?.("");
   };
-  const items = collection.items;
-  const row = (o: AutocompleteOption) => (
-    <Combobox.Item key={o.value} item={o} className={`item ui-ac-item ${o.className || ""}`.trim()} style={o.style}>
-      <Combobox.ItemText className="ui-ac-text">
-        <span className="ui-ac-label">{o.label}</span>
-        {o.hintNode ? (
-          <div className="ui-muted ui-ac-hint" style={{ width: "100%" }}>{o.hintNode}</div>
-        ) : o.hint ? (
-          <span className="ui-muted ui-ac-hint">{o.hint}</span>
-        ) : null}
-      </Combobox.ItemText>
-      <Combobox.ItemIndicator className="ui-ac-check"><Check /></Combobox.ItemIndicator>
-    </Combobox.Item>
-  );
+  const typed = (v: string) => {
+    if (multi) setText(v);
+    else setQuery(v);
+    setFilterText(v);
+    if (!open) {
+      setOpenState(true);
+      onOpenChange?.(true);
+    }
+    // the first row that matches, in the order the list shows it (groups included), is highlighted as you type, so
+    // Enter picks it
+    const shownRows = localFilter ? options.filter((o) => matches(o, v)) : options;
+    const inOrder = grouped ? groupRows(shownRows, groupOrder).flatMap(([, r]) => r) : shownRows;
+    const first = inOrder.find((o) => !o.disabled);
+    setActive(first?.value ?? null);
+    onInputChange?.(v);
+    onInputValueChange?.(v);
+    onSearchChange?.(v);
+  };
+  const pick = (o: AutocompleteOption) => {
+    if (o.disabled) return;
+    if (props.multiple) {
+      // a picked row unticks unless it is locked; the picks keep their click order, new ones at the end
+      const has = props.value.includes(o.value);
+      if (has && locked(o.value)) return;
+      emitMany(has ? props.value.filter((v) => v !== o.value) : [...props.value, o.value], "pick");
+      if (props.clearSearchOnPick && text) searchCleared();
+      setActive(o.value);
+      return;
+    }
+    // a chosen row's label takes the box; picking the row already picked changes nothing
+    if (props.value !== o.value) props.onChange(o.value, o);
+    onInputChange?.(o.label);
+    onInputValueChange?.(o.label);
+    setOpen(false);
+  };
+  const move = (dir: 1 | -1) => {
+    if (!enabled.length) return;
+    const i = enabled.findIndex((o) => o.value === active);
+    const next = i < 0 ? (dir === 1 ? 0 : enabled.length - 1) : (i + dir + enabled.length) % enabled.length;
+    setActive(enabled[next]!.value);
+  };
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.isComposing) return; // a Hindi / IME word in progress: Enter finishes the word, not a pick
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!open) setOpen(true);
+      else move(e.key === "ArrowDown" ? 1 : -1);
+    } else if (e.key === "Enter") {
+      if (!open) return;
+      e.preventDefault();
+      const o = flat.find((x) => x.value === active);
+      if (o) pick(o);
+    } else if (e.key === "Escape") {
+      if (open) {
+        e.preventDefault();
+        setOpen(false);
+      }
+    } else if (e.key === "Tab") {
+      if (open) setOpen(false);
+    } else if (multi && e.key === "Backspace" && !text && !disabled) {
+      // Backspace in an empty box takes off the last pick that is not locked
+      const last = [...selected].reverse().find((v) => !locked(v));
+      if (last !== undefined) emitMany(selected.filter((v) => v !== last), "remove");
+    }
+  };
+
+  const pickedLabel = !multi && props.value ? optionOf(props.value).label : "";
+  const inputValue = multi ? text : open && query !== null ? query : pickedLabel;
+  const optionId = (v: string) => `${listId}-${v}`;
+  const row = (o: AutocompleteOption) => {
+    const checked = selected.includes(o.value);
+    return (
+      <div
+        key={o.value}
+        id={optionId(o.value)}
+        role="option"
+        aria-selected={checked}
+        aria-disabled={o.disabled || undefined}
+        data-highlighted={active === o.value ? "" : undefined}
+        data-state={checked ? "checked" : "unchecked"}
+        data-disabled={o.disabled ? "" : undefined}
+        className={`item ui-ac-item ${o.className || ""}`.trim()}
+        style={o.style}
+        // keep the focus in the box while a row is clicked
+        onMouseDown={(e) => e.preventDefault()}
+        onMouseMove={() => !o.disabled && active !== o.value && setActive(o.value)}
+        onClick={() => pick(o)}
+      >
+        <span className="ui-ac-text">
+          <span className="ui-ac-label">{o.label}</span>
+          {o.hintNode ? (
+            <div className="ui-muted ui-ac-hint" style={{ width: "100%" }}>{o.hintNode}</div>
+          ) : o.hint ? (
+            <span className="ui-muted ui-ac-hint">{o.hint}</span>
+          ) : null}
+        </span>
+        {checked && (
+          <span className="ui-ac-check" aria-hidden>
+            <Check />
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <Combobox.Root
-      unstyled
-      className={`ui-ac${multi ? " multiple" : ""}${compact ? " compact" : ""}${className ? ` ${className}` : ""}`}
-      style={style}
-      collection={collection}
-      value={selected}
-      multiple={multi}
-      {...(multi ? { inputValue: text } : {})}
-      onValueChange={(d) => {
-        if (props.multiple) {
-          // a locked pick stays (the box's × clears the rest); the picks keep their click order, new ones at the end
-          const next = [
-            ...props.value.filter((v) => d.value.includes(v) || locked(v)),
-            ...d.value.filter((v) => !props.value.includes(v)),
-          ];
-          emitMany(next, "pick");
-          if (props.clearSearchOnPick && text) searchCleared();
-          return;
-        }
-        const v = d.value[0] ?? null;
-        props.onChange(v, v ? (collection.find(v) ?? options.find((o) => o.value === v) ?? null) : null);
-      }}
-      onInputValueChange={(d) => { {
-        if (multi) setText(d.inputValue);
-        narrow(d.inputValue); onInputChange?.(d.inputValue); };
-        onInputValueChange?.(d.inputValue);
-        if (
-          onSearchChange &&
-          (d.reason === "input-change" || d.reason === "clear-trigger" || !d.reason)
-        ) {
-          onSearchChange(d.reason === "clear-trigger" ? "" : d.inputValue);
-        }
-      }}
-      // opening shows the whole list with the pick ticked, not the rows that matched the pick's own label (a multiple
-      // box holds the search itself, so its rows stay narrowed to it)
-      onOpenChange={(d) => {
-        if (d.open) {
-          if (multi) narrow(text);
-          else { filter(""); onInputChange?.(""); }
-        }
-        onOpenChange?.(d.open);
-      }}
-      // the list opens on click and on typing; a chosen row's label takes the box, and clearing the text keeps the pick until × or another row
-      openOnClick
-      inputBehavior="autohighlight"
-      selectionBehavior={multi ? "preserve" : "replace"}
-      positioning={{ placement: "bottom-start", sameWidth: true, gutter: 4 }}
-      disabled={disabled}
-      invalid={invalid}
-      lazyMount
-      unmountOnExit
-      ids={id ? { input: id } : undefined}
-    >
-      <Combobox.Control className="ui-ac-control">
-        <Combobox.Input
-          className={`ui-input ui-ac-input${invalid ? " invalid" : ""}`}
-          placeholder={placeholder}
-          autoFocus={autoFocus}
-          title={title}
-          aria-label={ariaLabel}
-          onKeyDown={multi ? (e) => {
-            // Backspace in an empty box takes off the last pick that is not locked
-            if (e.key !== "Backspace" || text || disabled) return;
-            const last = [...selected].reverse().find((v) => !locked(v));
-            if (last !== undefined) emitMany(selected.filter((v) => v !== last), "remove");
-          } : undefined}
-        />
-        <Combobox.IndicatorGroup className="ui-ac-indicators">
-          {clearable && !disabled && (multi
-            ? selected.some((v) => !locked(v)) && (
-                // the picks but the locked ones go, and the search with them
-                <button
-                  type="button"
-                  className="ui-iconbtn sm"
-                  aria-label="Clear"
-                  title="Clear"
-                  onClick={() => {
-                    emitMany(selected.filter(locked), "clear");
-                    if (text) searchCleared();
-                  }}
-                >
-                  <X />
-                </button>
-              )
-            : selected.length > 0 && (
-                <Combobox.ClearTrigger className="ui-iconbtn sm" aria-label="Clear" title="Clear"><X /></Combobox.ClearTrigger>
-              ))}
-          <Combobox.Trigger className="ui-iconbtn sm" aria-label="Open" title="Open"><ChevronDown /></Combobox.Trigger>
-        </Combobox.IndicatorGroup>
-      </Combobox.Control>
-      {multi && selected.length > 0 && (
-        <div className="ui-ac-chips" style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4, minWidth: 0 }}>
-          {selected.map((v) => {
-            const o = optionOf(v);
-            const fixed = disabled || locked(v);
-            return (
-              <span
-                key={v}
-                className="ui-chip ui-ac-chip"
-                title={o.hint ? `${o.label} · ${o.hint}` : o.label}
-                style={{ maxWidth: "100%", color: "var(--c-text)", paddingRight: fixed ? undefined : 2 }}
-              >
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{o.label}</span>
-                {!fixed && (
+    <FloatingNode id={nodeId}>
+      <div
+        className={`ui-ac${multi ? " multiple" : ""}${compact ? " compact" : ""}${className ? ` ${className}` : ""}`}
+        style={style}
+        data-disabled={disabled ? "" : undefined}
+      >
+        <div className="ui-ac-control" ref={refs.setReference}>
+          <input
+            ref={inputRef}
+            id={id}
+            className={`ui-input ui-ac-input${invalid ? " invalid" : ""}`}
+            role="combobox"
+            aria-expanded={open}
+            aria-controls={open ? listId : undefined}
+            aria-autocomplete="list"
+            aria-activedescendant={open && active != null ? optionId(active) : undefined}
+            aria-invalid={invalid || undefined}
+            aria-label={ariaLabel}
+            data-state={open ? "open" : "closed"}
+            data-invalid={invalid ? "" : undefined}
+            autoComplete="off"
+            placeholder={placeholder}
+            autoFocus={autoFocus}
+            title={title}
+            disabled={disabled}
+            value={inputValue}
+            onChange={(e) => typed(e.target.value)}
+            onClick={() => !disabled && setOpen(true)}
+            onKeyDown={onKeyDown}
+            onBlur={(e) => {
+              // leaving the box (Tab, a click elsewhere) closes the list; a click on a row keeps the focus here
+              const to = e.relatedTarget as Node | null;
+              if (!to || !refs.floating.current?.contains(to)) setOpen(false);
+            }}
+          />
+          <div className="ui-ac-indicators">
+            {clearable && !disabled && (multi
+              ? selected.some((v) => !locked(v)) && (
+                  // the picks but the locked ones go, and the search with them
                   <button
                     type="button"
-                    className="ui-ac-chip-x"
-                    aria-label={`Remove ${o.label}`}
-                    title="Remove"
-                    onClick={() => emitMany(selected.filter((x) => x !== v), "remove")}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: 0,
-                      border: 0,
-                      background: "transparent",
-                      color: "var(--c-muted)",
-                      cursor: "pointer",
+                    className="ui-iconbtn sm"
+                    aria-label="Clear"
+                    title="Clear"
+                    onClick={() => {
+                      emitMany(selected.filter(locked), "clear");
+                      if (text) searchCleared();
                     }}
                   >
-                    <X style={{ width: "1em", height: "1em" }} />
+                    <X />
                   </button>
-                )}
-              </span>
-            );
-          })}
+                )
+              : selected.length > 0 && (
+                  <button
+                    type="button"
+                    className="ui-iconbtn sm"
+                    aria-label="Clear"
+                    title="Clear"
+                    onClick={() => {
+                      props.onChange(null, null);
+                      setQuery(null);
+                      onInputChange?.("");
+                      onInputValueChange?.("");
+                      onSearchChange?.("");
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    <X />
+                  </button>
+                ))}
+            <button
+              type="button"
+              className="ui-iconbtn sm"
+              aria-label="Open"
+              title="Open"
+              tabIndex={-1}
+              disabled={disabled}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setOpen(!open);
+                inputRef.current?.focus();
+              }}
+            >
+              <ChevronDown />
+            </button>
+          </div>
         </div>
-      )}
-      <Portal>
-        <Combobox.Positioner className="ui-ac-positioner">
-          <Combobox.Content className="ui-pop ui-ac-pop" style={{ width: "var(--reference-width, 100%)", maxWidth: "var(--reference-width, 100%)", boxSizing: "border-box" }}>
-            <Combobox.Empty className="ui-muted ui-ac-empty">{loading ? "Searching…" : emptyText}</Combobox.Empty>
-            {grouped
-              ? collection.group().map(([g, rows]) => (
-                  <Combobox.ItemGroup key={g || "_"} className="ui-ac-group">
-                    {g && <Combobox.ItemGroupLabel className="group-title ui-ac-group-label">{g}</Combobox.ItemGroupLabel>}
-                    {rows.map(row)}
-                  </Combobox.ItemGroup>
+        {multi && selected.length > 0 && (
+          <div className="ui-ac-chips" style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4, minWidth: 0 }}>
+            {selected.map((v) => {
+              const o = optionOf(v);
+              const fixed = disabled || locked(v);
+              return (
+                <span
+                  key={v}
+                  className="ui-chip ui-ac-chip"
+                  title={o.hint ? `${o.label} · ${o.hint}` : o.label}
+                  style={{ maxWidth: "100%", color: "var(--c-text)", paddingRight: fixed ? undefined : 2 }}
+                >
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{o.label}</span>
+                  {!fixed && (
+                    <button
+                      type="button"
+                      className="ui-ac-chip-x"
+                      aria-label={`Remove ${o.label}`}
+                      title="Remove"
+                      onClick={() => emitMany(selected.filter((x) => x !== v), "remove")}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                        border: 0,
+                        background: "transparent",
+                        color: "var(--c-muted)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <X style={{ width: "1em", height: "1em" }} />
+                    </button>
+                  )}
+                </span>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            id={listId}
+            role="listbox"
+            aria-multiselectable={multi || undefined}
+            className={`ui-pop ui-ac-pop${compact ? " compact" : ""}`}
+            style={{ ...floatingStyles, zIndex: LAYER_Z, maxWidth: "var(--reference-width, 100%)", boxSizing: "border-box" }}
+            {...getFloatingProps()}
+          >
+            {flat.length === 0 && (
+              <div className="ui-muted ui-ac-empty">{loading ? "Searching…" : emptyText}</div>
+            )}
+            {groups
+              ? groups.map(([g, rs]) => (
+                  <div key={g || "_"} role="group" className="ui-ac-group">
+                    {g && <div className="group-title ui-ac-group-label">{g}</div>}
+                    {rs.map(row)}
+                  </div>
                 ))
-              : items.map(row)}
-          </Combobox.Content>
-        </Combobox.Positioner>
-      </Portal>
-    </Combobox.Root>
+              : flat.map(row)}
+          </div>
+        </FloatingPortal>
+      )}
+    </FloatingNode>
   );
 }
